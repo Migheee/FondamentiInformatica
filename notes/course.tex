@@ -740,9 +740,9 @@
     Una funzione $f \colon \mathbb{N} \to \mathbb{N}$ pu\`o essere vista come un \emph{insieme
     di coppie} in $\mathbb{N} \times \mathbb{N}$:
     \begin{equation*}
-        f(2) = 3 \;\leadsto\; (2, 3) \qquad\qquad
-        f(3) = 5 \;\leadsto\; (3, 5) \qquad\qquad
-        \dots
+        f(2) = 3 \;\mapsto\; (2, 3) \qquad
+        f(3) = 5 \;\mapsto\; (3, 5) \qquad
+        f(7) = 9 \;\mapsto\; (7, 9) \qquad
     \end{equation*}
 
     \begin{esempio}
@@ -828,18 +828,18 @@
     \section{Quanti algoritmi esistono?}
     Sia $\Sigma$ un \emph{alfabeto}, ovvero un insieme finito e non vuoto di simboli: quelli
     utilizzati per scrivere programmi e algoritmi. Un \emph{programma} \`e una
-    \emph{stringa} (sequenza di simboli) su $\Sigma$, quindi\footnote{Non tutte le stringhe
-    sono programmi corretti, quindi a rigore $|\text{Programmi}| \leq |\Sigma^*|$; poich\'e
-    per\`o i programmi sono infiniti, le due cardinalit\`a coincidono.}
+    \emph{stringa} (sequenza di simboli) su $\Sigma$, quindi
     \begin{equation*}
         |\text{Programmi}| = |\text{stringhe su } \Sigma| = |\Sigma^*|,
     \end{equation*}
-    ovvero esistono tanti programmi quante sono le stringhe su $\Sigma$. $\Sigma^*$ \`e
+    Dove $^*$ \`e la \emph{chiusura di Kleene}, ovvero l'insieme di tutte le stringhe ottenute
+    combinando $0$ o pi\`u volte gli elementi di $\Sigma$.\\ $\Sigma^*$ \`e, invece, 
     l'insieme delle stringhe \emph{finite} su $\Sigma$, ad esempio:
     \begin{equation*}
         \underbrace{\Sigma = \{a, b\}}_{\text{finito}}
         \qquad\qquad
-        \underbrace{\Sigma^* = \{\varepsilon, a, b, aa, ab, ba, bb, aaa, \dots\}}_{\text{infinito}}
+        \underbrace{\Sigma^* = \{\varepsilon, a, b, aa, ab, ba, bb, aaa, \dots\}}_
+        {\text{infinito}}
     \end{equation*}
     dove $\varepsilon$ \`e la \emph{stringa vuota}.
 
@@ -848,7 +848,7 @@
     sufficiente numerarli secondo tale ordine. Quindi $\Sigma^*$ \`e numerabile,
     $|\Sigma^*| = |\mathbb{N}|$, e
     \begin{equation*}
-        |\text{Programmi}| = |\mathbb{N}|.
+        |\text{Programmi}| = |\Sigma^*| = |\mathbb{N}|.
     \end{equation*}
 
     \section{Il teorema di Cantor}
