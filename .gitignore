@@ -1,0 +1,7 @@
+*
+!*/
+lessons/
+powerpoint/
+!*.pdf
+!*.tex
+!.gitignore

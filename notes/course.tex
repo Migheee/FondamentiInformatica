@@ -1,0 +1,996 @@
+\documentclass[a4paper, 11pt, oneside]{book}
+
+\usepackage{fontspec}
+\usepackage[margin=3.25cm]{geometry}
+\usepackage[italian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{XCharter}
+\usepackage[xcharter]{newtxmath}
+\usepackage[hidelinks]{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{needspace}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{caption}
+
+\hypersetup{
+    pdftitle={Fondamenti dell'Informatica},
+    pdfauthor={Michele Castenedoli}
+}
+
+\setcounter{tocdepth}{1}
+\setlength{\skip\footins}{15pt plus 4pt minus 2pt}
+\usetikzlibrary{positioning, fit, arrows.meta, backgrounds, matrix}
+\defaultfontfeatures{}
+\setmonofont{JetBrainsMono Nerd Font}[
+    Scale=MatchLowercase, Contextuals=Alternate
+]
+
+% Elenchi compatti, con punto grigio
+\setlist[itemize]{nosep, leftmargin=2em, topsep=3pt, partopsep=0pt,
+    label=\textcolor{black!50}{\small\textbullet}}
+\setlist[enumerate]{nosep, leftmargin=2em, topsep=3pt, partopsep=0pt}
+
+% Evita righe isolate a inizio o fine pagina
+\widowpenalty=10000
+\clubpenalty=10000
+
+% Colori delle figure: solo grigi, per la stampa in bianco e nero
+\colorlet{evidenza}{black!70}
+\colorlet{tenue}{black!8}
+
+% Capitoli: numero grande in grigio, barra verticale e titolo in maiuscoletto
+\newcommand{\numerocapitolo}{\fontsize{60}{60}\selectfont}
+\titleformat{\chapter}[block]
+    {\normalfont\LARGE}
+    {{\color{black!45}\numerocapitolo\thechapter}\hspace{12pt}\vline}
+    {12pt}
+    {\scshape}
+\titleformat{name=\chapter, numberless}[block]
+    {\normalfont\LARGE\scshape}{}{0pt}{}
+\titlespacing*{\chapter}{0pt}{50pt}{45pt}
+\titleformat{\section}
+    {\normalfont\Large\scshape}{\thesection}{1em}{}
+\titleformat{\subsection}
+    {\normalfont\large\itshape}{\thesubsection}{1em}{}
+
+% Numerazione sempre preceduta dal capitolo, anche nel Capitolo 0
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
+
+% Indice: capitoli in maiuscoletto con il numero di pagina in grassetto
+\titlecontents{chapter}[1.5em]{\addvspace{1em}}
+    {\contentslabel{1.5em}\scshape}{\hspace*{-1.5em}\scshape}
+    {\hfill\bfseries\contentspage}
+
+% Intestazione senza riga: sezione corrente a sinistra, pagina a destra
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter\enspace #1}{\thechapter\enspace #1}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\enspace #1}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scshape\rightmark}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{14pt}
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}}
+
+% Didascalie: etichetta in maiuscoletto, testo in corsivo
+\captionsetup{font=small, labelfont=sc, textfont=it, labelsep=quad, skip=8pt}
+
+% Enunciati: intestazione in maiuscoletto e testo in corsivo, senza riquadri
+\newtheoremstyle{formale}
+    {\topsep}% spazio sopra
+    {\topsep}% spazio sotto
+    {\itshape}% corpo
+    {}% rientro
+    {\scshape}% intestazione
+    {.}% punto dopo l'intestazione
+    {0.5em}% spazio dopo l'intestazione
+    {\thmname{#1}\thmnumber{ #2}\thmnote{ {\normalfont(#3)}}}
+\theoremstyle{formale}
+\newtheorem{theorem}{Teorema}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollario}
+\newtheorem*{definition}{Definizione}
+
+% Esempi: intestazione in corsivo, chiusi da un rombo
+\newenvironment{esempio}
+    {\begin{proof}[\textit{Esempio}]\renewcommand{\qedsymbol}{$\diamond$}}
+    {\end{proof}}
+
+% Evita che l'intestazione di un enunciato resti isolata in fondo alla pagina
+\AddToHook{env/definition/before}{\needspace{5\baselineskip}}
+\AddToHook{env/theorem/before}{\needspace{5\baselineskip}}
+\AddToHook{env/esempio/before}{\needspace{4\baselineskip}}
+
+\definecolor{codeborder}{HTML}{707070}
+\definecolor{codeback}{HTML}{F0F0F0}
+\definecolor{codekeyword}{HTML}{1F3FA8}
+\definecolor{codecomment}{HTML}{6A737D}
+\definecolor{codestring}{HTML}{A31515}
+
+\lstdefinelanguage{pseudo}{
+    morekeywords={
+        function, end, returns, return, if, then, else,
+        while, do, for, to, each, in, loop, repeat, until,
+        persistent, static, local, and, or, not,
+        true, false, null, failure
+    },
+    sensitive=true,
+    alsoletter={-},
+    morecomment=[l]{//},
+    morestring=[b]"
+}
+
+\newcounter{escount}[section]
+\newcommand{\esercizio}{
+    \needspace{8\baselineskip}% Evita il titolo isolato a fondo pagina
+    \stepcounter{escount}% Incrementa il contatore di 1
+    \subsection*{Esercizio \arabic{escount}}% Genera il titolo non numerato nativamente
+}
+
+% Testo dell'esercizio, evidenziato rispetto alla soluzione
+\newtcolorbox{enunciato}{
+    enhanced,
+    breakable,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=2pt,
+    colframe=codekeyword,
+    colback=codekeyword!5,
+    before skip=6pt,
+    after skip=10pt,
+    left=8pt,
+    right=8pt
+}
+
+
+% Titolo di una (parte di) dimostrazione, su una riga a s\'e
+\newcommand{\dimostrazione}[1]{
+    \par\needspace{4\baselineskip}\medskip
+    \noindent\textbf{Dimostrazione #1}\par
+}
+
+
+\newtcblisting{codice}[1][Codice]{
+    breakable,
+    enhanced,
+    sharp corners,
+    boxrule=0.6pt,
+    colframe=codeborder,
+    colback=codeback,
+    title=#1,
+    fonttitle=\bfseries,
+    coltitle=codeborder,
+    attach title to upper={\par\smallskip},
+    before skip=12pt,
+    after skip=12pt,
+    boxsep=4pt,
+    left=4pt,
+    right=4pt,
+    grow to left by=1cm,
+    grow to right by=1cm,
+    listing only,
+    listing options={
+        language=pseudo,
+        basicstyle=\ttfamily\footnotesize,
+        keywordstyle=\color{codekeyword}\bfseries,
+        commentstyle=\color{codecomment}\itshape,
+        stringstyle=\color{codestring},
+        breaklines=true,
+        breakatwhitespace=true,
+        breakautoindent=true,
+        breakindent=2em,
+        postbreak=\mbox{\textcolor{codecomment}{$\hookrightarrow$}\space},
+        tabsize=4,
+        columns=fullflexible,
+        keepspaces=true,
+        literate={<-}{{←}}1 {->}{{→}}1 {<=}{{≤}}1 {>=}{{≥}}1 {!=}{{≠}}1
+    }
+}
+
+\title{Fondamenti dell'Informatica}
+\author{Michele Castenedoli}
+\date{13 ottobre 2026}
+
+\begin{document}
+    \begin{titlepage}
+        \centering
+        \vspace*{0.3\textheight}
+        {\LARGE\scshape Fondamenti dell'Informatica\par}
+        \vspace{1em}
+        {\large Appunti di Michele Castenedoli\par}
+        \vfill
+        {13 ottobre 2026\par}
+    \end{titlepage}
+
+    \frontmatter
+    \tableofcontents
+
+    \mainmatter
+    \setcounter{chapter}{-1}% Il primo capitolo \`e il Capitolo 0
+    \chapter{Prerequisiti Matematici}
+    \section{Basi di Logica}
+    \subsection{Linguaggio del Primo Ordine}
+    Un \emph{linguaggio del primo ordine} \`e formato da quattro tipi di simboli:
+    \begin{enumerate}
+        \item \textsc{Simboli di relazione}, indicati con le metavariabili $p, q, r$;
+        \item \textsc{Simboli di funzione}, indicati con le metavariabili $f, g, h$;
+        \item \textsc{Simboli di costante}, indicati con le metavariabili $c, d$;
+        \item \textsc{Simboli logici}:
+            \begin{itemize}
+                \item le parentesi $($ e $)$ e la virgola;
+                \item un insieme numerabile di \emph{variabili}, indicate con le
+                    metavariabili $x, y, v$;
+                \item i \emph{connettivi logici} e i \emph{quantificatori} 
+                    $(\land, \lor, \lnot, \implies \iff, \forall, \exists)$;
+                \item il simbolo $\bot$, che indica il falso.
+            \end{itemize}
+    \end{enumerate}
+    I simboli di relazione e di funzione hanno ciascuno la propria \emph{arit\`a}, ovvero
+    il numero di argomenti.
+
+    A partire da questi simboli si costruiscono, in ordine, i termini, le formule atomiche
+    e le formule.
+
+    \begin{definition}[Termine]
+        I \emph{termini} sono definiti per induzione:
+        \begin{enumerate}
+            \item ogni variabile \`e un termine;
+            \item ogni costante \`e un termine;
+            \item se $f$ \`e un simbolo di funzione $n$-ario e $t_1, \dots, t_n$ sono
+                termini, allora $f(t_1, \dots, t_n)$ \`e un termine.
+        \end{enumerate}
+    \end{definition}
+
+    \begin{definition}[Formula atomica]
+        Le \emph{formule atomiche} sono:
+        \begin{enumerate}
+            \item $p(t_1, \dots, t_n)$, se $p$ \`e un simbolo di relazione $n$-ario e
+                $t_1, \dots, t_n$ sono termini;
+            \item il simbolo $\bot$.
+        \end{enumerate}
+    \end{definition}
+
+    \begin{definition}[Formula]
+        Le \emph{formule} sono definite per induzione:
+        \begin{enumerate}
+            \item ogni formula atomica \`e una formula;
+            \item se $\phi$ \`e una formula, allora $\neg \phi$ \`e una formula;
+            \item se $\phi$ e $\psi$ sono formule, allora $\phi \circ \psi$ \`e una formula,
+                con $\circ \in \{\land, \lor, \implies, \iff\}$;
+            \item se $\phi$ \`e una formula e $x$ \`e una variabile, allora
+                $\forall x \, (\phi)$ e $\exists x \, (\phi)$ sono formule.
+        \end{enumerate}
+    \end{definition}
+
+    \subsection{Equivalenze}
+    Si scrive $\phi \equiv \psi$ quando le formule $\phi$ e $\psi$ sono
+    \emph{equivalenti}, ovvero assumono sempre lo stesso valore di verit\`a.
+
+    Due negazioni consecutive si annullano (\emph{doppia negazione}):
+    \begin{equation*}
+        \neg (\neg \phi) \equiv \phi.
+    \end{equation*}
+    Le \emph{leggi di De Morgan} descrivono la negazione di una congiunzione e di una
+    disgiunzione:
+    \begin{equation*}
+        \neg (\phi \land \psi) \equiv (\neg \phi) \lor (\neg \psi),
+        \qquad\qquad
+        \neg (\phi \lor \psi) \equiv (\neg \phi) \land (\neg \psi).
+    \end{equation*}
+    Un'\emph{implicazione} pu\`o essere riscritta come disgiunzione, oppure come la sua
+    \emph{contronominale} (l'ultima forma):
+    \begin{equation*}
+        (\phi \implies \psi)
+        \equiv (\neg \phi) \lor \psi
+        \equiv \bigl((\neg \psi) \implies (\neg \phi)\bigr).
+    \end{equation*}
+    Infine, la \emph{negazione di un quantificatore} si ottiene scambiandolo con l'altro e
+    negando la formula:
+    \begin{equation*}
+        \neg \bigl(\exists x \, (\phi)\bigr) \equiv \forall x \, (\neg \phi),
+        \qquad\qquad
+        \neg \bigl(\forall x \, (\phi)\bigr) \equiv \exists x \, (\neg \phi).
+    \end{equation*}
+
+    \subsection{Abbreviazioni}
+    Per i quantificatori ristretti agli elementi di un insieme $S$ si adottano le seguenti
+    abbreviazioni:
+    \begin{align*}
+        (\exists x \in S.\; \phi) &\equiv \exists x \, (x \in S \land \phi), \\
+        (\forall x \in S.\; \phi) &\equiv \forall x \, (x \in S \implies \phi),
+    \end{align*}
+    dove il punto si legge \emph{tale che}.
+
+    \section{Insiemistica}
+    \subsection{Definizione e Rappresentazione}
+    Un \emph{insieme} \`e una collezione di elementi senza ripetizioni. Esso pu\`o essere
+    rappresentato in due modi. La rappresentazione \emph{intensionale} descrive gli
+    elementi attraverso una loro caratteristica: ad esempio
+    \begin{equation*}
+        \{x \mid p(x)\}
+    \end{equation*}
+    \`e l'insieme di tutti gli elementi $x$ che rendono vero il predicato $p$. La
+    rappresentazione \emph{estensionale}, invece, elenca tutti gli elementi
+    dell'insieme, come in $\{1, 2, 3\}$.
+
+    Un'altra definizione fondamentale per il resto del corso \`e quella di sottoinsieme.
+
+    \begin{definition}[Sottoinsieme]
+        $A \subseteq B$, ovvero $A$ \`e un \emph{sottoinsieme} di $B$, se ogni elemento di
+        $A$ appartiene anche a $B$. $A$ \`e invece un \emph{sottoinsieme proprio} di $B$,
+        $A \subset B$, se in pi\`u $B$ contiene almeno un elemento che non appartiene ad $A$:
+        \begin{gather*}
+            A \subseteq B \iff \forall x \, (x \in A \implies x \in B), \\
+            A \subset B \iff A \subseteq B \land \exists x \in B.\; x \notin A.
+        \end{gather*}
+    \end{definition}
+
+    \subsection{Operazioni tra Insiemi}
+    Le operazioni classiche tra insiemi sono:
+    \begin{itemize}
+        \item \textsc{Unione}: $A \cup B = \{x \mid x \in A \lor x \in B\}$;
+        \item \textsc{Intersezione}: $A \cap B = \{x \mid x \in A \land x \in B\}$;
+        \item \textsc{Differenza}: $A \setminus B = \{x \mid x \in A \land x \notin B\}$;
+        \item \textsc{Complemento}: $\overline{A} = \{x \in U \mid x \notin A\}$, dove $U$
+            \`e l'\emph{insieme universo}, che contiene tutti gli elementi considerati.
+    \end{itemize}
+    Per ogni $x \in U$ vale quindi $x \in A \iff x \notin \overline{A}$ e, analogamente,
+    $x \in \overline{A} \iff x \notin A$.
+
+    \subsection{Relazioni}
+    Per definire le relazioni \`e necessario il \emph{prodotto cartesiano}. Dati gli insiemi
+    $A_1, A_2, \dots, A_n$, il loro prodotto cartesiano \`e definito come mostrato nella
+    Figura~\ref{fig:prodotto}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            every node/.style={inner sep=0pt, outer sep=0pt},
+            freccia/.style={-{Stealth}, evidenza, thick, shorten <=5pt, shorten >=5pt}
+        ]
+            \node (A1) {$A_1$};
+            \node[base right=2.5pt of A1] (p1) {$\times$};
+            \node[base right=2.5pt of p1] (A2) {$A_2$};
+            \node[base right=2.5pt of A2] (p2) {$\times \dots \times$};
+            \node[base right=2.5pt of p2] (An) {$A_n$};
+            \node[base right=3pt of An] (uguale) {$= \{\, \langle$};
+            \node[base right=0.5pt of uguale] (x1) {$x_1$};
+            \node[base right=0pt of x1] (v1) {$,$};
+            \node[base right=2pt of v1] (x2) {$x_2$};
+            \node[base right=0pt of x2] (v2) {$, \dots,$};
+            \node[base right=2pt of v2] (xn) {$x_n$};
+            \node[base right=0.5pt of xn] {$\rangle \mid \forall i.\; x_i \in A_i \,\}$};
+
+            \draw[freccia] (A1.south) to[bend right=35] (x1.south);
+            \draw[freccia] (A2.north) to[bend left=30] (x2.north);
+            \draw[freccia] (An.south) to[bend right=25] (xn.south);
+        \end{tikzpicture}
+        \caption{Prodotto cartesiano: la componente $x_i$ di ogni tupla appartiene
+            all'insieme $A_i$.}
+        \label{fig:prodotto}
+    \end{figure}
+
+    Gli elementi del prodotto cartesiano sono le \emph{tuple}
+    $\langle x_1, x_2, \dots, x_n \rangle$, in cui la componente $i$-esima $x_i$ appartiene
+    all'insieme $A_i$. A differenza degli insiemi, nelle tuple l'ordine \`e rilevante e gli
+    elementi possono ripetersi: $\langle 1, 2 \rangle \neq \langle 2, 1 \rangle$, mentre
+    $\{1, 2\} = \{2, 1\}$.
+
+    \begin{definition}[Relazione binaria]
+        Dati due insiemi $A$ e $B$, una \emph{relazione binaria} tra $A$ e $B$ \`e un
+        sottoinsieme del loro prodotto cartesiano:
+        \begin{equation*}
+            R \subseteq A \times B.
+        \end{equation*}
+        Se $x_1 \in A$ e $x_2 \in B$ sono in relazione si scrive
+        \begin{equation*}
+            x_1 \mathrel{R} x_2 \qquad \text{oppure} \qquad (x_1, x_2) \in R.
+        \end{equation*}
+    \end{definition}
+    Le coppie, ovvero le tuple di due elementi, si indicano anche con le parentesi tonde.
+
+    \subsection{Propriet\`a delle Relazioni}
+    Le propriet\`a seguenti riguardano le relazioni su un insieme $S$, ovvero
+    $R \subseteq S \times S$.
+
+    \begin{definition}[Relazione riflessiva]
+        Una relazione $R$ \`e \emph{riflessiva} se ogni elemento \`e in relazione con se
+        stesso:
+        \begin{equation*}
+            \forall x \in S.\; x \mathrel{R} x.
+        \end{equation*}
+    \end{definition}
+
+    \begin{esempio}
+        La relazione $\subseteq$ tra insiemi \`e riflessiva, poich\'e ogni insieme \`e
+        sottoinsieme di se stesso:
+        \begin{equation*}
+            \{1, 2, 5, 8\} \subseteq \{1, 2, 5, 8\}.
+        \end{equation*}
+        La riflessivit\`a deriva dal fatto che il simbolo $\subseteq$ ammette l'uguaglianza;
+        il sottoinsieme proprio $\subset$, invece, non \`e riflessivo, poich\'e nessun insieme
+        \`e sottoinsieme proprio di se stesso.
+    \end{esempio}
+
+    \begin{definition}[Relazione simmetrica]
+        Una relazione $R$ \`e \emph{simmetrica} se la posizione degli elementi nella
+        relazione non \`e rilevante:
+        \begin{equation*}
+            \forall x, y \in S.\; x \mathrel{R} y \implies y \mathrel{R} x.
+        \end{equation*}
+    \end{definition}
+
+    \begin{esempio}
+        L'uguaglianza tra insiemi \`e simmetrica: se $A = B$, allora anche $B = A$.
+        \begin{equation*}
+            \underbrace{\{2, 5, 10\}}_{A} = \underbrace{\{2, 5, 10\}}_{B}
+        \end{equation*}
+        La relazione $\subseteq$, invece, non \`e simmetrica: $\{1\} \subseteq \{1, 2\}$, ma
+        $\{1, 2\} \not\subseteq \{1\}$.
+    \end{esempio}
+
+    \begin{definition}[Relazione transitiva]
+        Una relazione $R$ \`e \emph{transitiva} se
+        \begin{equation*}
+            \forall x, y, z \in S.\; x \mathrel{R} y \land y \mathrel{R} z \implies
+            x \mathrel{R} z.
+        \end{equation*}
+    \end{definition}
+    In altri termini, se $x$ \`e in relazione con $y$ e $y$ \`e in relazione con $z$, allora
+    anche $x$ \`e in relazione con $z$, come illustrato nella Figura~\ref{fig:transitiva}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            punto/.style={circle, fill, inner sep=1.3pt},
+            freccia/.style={-{Stealth}, thick, shorten <=2pt, shorten >=2pt}
+        ]
+            \node[punto, label=below:$x$] (x) at (0, 0) {};
+            \node[punto, label=below:$y$] (y) at (2, 0) {};
+            \node[punto, label=below:$z$] (z) at (4, 0) {};
+            \draw[freccia] (x) -- node[below] {$R$} (y);
+            \draw[freccia] (y) -- node[below] {$R$} (z);
+            \draw[freccia, evidenza, dashed] (x) to[bend left=35]
+                node[above] {$x \mathrel{R} z$} (z);
+        \end{tikzpicture}
+        \caption{Relazione transitiva: da $x \mathrel{R} y$ e $y \mathrel{R} z$ segue
+            $x \mathrel{R} z$.}
+        \label{fig:transitiva}
+    \end{figure}
+
+    \begin{definition}[Chiusura transitiva]
+        La \emph{chiusura transitiva} di una relazione $R \subseteq S \times S$ \`e la
+        relazione $R^*$ definita come il pi\`u piccolo insieme $R^* \supseteq R$ tale che
+        $R^*$ sia transitiva: essa si ottiene aggiungendo a $R$ le sole coppie necessarie a
+        renderla transitiva.
+    \end{definition}
+
+    \begin{esempio}
+        Se $R = \{(1, 2), (2, 3)\}$, allora
+        \begin{equation*}
+            R^* = \{(1, 2), (2, 3), (1, 3)\},
+        \end{equation*}
+        dove la coppia $(1, 3)$ \`e necessaria poich\'e $1 \mathrel{R} 2$ e
+        $2 \mathrel{R} 3$.
+    \end{esempio}
+
+    \begin{definition}[Relazione antisimmetrica]
+        Una relazione $R$ \`e \emph{antisimmetrica} se
+        \begin{equation*}
+            \forall x, y \in S.\; x \mathrel{R} y \land y \mathrel{R} x \implies x = y.
+        \end{equation*}
+    \end{definition}
+    In altri termini, elementi diversi non possono essere scambiati nella relazione: se
+    $x \neq y$ e $x \mathrel{R} y$, allora non pu\`o valere $y \mathrel{R} x$.
+
+    \begin{esempio}
+        La relazione $\subseteq$ \`e antisimmetrica, poich\'e $A \subseteq B$ e
+        $B \subseteq A$ implicano insieme $A = B$.
+    \end{esempio}
+
+    \newpage
+    \subsection{Tipologie di Relazione}
+    \begin{definition}[Tipi di relazione]
+        I tipi classici di relazione $R \subseteq S \times S$ sono:
+        \begin{itemize}
+            \item \textsc{Equivalenza}: $R$ \`e riflessiva, simmetrica e transitiva.
+            \item \textsc{Pre-ordine}: $R$ \`e riflessiva e transitiva. Si tratta di un
+                ordinamento molto debole, poich\'e manca l'antisimmetria: elementi diversi
+                possono essere in relazione in entrambi i versi.
+            \item \textsc{Ordine parziale}: $R$ \`e un pre-ordine antisimmetrico.
+                \emph{Parziale} significa che non tutti gli elementi sono in relazione tra
+                loro.
+            \item \textsc{Ordine totale}: $R$ \`e un ordine parziale in cui due elementi
+                qualsiasi sono sempre in relazione:
+                \begin{equation*}
+                    \forall x, y \in S.\; x \mathrel{R} y \lor y \mathrel{R} x.
+                \end{equation*}
+        \end{itemize}
+    \end{definition}
+
+    \begin{esempio}
+        La relazione $=$ \`e di equivalenza, $\subseteq$ \`e un ordine parziale ($\{1\}$ e
+        $\{2\}$ non sono in relazione in nessuno dei due versi) e $\leq$ sui numeri naturali
+        \`e un ordine totale.
+    \end{esempio}
+
+    \subsection{Elementi Minimali e Massimali}
+    Nel seguito una relazione d'ordine \`e indicata con $\leq$. La negazione di una relazione
+    si indica barrandone il simbolo: $y \not\leq x$ significa che $y \leq x$ non vale.
+
+    \begin{definition}[Elementi minimali e massimali]
+        Un elemento $x \in S$ \`e \emph{minimale} rispetto a $\leq$ in $S$ se nessun altro
+        elemento di $S$ \`e minore o uguale a $x$:
+        \begin{equation*}
+            \forall y \in S \setminus \{x\}.\; y \not\leq x.
+        \end{equation*}
+        Analogamente, $x \in S$ \`e \emph{massimale} rispetto a $\leq$ in $S$ se nessun
+        altro elemento di $S$ \`e maggiore o uguale a $x$:
+        \begin{equation*}
+            \forall y \in S \setminus \{x\}.\; x \not\leq y.
+        \end{equation*}
+    \end{definition}
+    In entrambe le definizioni \`e necessario escludere $y = x$: poich\'e $\leq$ \`e
+    riflessiva, vale sempre $x \leq x$, e la condizione $\forall y \in S.\; y \not\leq x$
+    non sarebbe mai soddisfatta.
+
+    Se l'elemento minimale \`e unico si chiama \emph{minimo}; se l'elemento massimale \`e
+    unico si chiama \emph{massimo}.\footnote{Questo vale per gli insiemi finiti. In
+    generale il minimo \`e l'elemento $x$ tale che $\forall y \in S.\; x \leq y$ e il massimo
+    \`e l'elemento $x$ tale che $\forall y \in S.\; y \leq x$; in un insieme infinito pu\`o
+    esistere un unico elemento massimale che non \`e il massimo.}
+
+    \begin{esempio}
+        In $S = \{\{1\}, \{2\}, \{1, 2\}\}$ con la relazione $\subseteq$, gli elementi
+        minimali sono $\{1\}$ e $\{2\}$, dunque non esiste un minimo, mentre l'unico elemento
+        massimale $\{1, 2\}$ \`e il massimo.
+    \end{esempio}
+
+    \subsection{Funzioni}
+    \begin{definition}[Funzione]
+        Una funzione \`e un caso particolare di relazione. Dati due insiemi $D$, il
+        \emph{dominio}, e $C$, il \emph{codominio}, una relazione
+        \begin{equation*}
+            f \subseteq D \times C
+        \end{equation*}
+        \`e una \emph{funzione} da $D$ a $C$, e si scrive $f \colon D \to C$, se
+        \begin{equation*}
+            \forall x \in D.\; \exists!\, y \in C \text{ tale che } f(x) = y.
+        \end{equation*}
+    \end{definition}
+    Qui $f(x) = y$ significa $(x, y) \in f$ e il simbolo $\exists!$ si legge \emph{esiste
+    un unico}. Equivalentemente, a ogni elemento del dominio corrisponde uno e un solo
+    elemento del codominio.
+
+    \begin{definition}[Immagine]
+        L'\emph{immagine} di $f$, $\operatorname{range}(f) \subseteq C$, \`e l'insieme dei
+        valori del codominio effettivamente assunti da $f$:
+        \begin{equation*}
+            \operatorname{range}(f)
+            = \{\, c \in C \mid \exists d \in D.\; f(d) = c \,\}
+            = \{\, f(d) \in C \mid d \in D \,\}.
+        \end{equation*}
+    \end{definition}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            punto/.style={circle, fill, inner sep=1.2pt},
+            freccia/.style={-{Stealth}, thick}
+        ]
+            \draw[thick] (0, 0) ellipse (1.1 and 1.5);
+            \node at (0, 1.85) {$D$};
+            \draw[thick] (5, 0) ellipse (1.3 and 1.5);
+            \node at (5, 1.85) {$C$};
+            \draw[thick, evidenza, fill=tenue] (4.85, -0.1) ellipse (0.65 and 0.8);
+
+            \node[punto] (d1) at (-0.2, 0.7) {};
+            \node[punto] (d2) at (0.3, -0.1) {};
+            \node[punto] (d3) at (-0.1, -0.8) {};
+            \node[punto] (c1) at (4.7, 0.3) {};
+            \node[punto] (c2) at (5.0, -0.5) {};
+            \node[punto] at (5.6, 1.0) {};
+
+            \draw[freccia] (d1) to[bend left=15] (c1);
+            \draw[freccia] (d2) to[bend left=10] (c1);
+            \draw[freccia] (d3) to[bend right=10] (c2);
+            \node at (2.3, 1.15) {$f$};
+
+            \node[evidenza, align=left, anchor=west] (range) at (6.7, -0.6)
+                {$\operatorname{range}(f)$\\immagine di $f$};
+            \draw[evidenza] (range.west) -- (5.45, -0.35);
+        \end{tikzpicture}
+        \caption{Una funzione $f \colon D \to C$ e la sua immagine
+            $\operatorname{range}(f)$.}
+        \label{fig:immagine}
+    \end{figure}
+
+    Nella Figura~\ref{fig:immagine} ogni elemento di $D$ \`e origine di esattamente una
+    freccia, come richiesto dalla definizione di funzione, mentre un elemento di $C$ pu\`o
+    esserne destinazione pi\`u volte oppure mai; in quest'ultimo caso non appartiene
+    all'immagine.
+
+    \begin{definition}[Funzione iniettiva]
+        Una funzione $f \colon D \to C$ \`e \emph{iniettiva} se elementi diversi del
+        dominio hanno sempre immagini diverse:
+        \begin{equation*}
+            \forall x, y \in D.\; f(x) = f(y) \implies x = y.
+        \end{equation*}
+    \end{definition}
+    Se $f$ \`e iniettiva, dunque, due elementi distinti del dominio non possono avere la
+    stessa immagine 
+
+    \begin{definition}[Funzione suriettiva]
+        Una funzione $f \colon D \to C$ \`e \emph{suriettiva} se ogni elemento del
+        codominio \`e raggiunto da almeno un elemento del dominio:
+        \begin{equation*}
+            \forall y \in C.\; \exists x \in D.\; f(x) = y,
+        \end{equation*}
+    \end{definition}
+
+    \begin{definition}[Funzione biettiva]
+        Una funzione \`e \emph{biettiva}, o \emph{biezione}, se \`e sia iniettiva sia
+        suriettiva: ogni elemento del codominio \`e raggiunto da \emph{esattamente un}
+        elemento del dominio.
+    \end{definition}
+    Due insiemi in biezione hanno la stessa cardinalit\`a.
+
+    \begin{definition}[Immagine inversa]
+        Data $f \colon D \to C$ e un sottoinsieme $Y \subseteq C$, l'\emph{immagine
+        inversa} di $Y$ \`e l'insieme degli elementi del dominio che $f$ manda in $Y$:
+        \begin{equation*}
+            f^{-1}(Y) = \{\, x \in D \mid f(x) \in Y \,\}.
+        \end{equation*}
+    \end{definition}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            punto/.style={circle, fill, inner sep=1.2pt},
+            freccia/.style={-{Stealth}, thick}
+        ]
+            \draw[thick] (0, 0) ellipse (1.3 and 1.5);
+            \node at (0, 1.85) {$D$};
+            \draw[thick] (5, 0) ellipse (1.3 and 1.5);
+            \node at (5, 1.85) {$C$};
+            \draw[thick, evidenza, fill=tenue] (0.2, 0.0) ellipse (0.6 and 0.72);
+            \node[evidenza] at (0.2, 1.05) {$f^{-1}(Y)$};
+            \draw[thick, evidenza, fill=tenue] (4.8, 0.1) ellipse (0.5 and 0.6);
+            \node[evidenza] at (4.8, 0.95) {$Y$};
+
+            \node[punto] (x1) at (0.1, 0.5) {};
+            \node[punto] (x2) at (0.4, 0.0) {};
+            \node[punto] (x3) at (0.1, -0.4) {};
+            \node[punto] (y1) at (4.7, 0.35) {};
+            \node[punto] (y2) at (4.9, -0.2) {};
+
+            \draw[freccia] (x1) to[bend left=10] (y1);
+            \draw[freccia] (x2) to (y1);
+            \draw[freccia] (x3) to[bend right=5] (y2);
+        \end{tikzpicture}
+        \caption{Immagine inversa $f^{-1}(Y)$ di un sottoinsieme $Y \subseteq C$.}
+        \label{fig:inversa}
+    \end{figure}
+
+    \chapter{Introduzione}
+    \section{Il problema dell'informatica}
+    Si consideri una generica funzione matematica $f \colon \mathbb{N} \to \mathbb{N}$. Il
+    problema di fondo dell'informatica consiste nello stabilire \emph{quali funzioni siano
+    calcolabili}.
+
+    \begin{definition}[Funzione calcolabile]
+        \begin{equation*}
+            f \text{ \`e \emph{calcolabile}} \iff \text{esiste un algoritmo che la calcola},
+        \end{equation*}
+        dove per \emph{algoritmo} si intende una sequenza finita di passi di calcolo.
+    \end{definition}
+    Una stessa funzione calcolabile pu\`o essere calcolata da pi\`u algoritmi diversi, come
+    illustrato nella Figura~\ref{fig:calcolabili}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            punto/.style={circle, fill, inner sep=1.3pt},
+            freccia/.style={-{Stealth}, thick, evidenza}
+        ]
+            % Tutte le funzioni da N in N
+            \draw[thick] (0, 0) rectangle (6, 3.6);
+            \node[anchor=north west] at (0, 3.6) {$f \colon \mathbb{N} \to \mathbb{N}$};
+
+            % Funzioni calcolabili
+            \draw[thick, evidenza, fill=tenue] (4.2, 0.3) rectangle (5.7, 1.7);
+            \node[evidenza, font=\footnotesize, align=center, anchor=south]
+                at (4.95, 1.7) {funzioni\\calcolabili};
+            \node[punto] (f1) at (4.6, 0.8) {};
+            \node[punto] (f2) at (5.3, 1.2) {};
+
+            % Algoritmi
+            \draw[thick, evidenza] (7.8, 0) rectangle (10.2, 2.6);
+            \node[evidenza, anchor=south] at (9, 2.6) {Algoritmi};
+            \node[punto] (a1) at (8.4, 0.6) {};
+            \node[punto] (a2) at (8.8, 1.9) {};
+            \node[punto] (a3) at (9.6, 1.1) {};
+
+            \draw[freccia] (f1) to[bend right=25] (a1);
+            \draw[freccia] (f1) to[bend left=10] (a3);
+            \draw[freccia] (f2) to[bend left=20] (a2);
+        \end{tikzpicture}
+        \caption{Le funzioni calcolabili sono quelle per cui esiste almeno un algoritmo che
+            le calcola.}
+        \label{fig:calcolabili}
+    \end{figure}
+
+    Per stabilire se tutte le funzioni siano calcolabili, si confronta la cardinalit\`a
+    dell'insieme delle funzioni con quella dell'insieme degli algoritmi.
+
+    \section{Quante funzioni esistono?}
+    Una funzione $f \colon \mathbb{N} \to \mathbb{N}$ pu\`o essere vista come un \emph{insieme
+    di coppie} in $\mathbb{N} \times \mathbb{N}$:
+    \begin{equation*}
+        f(2) = 3 \;\leadsto\; (2, 3) \qquad\qquad
+        f(3) = 5 \;\leadsto\; (3, 5) \qquad\qquad
+        \dots
+    \end{equation*}
+
+    \begin{esempio}
+        Una funzione \`e un insieme infinito di coppie, come
+        \begin{equation*}
+            \{(0, 3), (1, 5), (2, 2), (3, 100), (4, 1000), (5, 20), (6, 2), \dots\},
+        \end{equation*}
+        in cui ogni numero naturale compare come primo elemento di \emph{esattamente una}
+        coppia: non \`e possibile aggiungere un'altra coppia con primo elemento $2$,
+        poich\'e $f(2)$ \`e gi\`a fissato.
+    \end{esempio}
+
+    Pertanto
+    \begin{equation*}
+        f \subseteq \mathbb{N} \times \mathbb{N}
+        \iff
+        f \in \mathcal{P}(\mathbb{N} \times \mathbb{N}),
+    \end{equation*}
+    dove $\mathcal{P}(X)$ \`e l'\emph{insieme delle parti} di $X$, ovvero l'insieme di tutti
+    i suoi sottoinsiemi. Le funzioni da $\mathbb{N}$ in $\mathbb{N}$ sono quindi elementi di
+    $\mathcal{P}(\mathbb{N} \times \mathbb{N})$.
+
+    \subsection{\texorpdfstring{$\mathbb{N} \times \mathbb{N}$}{N x N} \`e numerabile}
+    Vale $|\mathbb{N} \times \mathbb{N}| = |\mathbb{N}|$. Le seguenti affermazioni sono
+    equivalenti:
+    \begin{itemize}
+        \item la cardinalit\`a di $\mathbb{N} \times \mathbb{N}$ \`e uguale a quella di
+            $\mathbb{N}$;
+        \item l'insieme $\mathbb{N} \times \mathbb{N}$ \`e \emph{numerabile};
+        \item esiste una \emph{biezione} (mappatura univoca) tra
+            $\mathbb{N} \times \mathbb{N}$ e $\mathbb{N}$.
+    \end{itemize}
+    Infatti, le coppie possono essere ordinate e numerate percorrendole per
+    diagonali\footnote{Non \`e invece possibile numerare le coppie riga per riga,
+    $(0, 0) \mapsto 0$, $(0, 1) \mapsto 1$, $(0, 2) \mapsto 2$, \dots: la riga delle coppie
+    che iniziano con $0$ \`e infinita, quindi la coppia $(1, 0)$ non riceverebbe mai un
+    numero.} (Figura~\ref{fig:diagonali}):
+    \begin{equation*}
+        (0, 0) \mapsto 0 \quad
+        (0, 1) \mapsto 1 \quad
+        (1, 0) \mapsto 2 \quad
+        (0, 2) \mapsto 3 \quad
+        (1, 1) \mapsto 4 \quad
+        (2, 0) \mapsto 5 \quad
+        \dots
+    \end{equation*}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[x=1.6cm, y=1.1cm]
+            % Coppia (x, y) in colonna y e riga x, col suo numero d'ordine
+            \foreach \x in {0,...,3} {
+                \foreach \y in {0,...,3} {
+                    \ifnum\numexpr\x+\y\relax<4
+                        \pgfmathtruncatemacro{\n}{(\x+\y)*(\x+\y+1)/2+\x}
+                        \node[fill=white, inner sep=2pt] (p\x\y) at (\y, -\x) {$(\x, \y)$};
+                        \node[evidenza, font=\scriptsize, anchor=south east, inner sep=1pt]
+                            at (p\x\y.north west) {\n};
+                    \fi
+                }
+            }
+            \node at (4, 0) {$\cdots$};
+            \node at (0, -4) {$\vdots$};
+
+            \begin{scope}[on background layer]
+                \foreach \d in {1, 2, 3}
+                    \draw[-{Stealth}, black!55] (p0\d) -- (p\d0);
+            \end{scope}
+        \end{tikzpicture}
+        \caption{Enumerazione delle coppie di $\mathbb{N} \times \mathbb{N}$ per diagonali.}
+        \label{fig:diagonali}
+    \end{figure}
+
+    Poich\'e $\mathbb{N} \times \mathbb{N}$ e $\mathbb{N}$ sono in biezione, lo sono anche i
+    loro insiemi delle parti. Quindi
+    \begin{equation*}
+        |\{f \mid f \colon \mathbb{N} \to \mathbb{N}\}|
+        = |\mathcal{P}(\mathbb{N} \times \mathbb{N})|
+        = |\mathcal{P}(\mathbb{N})|,
+    \end{equation*}
+    ovvero esistono \emph{tante funzioni quanti sono i sottoinsiemi di $\mathbb{N}$}.
+
+    \section{Quanti algoritmi esistono?}
+    Sia $\Sigma$ un \emph{alfabeto}, ovvero un insieme finito e non vuoto di simboli: quelli
+    utilizzati per scrivere programmi e algoritmi. Un \emph{programma} \`e una
+    \emph{stringa} (sequenza di simboli) su $\Sigma$, quindi\footnote{Non tutte le stringhe
+    sono programmi corretti, quindi a rigore $|\text{Programmi}| \leq |\Sigma^*|$; poich\'e
+    per\`o i programmi sono infiniti, le due cardinalit\`a coincidono.}
+    \begin{equation*}
+        |\text{Programmi}| = |\text{stringhe su } \Sigma| = |\Sigma^*|,
+    \end{equation*}
+    ovvero esistono tanti programmi quante sono le stringhe su $\Sigma$. $\Sigma^*$ \`e
+    l'insieme delle stringhe \emph{finite} su $\Sigma$, ad esempio:
+    \begin{equation*}
+        \underbrace{\Sigma = \{a, b\}}_{\text{finito}}
+        \qquad\qquad
+        \underbrace{\Sigma^* = \{\varepsilon, a, b, aa, ab, ba, bb, aaa, \dots\}}_{\text{infinito}}
+    \end{equation*}
+    dove $\varepsilon$ \`e la \emph{stringa vuota}.
+
+    $\Sigma^*$ pu\`o essere messo in biezione con $\mathbb{N}$ poich\'e i suoi elementi sono
+    ordinabili (prima per lunghezza, poi in ordine alfabetico, come nell'esempio): \`e
+    sufficiente numerarli secondo tale ordine. Quindi $\Sigma^*$ \`e numerabile,
+    $|\Sigma^*| = |\mathbb{N}|$, e
+    \begin{equation*}
+        |\text{Programmi}| = |\mathbb{N}|.
+    \end{equation*}
+
+    \section{Il teorema di Cantor}
+    Resta da confrontare $|\mathbb{N}|$, la cardinalit\`a degli algoritmi, con
+    $|\mathcal{P}(\mathbb{N})|$, la cardinalit\`a delle funzioni.
+
+    \begin{theorem}[di Cantor]
+        Per ogni insieme $S$ si ha che
+        \begin{equation*}
+            |S| < |\mathcal{P}(S)|.
+        \end{equation*}
+    \end{theorem}
+
+    Per gli insiemi finiti il teorema \`e verificabile direttamente, come mostrato nella
+    Tabella~\ref{tab:parti}.
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{llcc}
+            \toprule
+            \textsc{Insieme} $S$ & \textsc{Insieme delle parti} $\mathcal{P}(S)$ & $|S|$
+                & $|\mathcal{P}(S)|$ \\
+            \midrule
+            $\emptyset$ & $\{\emptyset\}$ & $0$ & $1$ \\
+            $\{a, b\}$ & $\{\emptyset, \{a\}, \{b\}, \{a, b\}\}$ & $2$ & $4$ \\
+            $\{a, b, c\}$ & $\{\emptyset, \{a\}, \{b\}, \{c\}, \{a, b\}, \{b, c\}, \{a, c\},
+                \{a, b, c\}\}$ & $3$ & $8$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{Cardinalit\`a di alcuni insiemi finiti e dei loro insiemi delle parti.}
+        \label{tab:parti}
+    \end{table}
+
+    In generale
+    \begin{equation*}
+        |\mathcal{P}(S)| = 2^{|S|}.
+    \end{equation*}
+
+    Per $\mathbb{N}$ vale $|\mathcal{P}(\mathbb{N})| = |\mathbb{R}|$: i sottoinsiemi di
+    $\mathbb{N}$ sono tanti quanti i numeri reali, che \emph{non sono numerabili}.
+    L'\emph{ipotesi del continuo} afferma inoltre che non esiste alcun insieme con
+    cardinalit\`a strettamente compresa tra $|\mathbb{N}|$ e $|\mathbb{R}|$.
+
+    Riassumendo:
+    \begin{equation*}
+        |\text{Programmi}| = |\mathbb{N}|
+        < |\mathcal{P}(\mathbb{N})|
+        = |\{f \mid f \colon \mathbb{N} \to \mathbb{N}\}|.
+    \end{equation*}
+    Poich\'e la cardinalit\`a dei programmi \`e strettamente inferiore a quella delle
+    funzioni, esistono \emph{funzioni non calcolabili}.
+
+    \chapter{Induzione}
+    \section{Relazioni ben fondate}
+    \begin{definition}[Relazione ben fondata]
+        Sia $A$ un insieme e $\prec \; \subseteq A \times A$ una relazione su $A$,
+        antisimmetrica e transitiva. La relazione $\prec$ \`e \emph{ben fondata} se non
+        esistono \emph{catene discendenti infinite}, ovvero sequenze infinite
+        $a_0 \succ a_1 \succ a_2 \succ \dots$ di elementi di $A$.
+    \end{definition}
+
+    Ne segue che, se $A$ non \`e vuoto, esistono \emph{elementi minimali}, ovvero elementi
+    di $A$ privi di elementi pi\`u piccoli. L'insieme degli elementi minimali di $A$ si
+    indica con $\operatorname{Base}(A)$:
+    \begin{equation*}
+        \operatorname{Base}(A) = \{\, a \in A \mid \nexists b \in A.\; b \prec a \,\}.
+    \end{equation*}
+    La situazione \`e illustrata nella Figura~\ref{fig:base}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            punto/.style={circle, fill, inner sep=1.2pt},
+            minimale/.style={circle, fill=evidenza, inner sep=1.8pt}
+        ]
+            \draw[thick] (0, 0) circle (2);
+            \node at (1.7, 1.7) {$A$};
+
+            % Catene discendenti: ogni freccia va verso un elemento piu' piccolo
+            \foreach \x/\n [count=\i] in {-1/3, 0/4, 1/2} {
+                \node[minimale] (m\i) at (\x, -1.3) {};
+                \foreach \k in {1,...,\n}
+                    \node[punto] (p\i\k) at (\x, -1.3 + 0.65*\k) {};
+                \draw[-{Stealth}] (p\i1) -- (m\i);
+                \foreach \k [evaluate=\k as \j using int(\k-1)] in {2,...,\n}
+                    \draw[-{Stealth}] (p\i\k) -- (p\i\j);
+            }
+
+            \node[draw=evidenza, dashed, rounded corners, fit=(m1)(m3), inner sep=5pt]
+                (base) {};
+            \draw[evidenza] (base.east) -- (2.6, -1.3)
+                node[right, align=left] {$\operatorname{Base}(A)$\\elementi minimali};
+        \end{tikzpicture}
+        \caption{Catene discendenti in un insieme ben fondato e suoi elementi minimali.}
+        \label{fig:base}
+    \end{figure}
+
+    \section{Principio di induzione}
+    \begin{theorem}[Principio di induzione]
+        Sia $(A, \prec)$ ben fondato e sia $\Pi$ una propriet\`a sugli elementi di $A$.
+        Allora $\forall a \in A.\; \Pi(a)$ se e solo se valgono:
+        \begin{enumerate}
+            \item \textup{\textsc{Base dell'induzione}}: $\forall a \in
+                \operatorname{Base}(A).\; \Pi(a)$;
+            \item \textup{\textsc{Passo induttivo}}: per ogni
+                $a \in A \setminus \operatorname{Base}(A)$
+                \begin{equation*}
+                    \underbrace{\bigl(\forall b \prec a.\; \Pi(b)\bigr)}_{\text{ipotesi
+                    induttiva}}
+                    \implies
+                    \underbrace{\Pi(a)}_{\text{tesi}}
+                \end{equation*}
+        \end{enumerate}
+    \end{theorem}
+
+    \begin{esempio}
+        Si vuole dimostrare che
+        \begin{equation*}
+            \forall n \geq 1. \quad \sum_{i=1}^{n} i = \frac{n(n+1)}{2}.
+        \end{equation*}
+        Sia $\Pi(n)$ tale uguaglianza. In questo caso $A = \mathbb{N} \setminus \{0\}$ con
+        l'ordine usuale $<$, che \`e ben fondato, e $\operatorname{Base}(A) = \{1\}$.
+
+        \textsc{Base}. Per $n = 1$, $\Pi(1)$ diventa:
+        \begin{equation*}
+            \sum_{i=1}^{1} i = 1
+            \qquad\qquad
+            \frac{1 \cdot (1 + 1)}{2} = \frac{1 \cdot 2}{2} = 1.
+        \end{equation*}
+        I due membri coincidono, dunque $\Pi(1)$ \`e verificata.
+
+        \textsc{Passo induttivo}. Sia $n \in \mathbb{N} \setminus \{0, 1\}$ e si assuma
+        l'\emph{ipotesi induttiva}, ovvero che $\Pi(m)$ valga per ogni $m < n$. In
+        particolare vale $\Pi(n - 1)$, utilizzata nel secondo passaggio:
+        \begin{align*}
+            \sum_{i=1}^{n} i
+                &= \sum_{i=1}^{n-1} i + n \\
+                &= \frac{(n-1)(n-1+1)}{2} + n && \text{(ipotesi induttiva)} \\
+                &= \frac{(n-1)n + 2n}{2} \\
+                &= \frac{n(n-1+2)}{2} \\
+                &= \frac{n(n+1)}{2},
+        \end{align*}
+        che \`e esattamente $\Pi(n)$.
+    \end{esempio}
+\end{document}
