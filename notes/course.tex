@@ -16,6 +16,7 @@
 \usepackage{graphicx}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{stmaryrd}
 \usepackage{needspace}
 \usepackage{microtype}
 \usepackage{enumitem}
@@ -881,6 +882,29 @@
         \caption{Cardinalit\`a di alcuni insiemi finiti e dei loro insiemi delle parti.}
         \label{tab:parti}
     \end{table}
+
+    \begin{proof}
+        Si suppone per assurdo che $|S| = |\mathcal{P}(S)|$. Allora esiste una funzione
+        biunivoca $f: S \to \mathcal{P}(S)$ che mappa ogni elemento di $S$ in un sottoinsieme 
+        di $S$ stesso.
+
+        Si consideri l'insieme $A = \{x \in S \mid x \notin f(x)\} \subseteq S$. Dato che
+        $\mathcal{P}(S)$ contiene ogni sottoinsieme di $S$ e $A$ ne è uno, allora
+        $A \in \mathcal{P}(S)$. Pertanto, obbligatoriamente \\$\exists a \in S \;.\; f(a) = A$.
+        Quindi si hanno due possibilità:
+        \begin{itemize}
+            \item $a \in A$: allora, per costruzione di $A$, $a \notin f(a) = A$, 
+                $\lightning$.
+            \item $a \notin A$: simmetricamente, per definizione di $A$, $a \in f(a) = A$, 
+                $\lightning$.
+        \end{itemize}
+
+        Poiché in entrambi i casi si raggiunge una contraddizione, allora
+        $\nexists a \in S \;.\; f(a) = A$.
+        Si conclude, quindi, che $A$ è un elemento privo di controimmagine e, di conseguenza,
+        la cardinalità di $S$ è strettamente inferiore a quella di $\mathcal{P}(S)$.
+    \end{proof}
+
 
     In generale
     \begin{equation*}
