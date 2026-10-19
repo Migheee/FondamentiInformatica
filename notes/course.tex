@@ -1493,53 +1493,112 @@
             \quad \text{\textsc{Base}}
         \end{equation*}
 
-        \textsc{Passo induttivo}. Sia $x$ una stringa con $|x| = n + 1$, dove $n \geq 2$.
-        Allora $x = va$, con $|v| = n$ e $a \in \Sigma$. Per ipotesi induttiva, lo stato
-        raggiunto leggendo $v$ dipende dal numero di $1$ che contiene, come nella base:
+        \textsc{Passo induttivo}. \emph{Ipotesi induttiva}: si suppone che per tutte le
+        stringhe $x$, con $|x| \geq 2$, di lunghezza $|x| \leq n$, per un certo
+        $n \in \mathbb{N}$, valga che
         \begin{equation*}
-            \hat{\delta}(q_0, v) =
             \begin{cases}
-                q_0 & \text{se $v$ non contiene $1$,} \\
-                q_1 & \text{se $v$ contiene esattamente un $1$,} \\
-                q_2 & \text{se $v$ contiene almeno due $1$.}
+                x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_2, \\
+                x \notin \mathcal{L} \implies \hat{\delta}(q_0, x) \neq q_2,
             \end{cases}
         \end{equation*}
-        Poich\'e $\hat{\delta}(q_0, va) = \delta(\hat{\delta}(q_0, v), a)$, basta considerare
-        lo stato raggiunto con $v$ e l'ultimo simbolo $a$.
+        dove si \`e usato che $\mathcal{F} = \{q_2\}$. La seconda condizione, per\`o, non
+        basta: dice solo che l'automa \`e in $q_0$ oppure in $q_1$, mentre per leggere il
+        simbolo successivo serve sapere in quale dei due. La si scorpora quindi in due
+        condizioni pi\`u precise, ottenendo l'ipotesi
+        \begin{equation*}
+            (\ast) \quad
+            \begin{cases}
+                x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_2, \\
+                x \notin \mathcal{L} \land \text{``$x$ non contiene $1$''}
+                    \implies \hat{\delta}(q_0, x) = q_0, \\
+                x \notin \mathcal{L} \land \text{``$x$ contiene un solo $1$''}
+                    \implies \hat{\delta}(q_0, x) = q_1.
+            \end{cases}
+        \end{equation*}
+        \`E lecito farlo perch\'e ogni nuova condizione implica quella di partenza, dato che
+        $q_0$ e $q_1$ sono diversi da $q_2$, e la base verifica gi\`a gli stati esatti. In
+        cambio, nel passo induttivo va dimostrata per $x$ l'intera $(\ast)$.
+
+        Si dimostra quindi che $(\ast)$ vale anche per $|x| = n + 1$. Sia $x$ una stringa
+        con $|x| = n + 1$: allora $x = x'0$ oppure $x = x'1$, con $|x'| = n$, e a $x'$ si
+        pu\`o applicare l'ipotesi induttiva. Si distingue un caso per ciascuna condizione
+        di $(\ast)$. In ogni caso si ragiona prima sul linguaggio, contando gli $1$ di $x'$;
+        poi si applica l'ipotesi induttiva a $x'$ e infine si legge l'ultimo simbolo. Nei
+        calcoli, \emph{def} indica la definizione di $\hat{\delta}$ e \emph{Hp} il punto in
+        cui si sostituisce lo stato dato dall'ipotesi induttiva.
         \begin{enumerate}
-            \item $v$ non contiene $1$, quindi $\hat{\delta}(q_0, v) = q_0$. Sia che alla
-                fine si aggiunga uno $0$, sia che si aggiunga un $1$, l'automa non va nello
-                stato finale:
+            \item $x \in \mathcal{L}$, quindi $x$ contiene almeno due $1$.
+                \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                    \item $x = x'0$. Se $x'$ contenesse un solo $1$ (o nessuno), anche
+                        $x = x'0$ ne conterrebbe meno di due e quindi $x \notin \mathcal{L}$:
+                        assurdo. Quindi $x'$ contiene almeno due $1$, cio\`e
+                        $x' \in \mathcal{L}$ e, per ipotesi induttiva,
+                        $\hat{\delta}(q_0, x') = q_2$. Allora
+                        \begin{equation*}
+                            \hat{\delta}(q_0, x) = \hat{\delta}(q_0, x'0)
+                            \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                            \overset{\text{Hp}}{=} \delta(q_2, 0) = q_2 \in \mathcal{F}.
+                        \end{equation*}
+                    \item $x = x'1$. Se $x'$ non contenesse $1$, $x = x'1$ ne conterrebbe
+                        uno solo e quindi $x \notin \mathcal{L}$: assurdo. Quindi $x'$ contiene
+                        almeno due $1$, e quindi $x' \in \mathcal{L}$, oppure ne contiene
+                        esattamente uno, e quindi $x' \notin \mathcal{L}$.
+
+                        Se $x' \in \mathcal{L}$, per ipotesi induttiva
+                        $\hat{\delta}(q_0, x') = q_2$, quindi
+                        \begin{equation*}
+                            \hat{\delta}(q_0, x) = \hat{\delta}(q_0, x'1)
+                            \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                            \overset{\text{Hp}}{=} \delta(q_2, 1) = q_2 \in \mathcal{F}.
+                        \end{equation*}
+
+                        Se $x' \notin \mathcal{L}$, $x'$ contiene un solo $1$ e, per ipotesi
+                        induttiva, $\hat{\delta}(q_0, x') = q_1$: \`e qui che serve lo
+                        scorporo, perch\'e altrimenti si saprebbe solo che
+                        $\hat{\delta}(q_0, x') \neq q_2$. Quindi
+                        \begin{equation*}
+                            \hat{\delta}(q_0, x) = \hat{\delta}(q_0, x'1)
+                            \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                            \overset{\text{Hp}}{=} \delta(q_1, 1) = q_2 \in \mathcal{F}.
+                        \end{equation*}
+                \end{enumerate}
+            \item $x \notin \mathcal{L}$ e $x$ non contiene $1$. Il caso $x = x'1$ \`e
+                assurdo, perch\'e $x$ conterrebbe un $1$, quindi $x = x'0$. Se $x'$
+                contenesse almeno un $1$, lo conterrebbe anche $x$: assurdo. Perci\`o $x'$ non
+                contiene $1$: $x' \notin \mathcal{L}$ e, per ipotesi induttiva,
+                $\hat{\delta}(q_0, x') = q_0$. Allora
                 \begin{equation*}
-                    \hat{\delta}(q_0, v0) = \delta(q_0, 0) = q_0 \notin \mathcal{F},
-                    \qquad
-                    \hat{\delta}(q_0, v1) = \delta(q_0, 1) = q_1 \notin \mathcal{F}.
+                    \hat{\delta}(q_0, x) = \hat{\delta}(q_0, x'0)
+                    \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                    \overset{\text{Hp}}{=} \delta(q_0, 0) = q_0.
                 \end{equation*}
-                Ed \`e corretto, perch\'e $v0$ non contiene $1$ e $v1$ ne contiene uno solo:
-                in entrambi i casi $x \notin \mathcal{L}$.
-            \item $v$ contiene esattamente un $1$, quindi $\hat{\delta}(q_0, v) = q_1$. Se
-                alla fine si aggiunge uno $0$, l'automa rimane in $q_1$ e non accetta la
-                stringa: \`e corretto, perch\'e $v0$ contiene ancora un solo $1$ e quindi
-                $x \notin \mathcal{L}$. Se invece l'ultimo simbolo \`e $1$, la stringa
-                contiene due $1$ e appartiene a $\mathcal{L}$, e l'automa passa da $q_1$ a
-                $q_2$, riconoscendola:
-                \begin{equation*}
-                    \hat{\delta}(q_0, v0) = \delta(q_1, 0) = q_1 \notin \mathcal{F},
-                    \qquad
-                    \hat{\delta}(q_0, v1) = \delta(q_1, 1) = q_2 \in \mathcal{F}.
-                \end{equation*}
-            \item $v$ contiene almeno due $1$, quindi $v \in \mathcal{L}$ e
-                $\hat{\delta}(q_0, v) = q_2$. Qualunque simbolo si aggiunga, la stringa resta
-                in $\mathcal{L}$ e l'automa rimane in $q_2$:
-                \begin{equation*}
-                    \hat{\delta}(q_0, v0) = \delta(q_2, 0) = q_2 \in \mathcal{F},
-                    \qquad
-                    \hat{\delta}(q_0, v1) = \delta(q_2, 1) = q_2 \in \mathcal{F}.
-                \end{equation*}
+            \item $x \notin \mathcal{L}$ e $x$ contiene un solo $1$.
+                \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                    \item $x = x'1$. Se $x'$ contenesse almeno un $1$, $x = x'1$ ne
+                        conterrebbe almeno due e quindi $x \in \mathcal{L}$: assurdo. Perci\`o
+                        $x'$ non contiene $1$: $x' \notin \mathcal{L}$ e, per ipotesi
+                        induttiva, $\hat{\delta}(q_0, x') = q_0$. Allora
+                        \begin{equation*}
+                            \hat{\delta}(q_0, x) = \hat{\delta}(q_0, x'1)
+                            \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                            \overset{\text{Hp}}{=} \delta(q_0, 1) = q_1.
+                        \end{equation*}
+                    \item $x = x'0$. Se $x'$ non contenesse $1$, nemmeno $x = x'0$ ne
+                        conterrebbe; se ne contenesse almeno due, $x \in \mathcal{L}$. In
+                        entrambi i casi \`e assurdo, perci\`o $x'$ contiene un solo $1$:
+                        $x' \notin \mathcal{L}$ e, per ipotesi induttiva,
+                        $\hat{\delta}(q_0, x') = q_1$. Allora
+                        \begin{equation*}
+                            \hat{\delta}(q_0, x) = \hat{\delta}(q_0, x'0)
+                            \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                            \overset{\text{Hp}}{=} \delta(q_1, 0) = q_1.
+                        \end{equation*}
+                \end{enumerate}
         \end{enumerate}
-        In tutti i casi lo stato raggiunto da $x$ corrisponde al numero di $1$ che contiene,
-        quindi l'ipotesi vale anche per $|x| = n + 1$. In particolare
-        $\hat{\delta}(q_0, x) \in \mathcal{F}$ se e solo se $x$ contiene almeno due $1$,
+        In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $(\ast)$, quindi
+        $(\ast)$ vale anche per $|x| = n + 1$. Per induzione vale per ogni $x \in \Sigma^*$:
+        in particolare $\hat{\delta}(q_0, x) \in \mathcal{F}$ se e solo se $x \in \mathcal{L}$,
         ovvero $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
     \end{esempio}
 \end{document}
