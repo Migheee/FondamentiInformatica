@@ -32,7 +32,8 @@
 
 \setcounter{tocdepth}{1}
 \setlength{\skip\footins}{15pt plus 4pt minus 2pt}
-\usetikzlibrary{positioning, fit, arrows.meta, backgrounds, matrix}
+\usetikzlibrary{positioning, fit, arrows.meta, backgrounds, matrix,
+    decorations.pathreplacing, automata}
 \defaultfontfeatures{}
 \setmonofont{JetBrainsMono Nerd Font}[
     Scale=MatchLowercase, Contextuals=Alternate
@@ -110,10 +111,12 @@
     {\begin{proof}[\textit{Esempio}]\renewcommand{\qedsymbol}{$\diamond$}}
     {\end{proof}}
 
-% Evita che l'intestazione di un enunciato resti isolata in fondo alla pagina
+% Evita che l'intestazione di un enunciato o di una sezione resti isolata in fondo
+% alla pagina
 \AddToHook{env/definition/before}{\needspace{5\baselineskip}}
 \AddToHook{env/theorem/before}{\needspace{5\baselineskip}}
 \AddToHook{env/esempio/before}{\needspace{4\baselineskip}}
+\AddToHook{cmd/section/before}{\needspace{10\baselineskip}}
 
 \definecolor{codeborder}{HTML}{707070}
 \definecolor{codeback}{HTML}{F0F0F0}
@@ -340,6 +343,7 @@
     \end{definition}
 
     \subsection{Operazioni tra Insiemi}
+    \label{sec:operazioni-insiemi}
     Le operazioni classiche tra insiemi sono:
     \begin{itemize}
         \item \textsc{Unione}: $A \cup B = \{x \mid x \in A \lor x \in B\}$;
@@ -827,6 +831,7 @@
     ovvero esistono \emph{tante funzioni quanti sono i sottoinsiemi di $\mathbb{N}$}.
 
     \section{Quanti algoritmi esistono?}
+    \label{sec:algoritmi}
     Sia $\Sigma$ un \emph{alfabeto}, ovvero un insieme finito e non vuoto di simboli: quelli
     utilizzati per scrivere programmi e algoritmi. Un \emph{programma} \`e una
     \emph{stringa} (sequenza di simboli) su $\Sigma$, quindi
@@ -1016,5 +1021,525 @@
                 &= \frac{n(n+1)}{2},
         \end{align*}
         che \`e esattamente $\Pi(n)$.
+    \end{esempio}
+
+    \chapter{Linguaggi Formali}
+    \section{Alfabeti e stringhe}
+    \begin{definition}[Alfabeto]
+        Un \emph{alfabeto} $\Sigma$ \`e un insieme finito e non vuoto di simboli, ovvero di
+        entit\`a primitive come lettere e caratteri.
+    \end{definition}
+
+    \begin{definition}[Stringa]
+        Una \emph{stringa}, o \emph{parola}, \`e una sequenza finita di simboli su un
+        alfabeto $\Sigma$.
+    \end{definition}
+
+    Come visto nella Sezione~\ref{sec:algoritmi}, l'insieme di tutte le stringhe su
+    $\Sigma$ si indica con $\Sigma^*$. Esso contiene sempre la \emph{stringa vuota}
+    $\varepsilon$, priva di simboli, ed \`e infinito numerabile.
+
+    \begin{definition}[Lunghezza di una stringa]
+        La \emph{lunghezza} $|x|$ di una stringa $x$ \`e il numero di \emph{occorrenze} di
+        simboli al suo interno.
+    \end{definition}
+
+    Si contano le occorrenze e non i simboli: ad esempio $|abba| = 4$, anche se $abba$
+    contiene solo due simboli distinti. La stringa vuota ha lunghezza $|\varepsilon| = 0$.
+
+    \begin{definition}[Prefisso, suffisso e sottostringa]
+        Sia $x = a_1 a_2 \cdots a_n$ una stringa su $\Sigma$, con $a_1, \dots, a_n \in \Sigma$,
+        e siano $1 \leq i \leq j \leq n$. Allora:
+        \begin{itemize}
+            \item $a_1 \cdots a_i$, la parte iniziale di $x$, \`e un \emph{prefisso} di $x$;
+            \item $a_j \cdots a_n$, la parte finale di $x$, \`e un \emph{suffisso} di $x$;
+            \item $a_i \cdots a_j$, una qualsiasi parte contigua di $x$, \`e una
+                \emph{sottostringa} di $x$.
+        \end{itemize}
+    \end{definition}
+
+    Anche la stringa vuota $\varepsilon$ \`e prefisso, suffisso e sottostringa di ogni
+    stringa. Come mostra la Figura~\ref{fig:sottostringhe}, ogni prefisso e ogni suffisso
+    di $x$ sono anche sue sottostringhe.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            simbolo/.style={inner sep=1pt, text height=1.6ex, text depth=0.5ex},
+            graffa/.style={decorate, thick,
+                decoration={brace, amplitude=5pt, raise=3pt}},
+            etichetta/.style={font=\small\itshape}
+        ]
+            % Simboli di x, affiancati sulla stessa linea di base
+            \node[simbolo] (s1) {$a_1$};
+            \foreach \s [count=\k from 2, evaluate=\k as \j using int(\k-1)]
+                in {a_2, \cdots, a_i, \cdots, a_j, \cdots, a_{n-1}, a_n}
+                \node[simbolo, anchor=base west] (s\k)
+                    at ([xshift=6pt] s\j.base east) {$\s$};
+
+            % Sottostringa sopra, prefisso e suffisso sotto
+            \draw[graffa] (s4.north west) -- (s6.north east)
+                node[midway, above=9pt, etichetta] {sottostringa};
+            \draw[graffa] (s4.south east) -- (s1.south west)
+                node[midway, below=9pt, etichetta] {prefisso};
+            \draw[graffa] (s9.south east) -- (s6.south west)
+                node[midway, below=9pt, etichetta] {suffisso};
+        \end{tikzpicture}
+        \caption{Prefisso $a_1 \cdots a_i$, sottostringa $a_i \cdots a_j$ e suffisso
+            $a_j \cdots a_n$ della stringa $x = a_1 a_2 \cdots a_n$.}
+        \label{fig:sottostringhe}
+    \end{figure}
+
+    \section{Linguaggi}
+    \begin{definition}[Linguaggio]
+        Un \emph{linguaggio} $\mathcal{L}$ su un alfabeto $\Sigma$ \`e un sottoinsieme delle
+        stringhe di $\Sigma^*$, ovvero $\mathcal{L} \subseteq \Sigma^*$.
+    \end{definition}
+
+    Alcuni esempi di linguaggi sono $\emptyset$, dato che \`e sottoinsieme di qualsiasi
+    insieme, e $\{\varepsilon\}$, il linguaggio che contiene solo la stringa vuota. I due
+    non vanno confusi: $\emptyset$ non contiene alcuna stringa, mentre $\{\varepsilon\}$
+    ne contiene esattamente una, di lunghezza $0$. Entrambi sono linguaggi su qualsiasi
+    alfabeto, mentre $\Sigma^*$ \`e il linguaggio di tutte le stringhe su $\Sigma$.
+
+    Poich\'e un linguaggio \`e, di fatto, un insieme, su di esso si possono eseguire le
+    operazioni insiemistiche della Sezione~\ref{sec:operazioni-insiemi}, con $\Sigma^*$
+    come insieme universo:
+    \begin{itemize}
+        \item \textsc{Complemento} di $\mathcal{L} \subseteq \Sigma^*$:
+            $\overline{\mathcal{L}} = \neg \mathcal{L} = \Sigma^* \setminus \mathcal{L}$;
+        \item \textsc{Unione} di $\mathcal{L}_1, \mathcal{L}_2 \subseteq \Sigma^*$:
+            $\mathcal{L}_1 \cup \mathcal{L}_2 = \{x \in \Sigma^* \mid x \in \mathcal{L}_1
+            \lor x \in \mathcal{L}_2\}$;
+        \item \textsc{Intersezione} di $\mathcal{L}_1, \mathcal{L}_2 \subseteq \Sigma^*$:
+            $\mathcal{L}_1 \cap \mathcal{L}_2 = \{x \in \Sigma^* \mid x \in \mathcal{L}_1
+            \land x \in \mathcal{L}_2\}$.
+    \end{itemize}
+    Il complemento \`e quindi sempre relativo a $\Sigma^*$. Ad esempio, il complemento del
+    linguaggio vuoto \`e il linguaggio di tutte le stringhe, mentre quello di
+    $\{\varepsilon\}$ \`e il linguaggio delle stringhe non vuote:
+    \begin{equation*}
+        \overline{\emptyset} = \Sigma^* \setminus \emptyset = \Sigma^*,
+        \qquad\qquad
+        \overline{\{\varepsilon\}} = \{x \in \Sigma^* \mid x \neq \varepsilon\}
+        = \Sigma^* \setminus \{\varepsilon\}.
+    \end{equation*}
+
+    Altre operazioni invece sono esclusivamente legate ai linguaggi:
+    \begin{itemize}
+        \item \textsc{Concatenazione}: $\mathcal{L}_1, \mathcal{L}_2 \subseteq \Sigma^*
+            : \mathcal{L}_1 \cdot \mathcal{L}_2 = \{\;xy\; \in \Sigma^* \mid \; x \in 
+            \mathcal{L}_1, y \in \mathcal{L}_2\}$
+        \item \textsc{Stella di Kleene}: $\mathcal{L} \subseteq \Sigma^*$:
+            \[
+                \mathcal{L}^n =
+                \begin{cases}
+                    \mathcal{L}^0 = \{\epsilon\} & \\
+                    \mathcal{L}^{n+1} = \mathcal{L} \cdot \mathcal{L}^n
+                \end{cases}
+                \qquad \mathcal{L}^* = \bigcup_{n \in \mathbb{N}} \mathcal{L}^n
+            \]
+    \end{itemize}
+
+
+    \section{Funzioni come linguaggi}
+    Una funzione $f \colon \mathbb{N} \to \mathbb{N}$ pu\`o essere vista come un linguaggio
+    $\mathcal{L}_f$ sull'alfabeto $\Sigma$ composto da un singolo carattere.\\
+    \emph{Esempio}. Si consideri l'alfabeto $\Sigma = \{1\}$ e una funzione
+    $f : \mathbb{N} \to \mathbb{N}$. Allora:
+    \begin{equation*}
+        f \colon \mathbb{N} \to \mathbb{N}
+        \quad\longleftrightarrow\quad
+        \mathcal{L}_f = \{1^{f(x)} \mid x \in \mathbb{N}\},
+    \end{equation*}
+    dove $1^n$ indica la stringa formata da $n$ occorrenze del simbolo $1$, con
+    $1^0 = \varepsilon$.
+
+    Questo linguaggio permette di porre una domanda con risposta s\`i o no: data in input
+    una stringa $\sigma \in \Sigma^*$, stabilire se essa appartenga o meno al linguaggio,
+    \begin{equation*}
+        \sigma \in \Sigma^*
+        \;\longmapsto\;
+        \begin{cases}
+            \sigma \in \mathcal{L}_f & \text{se $\sigma$ appartiene al linguaggio,} \\
+            \sigma \notin \mathcal{L}_f & \text{se $\sigma$ non appartiene al linguaggio.}
+        \end{cases}
+    \end{equation*}
+    Si ragiona cos\`i su insiemi invece che su funzioni, dove gli elementi dell'insieme
+    dipendono dal calcolo della funzione.
+
+    \begin{esempio}
+        Per $f(x) = 2x$ si ottiene
+        \begin{equation*}
+            \mathcal{L}_f = \{1^{2x} \mid x \in \mathbb{N}\}
+            = \{\varepsilon, 11, 1111, 111111, \dots\},
+        \end{equation*}
+        il linguaggio delle stringhe di lunghezza pari su $\{1\}$: ad esempio
+        $1111 \in \mathcal{L}_f$, poich\'e $f(2) = 4$, mentre $111 \notin \mathcal{L}_f$,
+        poich\'e nessun $x$ ha $f(x) = 3$.
+    \end{esempio}
+    
+    \section{Automi a stati finiti deterministici}
+    I linguaggi regolari sono tutti quei linguaggi per cui esiste un automa a stati finiti
+    deterministico che lo riconosce.
+
+    Un automa a stati finiti \`e un modello matematico di un sistema avente input,
+    ed eventualmente output, a valori discreti. Il sistema pu\`o essere in uno stato tra un
+    insieme finito di stati possibili. L’essere in uno stato gli permette di tener traccia
+    della storia precedente.
+
+    Un automa a stati finiti \`e rappresentabile da una testina che legge, spostandosi
+    sempre nella stessa direzione e un nastro di lunghezza illimitata contenente dei simboli.
+    La testina pu\`o puntare a un certo \emph{stato} $q$ e, a seconda del simbolo $w_i$, la
+    testina punter\`a ad un altro stato (oppure sempre allo stesso). La situazione \`e
+    illustrata nella Figura~\ref{fig:nastro}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            cella/.style={draw, thick, minimum width=1cm, minimum height=0.8cm}
+        ]
+            % Nastro illimitato a destra, con i simboli da leggere
+            \foreach \s [count=\k] in {s_1, s_2, s_3}
+                \node[cella] (c\k) at (\k, 0) {$\s$};
+            \node[minimum width=1cm, minimum height=0.8cm] (c4) at (4, 0) {$\cdots$};
+            \draw[thick] (c4.north west) -- (c4.north east)
+                (c4.south west) -- (c4.south east);
+
+            % Testina sul primo simbolo, nello stato corrente q
+            \node[draw, thick, minimum size=0.7cm] (q) at (1, -1.9) {$q$};
+            \draw[evidenza, double, double distance=1.6pt, -{Implies}]
+                ([yshift=3pt] q.north) -- ([yshift=-4pt] c1.south);
+        \end{tikzpicture}
+        \caption{Automa a stati finiti: la testina, nello stato $q$, legge il primo simbolo
+            $s_1$ del nastro.}
+        \label{fig:nastro}
+    \end{figure}
+
+    Quando la lettura dei simboli termina, a seconda dello stato raggiunto dalla testina,
+    l'automa fornisce un risultato di accettazione o di rifiuto della stringa letta.
+
+    Il comportamento dell'automa si definisce in maniera univoca mediante una tabella
+    detta \emph{matrice di transizione}.
+
+    \emph{Esempio}. Matrice di Transizione
+    \begin{center}
+        \begin{tabular}{ |c|c|c| }
+            \hline
+            & $a$ & $b$ \\
+            \hline
+            $w_0$ & $w_1$ & $w_2$ \\
+            \hline
+            $w_1$ & $w_1$ & $w_0$ \\
+            \hline
+            $w_2$ & $w_1$ & $w_0$ \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    Ma \`e anche comune la rappresentazione grafica con grafi.
+
+    \begin{definition}[Automa Deterministico]
+        Un automa a stati finiti deterministico (DFA) \`e una quintupla del tipo
+        $\langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F}\rangle$
+        dove:
+        \begin{itemize}
+            \item $\mathcal{Q}$ \`e un insieme finito di stati;
+            \item $\Sigma$ \`e un alfabeto;
+            \item $\delta: \mathcal{Q} \times \Sigma \to \mathcal{Q}$ \`e la \emph{funzione
+                di transizione};
+            \item $q_0$ \`e lo stato \emph{iniziale};
+            \item $\mathcal{F} \subseteq \mathcal{Q}$ \`e l'insieme degli stati \emph{finali}
+
+        \end{itemize}
+    \end{definition}
+
+    \textsc{Notazione}: Useremo $p, q, r$ con o senza pedici per denotare stati, $P, Q, R, S$
+    per insiemi di stati, $a, b$ con o senza pedici per denotare simboli di $\Sigma$, 
+    $x, y, z, u, v, w$ sempre con o senza pedici per denotare stringhe.
+
+    Poich\'e la funzione $\delta$ acquisisce in ingresso un solo simbolo, \`e necessario
+    estenderla per poter leggere stringhe. Questo viene eseguito mediante la funzione
+    $\hat{\delta}$, che si ottiene in modo univoco da $\delta$ ed \`e definita come segue:
+    \begin{equation*}
+        \hat{\delta} \colon \mathcal{Q} \times \Sigma^* \to \mathcal{Q},
+        \qquad
+        \begin{cases}
+            \hat{\delta}(q, \varepsilon) = q, \\
+            \hat{\delta}(q, wa) = \delta(\hat{\delta}(q, w), a).
+        \end{cases}
+    \end{equation*}
+
+    Una stringa $x$ \`e detta \emph{accettata} o riconosciuta da un DFA $\mathcal{M} =
+    \langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F}\rangle$ se $\hat{\delta}(q_0, x)
+    \in \mathcal{F}$. Il linguaggio riconosciuto/accettato da $\mathcal{M}$, denotato come
+    $\mathcal{L}(\mathcal{M})$ \`e l'insieme delle stringhe accettate, ovvero:
+    \[
+        \mathcal{L}(\mathcal{M}) = \{ x \in \Sigma^* :\hat{\delta}(q_0, x) \in \mathcal{F}\}
+    \]
+
+    \begin{definition}[Linguaggio regolare]
+        Un linguaggio $\mathcal{L}$ \`e detto \emph{regolare} se \`e accettato da qualche
+        DFA, ovvero se esiste un DFA $\mathcal{M}$ tale che
+        \begin{equation*}
+            \mathcal{L} = \mathcal{L}(\mathcal{M}).
+        \end{equation*}
+    \end{definition}
+
+    \begin{esempio}
+        Il linguaggio vuoto $\mathcal{L} = \emptyset$ \`e regolare. Lo riconosce il DFA
+        $\mathcal{M}$ della Figura~\ref{fig:dfa-vuoto}, con $\mathcal{Q} = \{q_0\}$,
+        $\Sigma = \{a, b\}$, stato iniziale $q_0$ e $\mathcal{F} = \emptyset$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+            ]
+                \node[state, initial] (q0) {$q_0$};
+                \path (q0) edge[loop above] node {$a, b$} ();
+
+                % Matrice di transizione, a destra del diagramma
+                \node[right=2.5cm of q0] {%
+                    \begin{tabular}{ccc}
+                        \toprule
+                        $\delta$ & $a$ & $b$ \\
+                        \midrule
+                        $q_0$ & $q_0$ & $q_0$ \\
+                        \bottomrule
+                    \end{tabular}};
+            \end{tikzpicture}
+            \caption{DFA che riconosce il linguaggio vuoto e la sua matrice di
+                transizione.}
+            \label{fig:dfa-vuoto}
+        \end{figure}
+
+        Qualunque simbolo legga, l'automa resta in $q_0$, quindi
+        $\hat{\delta}(q_0, x) = q_0$ per ogni $x \in \Sigma^*$. Poich\'e
+        $\mathcal{F} = \emptyset$, per\`o, la condizione di accettazione
+        $\hat{\delta}(q_0, x) \in \mathcal{F}$ \`e sempre falsa: nessuno stato appartiene
+        all'insieme vuoto. Nessuna stringa viene quindi accettata e
+        \begin{equation*}
+            \mathcal{L}(\mathcal{M})
+            = \{x \in \Sigma^* \mid \underbrace{\hat{\delta}(q_0, x) \in \mathcal{F}}_{\text{
+            sempre falsa, poich\`e } \mathcal{F} \;=\; \emptyset}\}
+            = \emptyset.
+        \end{equation*}
+        Riconoscere $\emptyset$ non significa che l'automa non esista, ma che non accetta
+        alcuna stringa: in generale, ogni DFA con $\mathcal{F} = \emptyset$ riconosce il
+        linguaggio vuoto.
+    \end{esempio}
+
+    \begin{esempio}
+        Il linguaggio $\mathcal{L} = \{\varepsilon\}$ \`e regolare. Lo riconosce il DFA
+        $\mathcal{M}$ della Figura~\ref{fig:dfa-epsilon}, con
+        $\mathcal{Q} = \{q_0, q_1\}$, $\Sigma = \{a, b\}$, stato iniziale $q_0$ e
+        $\mathcal{F} = \{q_0\}$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+            ]
+                \node[state, initial, accepting] (q0) {$q_0$};
+                \node[state, right=of q0] (q1) {$q_1$};
+                \path (q0) edge node {$a, b$} (q1)
+                    (q1) edge[loop above] node {$a, b$} ();
+
+                % Matrice di transizione, a destra del diagramma
+                \node[right=2cm of q1] {%
+                    \begin{tabular}{ccc}
+                        \toprule
+                        $\delta$ & $a$ & $b$ \\
+                        \midrule
+                        $q_0$ & $q_1$ & $q_1$ \\
+                        $q_1$ & $q_1$ & $q_1$ \\
+                        \bottomrule
+                    \end{tabular}};
+            \end{tikzpicture}
+            \caption{DFA che riconosce il linguaggio $\{\varepsilon\}$ e la sua matrice di
+                transizione: lo stato finale $q_0$ \`e indicato dal doppio cerchio.}
+            \label{fig:dfa-epsilon}
+        \end{figure}
+
+        Lo stato iniziale \`e anche finale, quindi la stringa vuota, che non fa compiere
+        alcuna transizione, viene accettata. Il primo simbolo letto porta invece in $q_1$,
+        da cui l'automa non esce pi\`u:
+        \begin{equation*}
+            \hat{\delta}(q_0, \varepsilon) = q_0 \in \mathcal{F},
+            \qquad\qquad
+            \hat{\delta}(q_0, x) = q_1 \notin \mathcal{F}
+            \quad \text{per ogni } x \neq \varepsilon.
+        \end{equation*}
+        Quindi $\mathcal{L}(\mathcal{M}) = \{\varepsilon\}$.
+    \end{esempio}
+    
+    \subsection{Come dimostrare che un linguaggio \`e regolare}
+    Un modo per dimostrare che un linguaggio \`e regolare \`e costruire un DFA che lo
+    riconosca. L'uguaglianza $\mathcal{L} = \mathcal{L}(\mathcal{M})$ verr\`a dimostrata
+    mediante la duplice inclusione $\mathcal{L} \subseteq \mathcal{L}(\mathcal{M})$ e
+    $\mathcal{L}(\mathcal{M}) \subseteq \mathcal{L}$. In particolare:
+    \begin{align*}
+        & \mathcal{L}(\mathcal{M}) \subseteq \mathcal{L} \\
+        \iff {} & \forall x \in \Sigma^*.\;
+            \bigl(x \in \mathcal{L}(\mathcal{M}) \implies x \in \mathcal{L}\bigr) \\
+        \iff {} & \hat{\delta}(q_0, x) \in \mathcal{F} \implies x \in \mathcal{L}
+            && \text{(definizione di $\mathcal{L}(\mathcal{M})$, con $x$ arbitrario)} \\
+        \iff {} & x \notin \mathcal{L} \implies \hat{\delta}(q_0, x) \notin \mathcal{F}
+            && \text{(per contrapposizione)}
+    \end{align*}
+    e
+    \begin{align*}
+        & \mathcal{L} \subseteq \mathcal{L}(\mathcal{M}) \\
+        \iff {} & \forall x \in \Sigma^*.\;
+            \bigl(x \in \mathcal{L} \implies x \in \mathcal{L}(\mathcal{M})\bigr) \\
+        \iff {} & x \in \mathcal{L} \implies \hat{\delta}(q_0, x) \in \mathcal{F}
+            && \text{(definizione di $\mathcal{L}(\mathcal{M})$, con $x$ arbitrario)}
+    \end{align*}
+    Riassumendo:
+    \begin{equation*}
+        \begin{cases}
+            x \in \mathcal{L} \implies \hat{\delta}(q_0, x) \in \mathcal{F}, \\
+            x \notin \mathcal{L} \implies \hat{\delta}(q_0, x) \notin \mathcal{F}.
+        \end{cases}
+    \end{equation*}
+
+    Dal momento che le condizioni da dimostrare sono analoghe, verranno portate avanti
+    insieme ed \`e quindi necessario che la base dell'induzione sia la stessa per entrambe.
+    In particolare, \`e richiesto di trovare una lunghezza tale per cui esistano stringhe in
+    $\mathcal{L}$ e stringhe non in $\mathcal{L}$. I passi sono dunque:
+    \begin{itemize}
+        \item \textsc{Base}: si considera la lunghezza minima di $x$ e, per tutte le
+            lunghezze inferiori o uguali a quella, si dimostra che valgono entrambe le
+            condizioni;
+        \item \textsc{Passo induttivo}: si suppone che entrambe le condizioni valgano per
+            ogni $x$ tale che $|x| \leq n$ e si dimostra che valgono anche per
+            $|x| = n + 1$.
+    \end{itemize}
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        $\mathcal{L} = \{x \in \Sigma^* \mid \text{``$x$ contiene almeno due $1$''}\}$
+        definito sull'alfabeto binario $\Sigma = \{0, 1\}$. L'automa a stati finiti che
+        riconosce $\mathcal{L}$ \`e quello della Figura~\ref{fig:dfa-due-uno}, con stato
+        iniziale $q_0$ e $\mathcal{F} = \{q_2\}$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+            ]
+                \node[state, initial] (q0) {$q_0$};
+                \node[state, right=of q0] (q1) {$q_1$};
+                \node[state, accepting, right=of q1] (q2) {$q_2$};
+                \path (q0) edge node {$1$} (q1)
+                    (q1) edge node {$1$} (q2)
+                    (q0) edge[loop above] node {$0$} ()
+                    (q1) edge[loop above] node {$0$} ()
+                    (q2) edge[loop above] node {$0, 1$} ();
+
+                % Matrice di transizione, a destra del diagramma
+                \node[right=1.8cm of q2] {%
+                    \begin{tabular}{ccc}
+                        \toprule
+                        $\delta$ & $0$ & $1$ \\
+                        \midrule
+                        $q_0$ & $q_0$ & $q_1$ \\
+                        $q_1$ & $q_1$ & $q_2$ \\
+                        $q_2$ & $q_2$ & $q_2$ \\
+                        \bottomrule
+                    \end{tabular}};
+            \end{tikzpicture}
+            \caption{DFA che riconosce le stringhe binarie con almeno due $1$ e la sua
+                matrice di transizione.}
+            \label{fig:dfa-due-uno}
+        \end{figure}
+
+        \`E comunque necessario dimostrare che vengono riconosciute tutte e sole le stringhe
+        di $\mathcal{L}$. In particolare, bisogna dimostrare che
+        \begin{equation*}
+            \mathcal{L} = \mathcal{L}(\mathcal{M})
+            = \{x \in \Sigma^* \mid \hat{\delta}(q_0, x) \in \{q_2\}\}.
+        \end{equation*}
+        La dimostrazione avviene per induzione. La base non pu\`o riguardare \emph{solo}
+        stringhe con meno di due simboli: servono almeno due simboli per arrivare allo
+        stato finale.\footnote{In realt\`a, non \`e mai possibile
+        considerare $|x| = 0$ come unico caso base, perch\'e l'unica stringa di tale lunghezza,
+        $\varepsilon$, o appartiene a un linguaggio o non vi appartiene. Servono, invece,
+        lunghezze tali per cui esistono stringhe sia appartenenti che non.} Quindi:
+        \[
+            \forall x \in \Sigma^*.\; \bigl(|x| < 2 \implies x \notin \mathcal{L}\bigr)
+        \]
+        Allora:
+        \begin{equation*}
+            \left.
+            \begin{alignedat}{3}
+                |x| = 0 \quad & x = \varepsilon \notin \mathcal{L} & \qquad
+                    & \hat{\delta}(q_0, \varepsilon) = q_0 \notin \mathcal{F} \\
+                |x| = 1 \quad & x = 0 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 0) = q_0 \notin \mathcal{F} \\
+                & x = 1 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 1) = q_1 \notin \mathcal{F} \\[4pt]
+                |x| = 2 \quad & x = 00 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 00) = q_0 \notin \mathcal{F} \\
+                & x = 01 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 01) = q_1 \notin \mathcal{F} \\
+                & x = 10 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 10) = q_1 \notin \mathcal{F} \\
+                & x = 11 \in \mathcal{L} &
+                    & \hat{\delta}(q_0, 11) = q_2 \in \mathcal{F}
+            \end{alignedat}
+            \right\}
+            \quad \text{\textsc{Base}}
+        \end{equation*}
+
+        \textsc{Passo induttivo}. Sia $x$ una stringa con $|x| = n + 1$, dove $n \geq 2$.
+        Allora $x = va$, con $|v| = n$ e $a \in \Sigma$. Per ipotesi induttiva, lo stato
+        raggiunto leggendo $v$ dipende dal numero di $1$ che contiene, come nella base:
+        \begin{equation*}
+            \hat{\delta}(q_0, v) =
+            \begin{cases}
+                q_0 & \text{se $v$ non contiene $1$,} \\
+                q_1 & \text{se $v$ contiene esattamente un $1$,} \\
+                q_2 & \text{se $v$ contiene almeno due $1$.}
+            \end{cases}
+        \end{equation*}
+        Poich\'e $\hat{\delta}(q_0, va) = \delta(\hat{\delta}(q_0, v), a)$, basta considerare
+        lo stato raggiunto con $v$ e l'ultimo simbolo $a$.
+        \begin{enumerate}
+            \item $v$ non contiene $1$, quindi $\hat{\delta}(q_0, v) = q_0$. Sia che alla
+                fine si aggiunga uno $0$, sia che si aggiunga un $1$, l'automa non va nello
+                stato finale:
+                \begin{equation*}
+                    \hat{\delta}(q_0, v0) = \delta(q_0, 0) = q_0 \notin \mathcal{F},
+                    \qquad
+                    \hat{\delta}(q_0, v1) = \delta(q_0, 1) = q_1 \notin \mathcal{F}.
+                \end{equation*}
+                Ed \`e corretto, perch\'e $v0$ non contiene $1$ e $v1$ ne contiene uno solo:
+                in entrambi i casi $x \notin \mathcal{L}$.
+            \item $v$ contiene esattamente un $1$, quindi $\hat{\delta}(q_0, v) = q_1$. Se
+                alla fine si aggiunge uno $0$, l'automa rimane in $q_1$ e non accetta la
+                stringa: \`e corretto, perch\'e $v0$ contiene ancora un solo $1$ e quindi
+                $x \notin \mathcal{L}$. Se invece l'ultimo simbolo \`e $1$, la stringa
+                contiene due $1$ e appartiene a $\mathcal{L}$, e l'automa passa da $q_1$ a
+                $q_2$, riconoscendola:
+                \begin{equation*}
+                    \hat{\delta}(q_0, v0) = \delta(q_1, 0) = q_1 \notin \mathcal{F},
+                    \qquad
+                    \hat{\delta}(q_0, v1) = \delta(q_1, 1) = q_2 \in \mathcal{F}.
+                \end{equation*}
+            \item $v$ contiene almeno due $1$, quindi $v \in \mathcal{L}$ e
+                $\hat{\delta}(q_0, v) = q_2$. Qualunque simbolo si aggiunga, la stringa resta
+                in $\mathcal{L}$ e l'automa rimane in $q_2$:
+                \begin{equation*}
+                    \hat{\delta}(q_0, v0) = \delta(q_2, 0) = q_2 \in \mathcal{F},
+                    \qquad
+                    \hat{\delta}(q_0, v1) = \delta(q_2, 1) = q_2 \in \mathcal{F}.
+                \end{equation*}
+        \end{enumerate}
+        In tutti i casi lo stato raggiunto da $x$ corrisponde al numero di $1$ che contiene,
+        quindi l'ipotesi vale anche per $|x| = n + 1$. In particolare
+        $\hat{\delta}(q_0, x) \in \mathcal{F}$ se e solo se $x$ contiene almeno due $1$,
+        ovvero $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
     \end{esempio}
 \end{document}
