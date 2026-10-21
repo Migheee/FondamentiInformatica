@@ -1462,8 +1462,8 @@
             = \{x \in \Sigma^* \mid \hat{\delta}(q_0, x) \in \{q_2\}\}.
         \end{equation*}
         La dimostrazione avviene per induzione. La base non pu\`o riguardare \emph{solo}
-        stringhe con meno di due simboli: servono almeno due simboli per arrivare allo
-        stato finale.\footnote{In realt\`a, non \`e mai possibile
+        stringhe con meno di due simboli: servono almeno due simboli per comporre una stringa
+        $z \in \mathcal{L}$.\footnote{In realt\`a, non \`e mai possibile
         considerare $|x| = 0$ come unico caso base, perch\'e l'unica stringa di tale lunghezza,
         $\varepsilon$, o appartiene a un linguaggio o non vi appartiene. Servono, invece,
         lunghezze tali per cui esistono stringhe sia appartenenti che non.} Quindi:
@@ -1498,8 +1498,8 @@
         $n \in \mathbb{N}$, valga che
         \begin{equation*}
             \begin{cases}
-                x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_2, \\
-                x \notin \mathcal{L} \implies \hat{\delta}(q_0, x) \neq q_2,
+                x \in \mathcal{L} \implies \hat{\delta}(q_0, x) \in \mathcal{F}\\
+                x \notin \mathcal{L} \implies \hat{\delta}(q_0, x) \notin \mathcal{F}
             \end{cases}
         \end{equation*}
         dove si \`e usato che $\mathcal{F} = \{q_2\}$. La seconda condizione, per\`o, non
@@ -1507,7 +1507,7 @@
         simbolo successivo serve sapere in quale dei due. La si scorpora quindi in due
         condizioni pi\`u precise, ottenendo l'ipotesi
         \begin{equation*}
-            (\ast) \quad
+            \Psi(x) = 
             \begin{cases}
                 x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_2, \\
                 x \notin \mathcal{L} \land \text{``$x$ non contiene $1$''}
@@ -1518,12 +1518,50 @@
         \end{equation*}
         \`E lecito farlo perch\'e ogni nuova condizione implica quella di partenza, dato che
         $q_0$ e $q_1$ sono diversi da $q_2$, e la base verifica gi\`a gli stati esatti. In
-        cambio, nel passo induttivo va dimostrata per $x$ l'intera $(\ast)$.
+        cambio, nel passo induttivo va dimostrata per $x$ l'intera $\Psi(x)$.
 
-        Si dimostra quindi che $(\ast)$ vale anche per $|x| = n + 1$. Sia $x$ una stringa
+        Si dimostri allora il caso base per $\Psi$:
+        %Dimostrazione del caso base con Psi(x)%
+        \begin{equation*}
+            \left.
+            \begin{alignedat}{3}
+                |x| = 0 \quad & x = \varepsilon \notin \mathcal{L} & \qquad
+                    & \hat{\delta}(q_0, \varepsilon) = q_0
+                    &\quad \text{(caso 2 di $\Psi$)} \\
+                |x| = 1 \quad & x = 0 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 0) = q_0 
+                    &\quad \text{(caso 2 di $\Psi$)} \\
+                & x = 1 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 1) = q_1 
+                    &\quad \text{(caso 3 di $\Psi$)} \\
+                |x| = 2 \quad & x = 00 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 00) = q_0 
+                    &\quad \text{(caso 2 di $\Psi$)} \\
+                & x = 01 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 01) = q_1 
+                    &\quad \text{(caso 3 di $\Psi$)} \\
+                & x = 10 \notin \mathcal{L} &
+                    & \hat{\delta}(q_0, 10) = q_1
+                    &\quad \text{(caso 3 di $\Psi$)} \\
+                & x = 11 \in \mathcal{L} &
+                    & \hat{\delta}(q_0, 11) = q_2 
+                    &\quad \text{(caso 1 di $\Psi$)} 
+            \end{alignedat}
+            \right\}
+            \quad \text{\textsc{Base}}
+        \end{equation*}
+
+        \textsc{Passo induttivo}.
+        Affinch\'e $\Psi(x)$ possa essere verificata per tutte le stringhe $\in \Sigma^*$, \`e
+        necessario applicare l'ipotesi induttiva:
+        \[
+            \forall x \in \Sigma^*.\; \bigl(|x| \leq n \implies \Psi(x)\bigr)
+        \]
+
+        Sia $x$ una stringa
         con $|x| = n + 1$: allora $x = x'0$ oppure $x = x'1$, con $|x'| = n$, e a $x'$ si
         pu\`o applicare l'ipotesi induttiva. Si distingue un caso per ciascuna condizione
-        di $(\ast)$. In ogni caso si ragiona prima sul linguaggio, contando gli $1$ di $x'$;
+        di $\Psi(x)$. In ogni caso si ragiona prima sul linguaggio, contando gli $1$ di $x'$;
         poi si applica l'ipotesi induttiva a $x'$ e infine si legge l'ultimo simbolo. Nei
         calcoli, \emph{def} indica la definizione di $\hat{\delta}$ e \emph{Hp} il punto in
         cui si sostituisce lo stato dato dall'ipotesi induttiva.
@@ -1596,9 +1634,389 @@
                         \end{equation*}
                 \end{enumerate}
         \end{enumerate}
-        In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $(\ast)$, quindi
-        $(\ast)$ vale anche per $|x| = n + 1$. Per induzione vale per ogni $x \in \Sigma^*$:
+        In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$, quindi
+        $\Psi(x)$ vale anche per $|x| = n + 1$. Per induzione vale per ogni $x \in \Sigma^*$:
         in particolare $\hat{\delta}(q_0, x) \in \mathcal{F}$ se e solo se $x \in \mathcal{L}$,
         ovvero $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+    \end{esempio}
+
+    \section{Automi a stati finiti non deterministici}
+    In un Automa a stati Finiti non Deterministico (NFA), la funzione di transizione 
+    \`e l'unico elemento che varia rispetto ai Deterministici.
+    L'obiettivo risulta verificare se il non determinismo cambia la potenza di calcolo.
+
+    \begin{definition}[Automa Non Deterministico]
+        Un automa a stati finiti non deterministico (NFA) \`e una quintupla del tipo
+        $\langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F}\rangle$
+        dove:
+        \begin{itemize}
+            \item $\mathcal{Q}$ \`e un insieme finito di stati;
+            \item $\Sigma$ \`e un alfabeto;
+            \item $\delta: \mathcal{Q} \times \Sigma \to \mathcal{P}(\mathcal{Q})$ 
+                \`e la \emph{funzione di transizione}: per ogni input posso raggiungere pi\`u 
+                stati. Pertanto \`e una funzione non deterministica;
+            \item $q_0$ \`e lo stato \emph{iniziale};
+            \item $\mathcal{F} \subseteq \mathcal{Q}$ \`e l'insieme degli stati \emph{finali}
+
+        \end{itemize}
+    \end{definition}
+
+    Poich\'e la funzione $\delta$ acquisisce in ingresso un solo simbolo, \`e necessario
+    estenderla per poter leggere stringhe. Questo viene eseguito mediante la funzione
+    $\hat{\delta}$, che si ottiene in modo univoco da $\delta$ ed \`e definita come segue:
+    \begin{equation*}
+        \hat{\delta} \colon \mathcal{Q} \times \Sigma^* \to \mathcal{P}(\mathcal{Q}),
+        \qquad
+        \begin{cases}
+            \hat{\delta}(q, \varepsilon) = \{q\}, \\
+            \hat{\delta}(q, wa) = \bigcup_{p \in \hat{\delta}(q, w)} \delta(p, a)
+        \end{cases}
+    \end{equation*}
+    Ad esempio, si supponga che, leggendo $w$ a partire da $q$, l'automa possa arrivare
+    negli stati $p_1$, $p_2$ e $p_3$, ovvero $\hat{\delta}(q, w) = \{p_1, p_2, p_3\}$.
+    Leggendo poi il simbolo $a$, da ciascuno di essi si raggiunge l'insieme
+    $\delta(p_i, a)$, e $\hat{\delta}(q, wa)$ \`e l'unione di questi insiemi, come mostrato
+    nella Figura~\ref{fig:nfa-delta}:
+    \begin{equation*}
+        \hat{\delta}(q, wa) = \delta(p_1, a) \cup \delta(p_2, a) \cup \delta(p_3, a).
+    \end{equation*}
+    Nella figura $\delta(p_1, a) = \{r_1, r_2, r_3\}$, $\delta(p_2, a) = \{r_4, r_5, r_6\}$ e
+    $\delta(p_3, a) = \{r_7, r_8\}$, quindi
+    \begin{equation*}
+        \hat{\delta}(q, wa) = \{r_1, r_2, r_3\} \cup \{r_4, r_5, r_6\} \cup \{r_7, r_8\}
+        = \{r_1, \dots, r_8\}.
+    \end{equation*}
+    In generale gli insiemi $\delta(p_i, a)$ possono avere stati in comune, che
+    nell'unione compaiono una volta sola. Leggendo $wa$ un simbolo alla volta, l'automa
+    attraversa quindi gli insiemi di stati
+    \begin{equation*}
+        \hat{\delta}(q, \varepsilon) = \{q\}
+        \;\xrightarrow{\;w\;}\;
+        \hat{\delta}(q, w) = \{p_1, p_2, p_3\}
+        \;\xrightarrow{\;a\;}\;
+        \hat{\delta}(q, wa) = \{r_1, \dots, r_8\}.
+    \end{equation*}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            stato/.style={circle, fill, inner sep=1.3pt},
+            freccia/.style={-{Stealth}, thick},
+            gruppo/.style={draw, dashed, rounded corners=6pt, inner sep=5pt}
+        ]
+            % Stati raggiunti da q leggendo w
+            \node[stato, label=left:$q$] (q) at (0, 0) {};
+            \foreach \i/\y in {1/2.0, 2/0, 3/-1.75}
+                \node[stato, label=above:$p_\i$] (p\i) at (3, \y) {};
+            \node[gruppo, fit=(p1)(p2)(p3), inner xsep=12pt, inner ysep=16pt,
+                label=below:{$\hat{\delta}(q, w)$}] {};
+            \draw[freccia] (q) to[bend left=15] node[above left] {$w$} (p1);
+            \draw[freccia] (q) to (p2);
+            \draw[freccia] (q) to[bend right=15] (p3);
+
+            % Da ogni p_i, leggendo a, si raggiunge l'insieme delta(p_i, a)
+            \foreach \n/\r/\y in {t11/1/2.55, t12/2/2.0, t13/3/1.45,
+                    t21/4/0.55, t22/5/0, t23/6/-0.55, t31/7/-1.475, t32/8/-2.025}
+                \node[inner sep=1.5pt] (\n) at (6.2, \y) {$r_\r$};
+            \foreach \i/\k in {1/3, 2/3, 3/2} {
+                \foreach \j in {1,...,\k}
+                    \draw[freccia] (p\i) -- (t\i\j);
+                \node[gruppo, fit=(t\i1)(t\i2)(t\i\k),
+                    label={[label distance=16pt]right:{$\delta(p_\i, a)$}}] (D\i) {};
+            }
+            \node at (4.4, 2.5) {$a$};
+            \node at (4.4, 0.5) {$a$};
+            \node at (4.4, -1.3) {$a$};
+
+            % L'unione degli insiemi delta(p_i, a)
+            \node[draw, thick, evidenza, rounded corners=10pt, inner sep=9pt,
+                fit=(D1)(D2)(D3), label=above:{$\hat{\delta}(q, wa)$}] {};
+        \end{tikzpicture}
+        \caption{Calcolo di $\hat{\delta}(q, wa)$ in un NFA: l'unione degli insiemi
+            $\delta(p_i, a)$, per ogni $p_i \in \hat{\delta}(q, w)$.}
+        \label{fig:nfa-delta}
+    \end{figure}
+
+    Il linguaggio accettato da un NFA
+    $\mathcal{N} = \langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F} \rangle$ \`e
+    l'insieme delle stringhe per cui almeno uno degli stati raggiunti \`e finale:
+    \begin{equation*}
+        \mathcal{L}(\mathcal{N})
+        = \{x \in \Sigma^* \mid \hat{\delta}(q_0, x) \cap \mathcal{F} \neq \emptyset\}.
+    \end{equation*}
+
+    \begin{theorem}[Rabin-Scott, 1959]
+        \leavevmode
+        \begin{enumerate}[label=\alph*.]
+            \item Sia $\mathcal{M} = \langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F}
+                \rangle$ un DFA. Allora esiste un NFA $\mathcal{N} = \langle \mathcal{Q}',
+                \Sigma, \delta', q_0, \mathcal{F} \rangle$ tale che i due linguaggi
+                riconosciuti coincidono, ovvero $\mathcal{L}(\mathcal{M}) =
+                \mathcal{L}(\mathcal{N})$.
+            \item Sia $\mathcal{N} = \langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F}
+                \rangle$ un NFA. Allora esiste un DFA $\mathcal{M} = \langle \mathcal{Q}',
+                \Sigma, \delta', q_0', \mathcal{F}' \rangle$ tale che i due linguaggi
+                riconosciuti coincidono, ovvero $\mathcal{L}(\mathcal{N}) =
+                \mathcal{L}(\mathcal{M})$.
+        \end{enumerate}
+    \end{theorem}
+
+    \begin{proof} L'obiettivo \`e dimostrare che NFA e DFA sono equivalenti.
+
+        $a$) Un DFA \`e un caso particolare di NFA, in cui ogni transizione porta
+        in un solo stato. Si definisce quindi $\mathcal{N}$ con $\mathcal{Q}' = \mathcal{Q}$,
+        gli stessi $q_0$ e $\mathcal{F}$, e
+        \begin{equation*}
+            \delta'(q, a) = \{\delta(q, a)\}.
+        \end{equation*}
+        Per induzione su $|x|$ si verifica che $\hat{\delta}'(q_0, x) =
+        \{\hat{\delta}(q_0, x)\}$. Per $x = \varepsilon$ entrambi i membri valgono $\{q_0\}$;
+        per $x = wa$, con $|w| = n$, l'ipotesi induttiva dice che
+        $\hat{\delta}'(q_0, w) = \{\hat{\delta}(q_0, w)\}$, quindi
+        \begin{align*}
+            \hat{\delta}'(q_0, wa)
+                &= \bigcup_{p \in \hat{\delta}'(q_0, w)} \delta'(p, a)
+                    && \text{(definizione di $\hat{\delta}'$ per gli NFA)} \\
+                &= \bigcup_{p \in \{\hat{\delta}(q_0, w)\}} \delta'(p, a)
+                    && \text{(ipotesi induttiva)} \\
+                &= \delta'(\hat{\delta}(q_0, w), a)
+                    && \text{(unione di un solo stato)} \\
+                &= \{\delta(\hat{\delta}(q_0, w), a)\} 
+                    && \text{(definzione di $\delta'$)} \\
+                &= \{\hat{\delta}(q_0, wa)\} 
+                    && \text{(definzione di $\hat{\delta}$)} \\
+        \end{align*}
+        Quindi $\hat{\delta}'(q_0, x) \cap \mathcal{F} \neq \emptyset$ se e solo se
+        $\hat{\delta}(q_0, x) \in \mathcal{F}$, ovvero $\mathcal{L}(\mathcal{N}) =
+        \mathcal{L}(\mathcal{M})$.
+
+        $b$) L'idea \`e che ogni stato di $\mathcal{M}$ rappresenti l'insieme 
+        degli stati in cui
+        $\mathcal{N}$ pu\`o trovarsi dopo aver letto una stringa. Si definisce quindi
+        $\mathcal{M}$ come segue:
+        \begin{itemize}
+            \item $\mathcal{Q}' = \mathcal{P}(\mathcal{Q})$: gli stati di 
+                $\mathcal{M}$ sono
+                i sottoinsiemi di $\mathcal{Q}$, che sono $2^{|\mathcal{Q}|}$ e quindi in
+                numero finito\footnote{Sarebbe pi\`u preciso definire
+                $\mathcal{Q}' = \{q_1, \dots, q_{2^{|\mathcal{Q}|}}\}$ e stabilire una
+                corrispondenza biunivoca tra questi stati e gli elementi di
+                $\mathcal{P}(\mathcal{Q})$; usare direttamente i sottoinsiemi come stati
+                rende per\`o la dimostrazione molto pi\`u snella.};
+            \item $q_0' = \{q_0\}$: all'inizio $\mathcal{N}$ si trova solo in $q_0$;
+            \item $\delta' \colon \mathcal{Q}' \times \Sigma \to \mathcal{Q}'$, con
+                $\delta'(S, a) = \bigcup_{p \in S} \delta(p, a)$ per ogni
+                $S \in \mathcal{Q}'$ e $a \in \Sigma$: da $S$, leggendo $a$, si
+                raggiungono tutti gli stati raggiungibili da almeno uno degli stati di $S$.
+                Il risultato \`e un sottoinsieme di $\mathcal{Q}$, cio\`e un solo stato di
+                $\mathcal{Q}'$, quindi $\mathcal{M}$ \`e deterministico;
+            \item $\mathcal{F}' = \{S \in \mathcal{Q}' \mid S \cap \mathcal{F} \neq
+                \emptyset\}$: un insieme di stati \`e finale se contiene almeno uno stato
+                finale di $\mathcal{N}$.
+        \end{itemize}
+
+        Si dimostra per induzione su $|x|$ che, per ogni $x \in \Sigma^*$,
+        \begin{equation*}
+            \hat{\delta}'(q_0', x) = \hat{\delta}(q_0, x),
+        \end{equation*}
+        cio\`e che dopo aver letto $x$ l'automa $\mathcal{M}$ si trova nello stato che
+        corrisponde esattamente all'insieme degli stati raggiunti da $\mathcal{N}$.
+
+        \textsc{Base}. Per $|x| = 0$ si ha $x = \varepsilon$ e
+        \begin{equation*}
+            \hat{\delta}'(q_0', \varepsilon) = q_0' = \{q_0\}
+            = \hat{\delta}(q_0, \varepsilon).
+        \end{equation*}
+
+        \textsc{Passo induttivo}. Si suppone che l'uguaglianza valga per tutte le stringhe
+        di lunghezza $n$ e sia $x = wa$, con $|w| = n$ e $a \in \Sigma$. Allora
+        \begin{align*}
+            \hat{\delta}'(q_0', wa)
+                &= \delta'(\hat{\delta}'(q_0', w), a)
+                    && \text{(definizione di $\hat{\delta}'$)} \\
+                &= \delta'(\hat{\delta}(q_0, w), a)
+                    && \text{(ipotesi induttiva)} \\
+                &= \bigcup_{p \in \hat{\delta}(q_0, w)} \delta(p, a)
+                    && \text{(definizione di $\delta'$)} \\
+                &= \hat{\delta}(q_0, wa)
+                    && \text{(definizione di $\hat{\delta}$ per gli NFA)}.
+        \end{align*}
+
+        Infine, per ogni $x \in \Sigma^*$,
+        \begin{align*}
+            x \in \mathcal{L}(\mathcal{M})
+                &\iff \hat{\delta}'(q_0', x) \in \mathcal{F}' \\
+                &\iff \hat{\delta}(q_0, x) \in \mathcal{F}'
+                    && \text{(uguaglianza appena dimostrata)} \\
+                &\iff \hat{\delta}(q_0, x) \cap \mathcal{F} \neq \emptyset
+                    && \text{(definizione di $\mathcal{F}'$)} \\
+                &\iff x \in \mathcal{L}(\mathcal{N}),
+        \end{align*}
+        quindi $\mathcal{L}(\mathcal{M}) = \mathcal{L}(\mathcal{N})$.
+    \end{proof}
+
+    DFA e NFA riconoscono quindi la stessa classe di linguaggi, i linguaggi regolari: il
+    non determinismo non aumenta la potenza di calcolo.
+
+    \begin{esempio}
+        Si consideri l'NFA della Figura~\ref{fig:nfa-esempio}, con stato iniziale $q_0$ e
+        unico stato finale $q_2$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, initial text={}
+            ]
+                \node[state, initial] (q0) at (0, 0) {$q_0$};
+                \node[state] (q1) at (4, 0) {$q_1$};
+                \node[state, accepting] (q2) at (2, 2.6) {$q_2$};
+                \path (q0) edge[loop below] node {$0, 1$} ()
+                    (q1) edge[loop below] node {$0$} ()
+                    (q2) edge[loop above] node {$0, 1$} ()
+                    (q0) edge[bend left=15] node {$1$} (q1)
+                    (q1) edge[bend left=15] node {$1$} (q0)
+                    (q1) edge[bend left=15] node {$1$} (q2)
+                    (q2) edge[bend left=15] node {$0, 1$} (q1)
+                    (q2) edge node[swap] {$1$} (q0);
+
+                % Matrice di transizione, a destra del diagramma
+                \node at (8, 1.2) {%
+                    \begin{tabular}{ccc}
+                        \toprule
+                        $\delta$ & $0$ & $1$ \\
+                        \midrule
+                        $q_0$ & $\{q_0\}$ & $\{q_0, q_1\}$ \\
+                        $q_1$ & $\{q_1\}$ & $\{q_0, q_2\}$ \\
+                        $q_2$ & $\{q_1, q_2\}$ & $\{q_0, q_1, q_2\}$ \\
+                        \bottomrule
+                    \end{tabular}};
+            \end{tikzpicture}
+            \caption{Un NFA e la sua matrice di transizione.}
+            \label{fig:nfa-esempio}
+        \end{figure}
+
+        Si applica la costruzione della dimostrazione (b), che \`e del tutto meccanica:
+        ogni sottoinsieme di $\mathcal{Q} = \{q_0, q_1, q_2\}$ \`e uno stato del DFA, e la
+        sua riga nella matrice di transizione si ottiene unendo le righe dell'NFA dei suoi
+        elementi. Ad esempio,
+        \begin{equation*}
+            \delta'(\{q_0, q_1\}, 1) = \delta(q_0, 1) \cup \delta(q_1, 1)
+            = \{q_0, q_1\} \cup \{q_0, q_2\} = \{q_0, q_1, q_2\}.
+        \end{equation*}
+        Gli stati finali sono i sottoinsiemi che contengono $q_2$, l'unico stato finale
+        dell'NFA. Si ottiene la Tabella~\ref{tab:sottoinsiemi}, in cui a ogni sottoinsieme
+        non vuoto si d\`a un nome $q_i'$.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{ccccc}
+                \toprule
+                \textsc{Stato} & \textsc{Sottoinsieme} & $0$ & $1$ & \textsc{Finale} \\
+                \midrule
+                & $\emptyset$ & $\emptyset$ & $\emptyset$ & \\
+                $q_0'$ & $\{q_0\}$ & $\{q_0\}$ & $\{q_0, q_1\}$ & \\
+                $q_1'$ & $\{q_1\}$ & $\{q_1\}$ & $\{q_0, q_2\}$ & \\
+                $q_2'$ & $\{q_2\}$ & $\{q_1, q_2\}$ & $\{q_0, q_1, q_2\}$ & $\checkmark$ \\
+                $q_3'$ & $\{q_0, q_1\}$ & $\{q_0, q_1\}$ & $\{q_0, q_1, q_2\}$ & \\
+                $q_4'$ & $\{q_0, q_2\}$ & $\{q_0, q_1, q_2\}$ & $\{q_0, q_1, q_2\}$
+                    & $\checkmark$ \\
+                $q_5'$ & $\{q_1, q_2\}$ & $\{q_1, q_2\}$ & $\{q_0, q_1, q_2\}$
+                    & $\checkmark$ \\
+                $q_6'$ & $\{q_0, q_1, q_2\}$ & $\{q_0, q_1, q_2\}$ & $\{q_0, q_1, q_2\}$
+                    & $\checkmark$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{Costruzione per sottoinsiemi del DFA equivalente all'NFA della
+                Figura~\ref{fig:nfa-esempio}.}
+            \label{tab:sottoinsiemi}
+        \end{table}
+
+        Sostituendo a ogni sottoinsieme il suo nome, e chiamando per semplicit\`a $q_i$
+        lo stato $q_i'$, si ottiene il DFA della Figura~\ref{fig:dfa-sottoinsiemi}, in cui
+        lo stato $\emptyset$ \`e omesso.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, initial text={},
+                every state/.style={minimum size=0.9cm},
+                gruppo/.style={draw, dashed, thin, -, rounded corners=12pt, inner sep=7pt}
+            ]
+                \node[state, initial] (q0) at (2.2, 3.4) {$q_0$};
+                \node[state] (q3) at (2.2, 1.7) {$q_3$};
+                \node[state, accepting] (q6) at (2.2, 0) {$q_6$};
+                \node[state] (q1) at (4.6, 3.4) {$q_1$};
+                \node[state, accepting] (q4) at (4.6, 1.7) {$q_4$};
+                \node[state, accepting] (q2) at (-0.4, 2.4) {$q_2$};
+                \node[state, accepting] (q5) at (-0.4, 0.6) {$q_5$};
+                \path (q0) edge[loop above] node {$0$} ()
+                    (q0) edge node {$1$} (q3)
+                    (q3) edge[loop right] node {$0$} ()
+                    (q3) edge node {$1$} (q6)
+                    (q6) edge[loop below] node {$0, 1$} ()
+                    (q1) edge[loop above] node {$0$} ()
+                    (q1) edge node {$1$} (q4)
+                    (q4) edge node {$0, 1$} (q6)
+                    (q2) edge node[swap] {$0$} (q5)
+                    (q2) edge node {$1$} (q6)
+                    (q5) edge[loop below] node {$0$} ()
+                    (q5) edge node[swap] {$1$} (q6);
+
+                % Stati non raggiungibili da q0
+                \node[gruppo, fit={(q1) (q4) (4.6, 4.65)}] {};
+                \node[gruppo, fit={(q2) (q5) (-0.4, -0.65)}] {};
+
+                % Matrice di transizione, a destra del diagramma
+                \node at (8.6, 1.7) {%
+                    \begin{tabular}{ccc}
+                        \toprule
+                        $\delta'$ & $0$ & $1$ \\
+                        \midrule
+                        $q_0$ & $q_0$ & $q_3$ \\
+                        $q_1$ & $q_1$ & $q_4$ \\
+                        $q_2$ & $q_5$ & $q_6$ \\
+                        $q_3$ & $q_3$ & $q_6$ \\
+                        $q_4$ & $q_6$ & $q_6$ \\
+                        $q_5$ & $q_5$ & $q_6$ \\
+                        $q_6$ & $q_6$ & $q_6$ \\
+                        \bottomrule
+                    \end{tabular}};
+            \end{tikzpicture}
+            \caption{Il DFA ottenuto dalla Tabella~\ref{tab:sottoinsiemi}; i riquadri
+                tratteggiati racchiudono gli stati non raggiungibili da $q_0$.}
+            \label{fig:dfa-sottoinsiemi}
+        \end{figure}
+
+        \`E interessante notare che alcuni stati non sono raggiungibili da $q_0$. Gli
+        stati $q_1$ e $q_2$ non hanno archi entranti da altri stati, mentre $q_4$ e $q_5$
+        ne hanno, ma solo da $q_1$ e da $q_2$. Quello che conta, infatti, non \`e avere
+        archi entranti, ma l'esistenza di un cammino da $q_0$: gli unici stati
+        raggiungibili sono $q_0$, $q_3$ e $q_6$.
+
+        Gli stati non raggiungibili non cambiano il linguaggio riconosciuto e si possono
+        eliminare, ottenendo il DFA minimo della Figura~\ref{fig:dfa-minimo}.\footnote{In
+        questo caso basta eliminare gli stati non raggiungibili; in generale, per ottenere
+        il DFA minimo pu\`o servire anche unire stati equivalenti.} \`E lo stesso automa
+        dell'esempio sulle stringhe con almeno due $1$ (Figura~\ref{fig:dfa-due-uno}), con
+        $q_3$ e $q_6$ al posto di $q_1$ e $q_2$: l'NFA di partenza riconosce quindi proprio
+        quel linguaggio.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+            ]
+                \node[state, initial] (q0) {$q_0$};
+                \node[state, right=of q0] (q3) {$q_3$};
+                \node[state, accepting, right=of q3] (q6) {$q_6$};
+                \path (q0) edge node {$1$} (q3)
+                    (q3) edge node {$1$} (q6)
+                    (q0) edge[loop above] node {$0$} ()
+                    (q3) edge[loop above] node {$0$} ()
+                    (q6) edge[loop above] node {$0, 1$} ();
+            \end{tikzpicture}
+            \caption{Il DFA minimo, ottenuto eliminando gli stati non raggiungibili.}
+            \label{fig:dfa-minimo}
+        \end{figure}
     \end{esempio}
 \end{document}
