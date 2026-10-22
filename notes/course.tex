@@ -63,7 +63,7 @@
     {\normalfont\LARGE\scshape}{}{0pt}{}
 \titlespacing*{\chapter}{0pt}{50pt}{45pt}
 \titleformat{\section}
-    {\normalfont\Large\scshape}{\thesection}{1em}{}
+    {\normalfont\Large\scshape\raggedright}{\thesection}{1em}{}
 \titleformat{\subsection}
     {\normalfont\large\itshape}{\thesubsection}{1em}{}
 
@@ -105,6 +105,9 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollario}
 \newtheorem*{definition}{Definizione}
+
+% Chiusura rispetto alle epsilon-transizioni: trattino e testo dritti, non un meno
+\DeclareMathOperator{\eclosure}{\varepsilon\text{-}closure}
 
 % Esempi: intestazione in corsivo, chiusi da un rombo
 \newenvironment{esempio}
@@ -1857,6 +1860,8 @@
 
     DFA e NFA riconoscono quindi la stessa classe di linguaggi, i linguaggi regolari: il
     non determinismo non aumenta la potenza di calcolo.
+    Allo stesso tempo, dare la possibilit\`a di raggiungere pi\`u stati diversi leggendo lo 
+    stesso simbolo \textbf{non} cambia la classe dei linguaggi riconoscibili.
 
     \begin{esempio}
         Si consideri l'NFA della Figura~\ref{fig:nfa-esempio}, con stato iniziale $q_0$ e
@@ -2018,5 +2023,177 @@
             \caption{Il DFA minimo, ottenuto eliminando gli stati non raggiungibili.}
             \label{fig:dfa-minimo}
         \end{figure}
+    \end{esempio}
+
+    \section{Automi a stati finiti non deterministici con
+        \texorpdfstring{$\varepsilon$}{ε}-transizioni}
+    
+    Ci si chiede se dare la possibilit\`a di cambiare stato \emph{senza} leggere 
+    simboli cambia la classe dei linguaggi riconoscibili.
+    \begin{definition}[Automa non deterministico con $\varepsilon$-transizioni]
+        Rispetto agli NFA cambia solo la funzione di transizione $\delta$:
+        $\langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F}\rangle$
+        dove:
+        \begin{itemize}
+            \item $\mathcal{Q}$ \`e un insieme finito di stati;
+            \item $\Sigma$ \`e un alfabeto;
+            \item $\delta: \mathcal{Q} \times \left(\Sigma \cup \{\varepsilon\}\right)
+                \to \mathcal{P}(\mathcal{Q})$ 
+                \`e la \emph{funzione di transizione}: per ogni input posso raggiungere pi\`u 
+                stati. Pertanto \`e una funzione non deterministica. In Input a $\delta$ 
+                \`e possibile non avere input per cambiare stato;
+            \item $q_0$ \`e lo stato \emph{iniziale};
+            \item $\mathcal{F} \subseteq \mathcal{Q}$ \`e l'insieme degli stati \emph{finali}
+
+        \end{itemize}
+    \end{definition}
+
+    Prima di poter definire $\hat{\delta}$, \`e necessario definire
+    $\eclosure \colon \mathcal{Q} \to \mathcal{P}(\mathcal{Q})$. $\eclosure(q)$ \`e
+    l'insieme di tutti gli stati raggiungibili da $q$ senza leggere simboli, ovvero
+    seguendo zero o pi\`u archi etichettati con $\varepsilon$:
+    \begin{equation*}
+        \eclosure(q) = \{p \in \mathcal{Q} \mid p \text{ \`e raggiungibile da } q
+        \text{ con zero o pi\`u } \varepsilon\text{-transizioni}\}.
+    \end{equation*}
+    Equivalentemente, \`e il pi\`u piccolo insieme che contiene $q$ e che, insieme a
+    ogni suo stato $p$, contiene anche $\delta(p, \varepsilon)$. In particolare
+    $q \in \eclosure(q)$, perch\'e $q$ si raggiunge con zero $\varepsilon$-transizioni,
+    e $\delta(q, \varepsilon) \subseteq \eclosure(q)$. Se inoltre
+    $q \xrightarrow{\varepsilon} p \xrightarrow{\varepsilon} r$, anche $r$ appartiene a
+    $\eclosure(q)$, pur non appartenendo necessariamente a $\delta(q, \varepsilon)$.
+    Per un insieme di stati $S \subseteq \mathcal{Q}$ si pone
+    \begin{equation*}
+        \eclosure(S) = \bigcup_{s \in S} \eclosure(s).
+    \end{equation*}
+
+    Quindi adesso \`e possibile procedere con la definizione della funzione estesa
+    $\hat{\delta}$:
+    \begin{equation*}
+        \hat{\delta} \colon \mathcal{Q} \times \Sigma^* \to \mathcal{P}(\mathcal{Q}),
+        \qquad
+        \begin{cases}
+            \hat{\delta}(q, \varepsilon) = \eclosure(q), \\
+            \hat{\delta}(q, xa) = \bigcup_{p \in \hat{\delta}(q, x)}
+                \eclosure(\delta(p, a)).
+        \end{cases}
+    \end{equation*}
+    La ricorsione avviene sulla stringa e non sugli stati: $\hat{\delta}(q, xa)$ richiama
+    $\hat{\delta}(q, x)$ con lo stesso stato di partenza $q$ e la stringa privata
+    dell'ultimo simbolo, fino al caso base $\hat{\delta}(q, \varepsilon)$.
+
+    \begin{esempio}
+        Si consideri l'automa della Figura~\ref{fig:enfa-esempio} e si calcoli
+        $\hat{\delta}(q, a)$. Poich\'e $a = \varepsilon a$, si applica il secondo caso
+        della definizione con $x = \varepsilon$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, node distance=2.3cm
+            ]
+                \node[state] (q) {$q$};
+                \node[state, right=of q] (q1) {$q'$};
+                \node[state, right=of q1] (q2) {$q''$};
+                \node[state, right=of q2] (q3) {$q'''$};
+                \path (q) edge node {$a$} (q1)
+                    (q1) edge node {$\varepsilon$} (q2)
+                    (q2) edge node {$\varepsilon$} (q3);
+            \end{tikzpicture}
+            \caption{Un automa con due $\varepsilon$-transizioni consecutive.}
+            \label{fig:enfa-esempio}
+        \end{figure}
+
+        Da $q$ non escono archi etichettati con $\varepsilon$, quindi
+        $\hat{\delta}(q, \varepsilon) = \eclosure(q) = \{q\}$ e l'unione \`e su un solo
+        stato. Leggendo $a$ si ottiene $\delta(q, a) = \{q'\}$, e infine si seguono tutte
+        le catene di archi $\varepsilon$ a partire da $q'$:
+        \begin{equation*}
+            \hat{\delta}(q, a)
+            = \bigcup_{p \in \hat{\delta}(q, \varepsilon)} \eclosure(\delta(p, a))
+            = \eclosure(\{q'\})
+            = \{q', q'', q'''\}.
+        \end{equation*}
+        Per calcolare la chiusura si parte da $\{q'\}$ e si aggiungono gli stati
+        raggiungibili con un arco $\varepsilon$ da quelli gi\`a presenti, finch\'e non se
+        ne trovano di nuovi: prima $q''$, poi $q'''$. Da $q'''$ non escono archi
+        $\varepsilon$, quindi ci si ferma. A differenza di DFA e NFA, $\hat{\delta}(q, a)$
+        pu\`o quindi essere diverso da $\delta(q, a) = \{q'\}$.
+
+        Le $\varepsilon$-transizioni contano anche prima di leggere un simbolo: in un
+        automa $q \xrightarrow{\varepsilon} r \xrightarrow{a} s$ si ha
+        $\delta(q, a) = \emptyset$, ma $\hat{\delta}(q, \varepsilon) = \{q, r\}$ e quindi
+        $s \in \hat{\delta}(q, a)$.
+    \end{esempio}
+
+    \begin{esempio}
+        Si calcoli $\hat{\delta}(q, ab)$ per l'automa della
+        Figura~\ref{fig:enfa-stack}, svolgendo per intero la ricorsione. Le transizioni
+        dell'automa sono $\delta(q, a) = \{q'\}$, $\delta(q', \varepsilon) = \{q''\}$,
+        $\delta(q'', b) = \{s\}$ e $\delta(s, \varepsilon) = \{t\}$; tutte le altre danno
+        $\emptyset$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                ->, >={Stealth}, auto, thick, node distance=1.8cm
+            ]
+                \node[state] (q) {$q$};
+                \node[state, right=of q] (q1) {$q'$};
+                \node[state, right=of q1] (q2) {$q''$};
+                \node[state, right=of q2] (s) {$s$};
+                \node[state, right=of s] (t) {$t$};
+                \path (q) edge node {$a$} (q1)
+                    (q1) edge node {$\varepsilon$} (q2)
+                    (q2) edge node {$b$} (s)
+                    (s) edge node {$\varepsilon$} (t);
+            \end{tikzpicture}
+            \caption{Un automa in cui il simbolo $b$ si pu\`o leggere solo dopo una
+                $\varepsilon$-transizione.}
+            \label{fig:enfa-stack}
+        \end{figure}
+
+        \textsc{Discesa}. Ogni chiamata toglie l'ultimo simbolo della stringa, fino al caso
+        base:
+        \begin{alignat*}{2}
+            &\hat{\delta}(q, ab) & \qquad & ab = a \cdot b \text{: si richiama }
+                \hat{\delta}(q, a), \\
+            &\qquad \hat{\delta}(q, a) & & a = \varepsilon \cdot a \text{: si richiama }
+                \hat{\delta}(q, \varepsilon), \\
+            &\qquad\qquad \hat{\delta}(q, \varepsilon) & & \text{caso base.}
+        \end{alignat*}
+
+        \textsc{Risalita}. Ogni livello legge il proprio simbolo e chiude con le
+        $\varepsilon$-transizioni. Il caso base restituisce
+        \begin{equation*}
+            \hat{\delta}(q, \varepsilon) = \eclosure(q) = \{q\},
+        \end{equation*}
+        perch\'e $\delta(q, \varepsilon) = \emptyset$. Il livello intermedio legge $a$:
+        \begin{align*}
+            \hat{\delta}(q, a)
+                &= \bigcup_{p \in \{q\}} \eclosure(\delta(p, a))
+                    && \text{(unione su un solo stato)} \\
+                &= \eclosure(\delta(q, a)) = \eclosure(\{q'\}) \\
+                &= \{q', q''\}
+                    && \text{($\delta(q', \varepsilon) = \{q''\}$, $\delta(q'',
+                    \varepsilon) = \emptyset$)}.
+        \end{align*}
+        Il livello pi\`u esterno legge $b$, partendo dall'insieme appena restituito:
+        \begin{align*}
+            \hat{\delta}(q, ab)
+                &= \bigcup_{p \in \{q', q''\}} \eclosure(\delta(p, b)) \\
+                &= \eclosure(\delta(q', b)) \cup \eclosure(\delta(q'', b))
+                    && \text{(unione su due stati)} \\
+                &= \eclosure(\emptyset) \cup \eclosure(\{s\}) \\
+                &= \emptyset \cup \{s, t\} = \{s, t\}
+                    && \text{($\delta(s, \varepsilon) = \{t\}$, $\delta(t,
+                    \varepsilon) = \emptyset$)}.
+        \end{align*}
+
+        A ogni livello l'insieme su cui si fa l'unione \`e il valore restituito dal livello
+        sottostante: $\{q\}$ per la lettura di $a$, $\{q', q''\}$ per la lettura di $b$.
+        Il ramo $p = q'$ non contribuisce, perch\'e da $q'$ non si legge $b$; \`e il ramo
+        $p = q''$, raggiunto solo grazie alla $\varepsilon$-closure applicata dopo $a$, a
+        portare in $s$.
     \end{esempio}
 \end{document}
