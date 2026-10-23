@@ -1378,6 +1378,7 @@
     \end{esempio}
     
     \subsection{Come dimostrare che un linguaggio \`e regolare}
+    \label{sec:dimostrare-regolare}
     Un modo per dimostrare che un linguaggio \`e regolare \`e costruire un DFA che lo
     riconosca. L'uguaglianza $\mathcal{L} = \mathcal{L}(\mathcal{M})$ verr\`a dimostrata
     mediante la duplice inclusione $\mathcal{L} \subseteq \mathcal{L}(\mathcal{M})$ e
@@ -2196,4 +2197,657 @@
         $p = q''$, raggiunto solo grazie alla $\varepsilon$-closure applicata dopo $a$, a
         portare in $s$.
     \end{esempio}
+
+    \chapter{Esercizi}
+    \section{Automi a stati finiti deterministici}
+    Gli esercizi seguenti dimostrano che un linguaggio \`e regolare costruendo un DFA che
+    lo riconosce, con il metodo della Sezione~\ref{sec:dimostrare-regolare}.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio $\mathcal{L} = \{0^{3n} \mid n \geq 0\}$
+    sull'alfabeto $\Sigma = \{0, 1\}$ \`e regolare.}
+
+    \textsc{Svolgimento}. Il linguaggio contiene le stringhe formate solo da zeri, in numero
+    multiplo di $3$. Lo riconosce il DFA
+    $\mathcal{M} = \langle \{q_0, q_1, q_2, q_3\}, \{0, 1\}, \delta, q_0, \{q_0\} \rangle$
+    della Figura~\ref{fig:es-zeri}: gli stati $q_0$, $q_1$ e $q_2$ contano gli zeri letti
+    modulo $3$, mentre $q_3$ \`e lo stato in cui si finisce, senza pi\`u uscirne, appena si
+    legge un $1$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+        ]
+            \node[state, initial, accepting] (q0) {$q_0$};
+            \node[state, right=of q0] (q1) {$q_1$};
+            \node[state, below=of q1] (q2) {$q_2$};
+            \node[state, below=of q0] (q3) {$q_3$};
+            \path (q0) edge node {$0$} (q1)
+                (q1) edge node {$0$} (q2)
+                (q2) edge node[pos=0.2] {$0$} (q0)
+                (q0) edge node[swap] {$1$} (q3)
+                (q1) edge node[pos=0.2, swap] {$1$} (q3)
+                (q2) edge node {$1$} (q3)
+                (q3) edge[loop below] node {$0, 1$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[right=1.8cm of q1, yshift=-1.25cm] {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_1$ & $q_3$ \\
+                    $q_1$ & $q_2$ & $q_3$ \\
+                    $q_2$ & $q_0$ & $q_3$ \\
+                    $q_3$ & $q_3$ & $q_3$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce $\{0^{3n} \mid n \geq 0\}$ e la sua matrice di
+            transizione.}
+        \label{fig:es-zeri}
+    \end{figure}
+
+    Bisogna dimostrare che $\mathcal{L}(\mathcal{M}) = \mathcal{L}$, cio\`e
+    \begin{equation*}
+        \begin{cases}
+            x \in \mathcal{L} \implies \hat{\delta}(q_0, x) \in \mathcal{F}, \\
+            x \notin \mathcal{L} \implies \hat{\delta}(q_0, x) \notin \mathcal{F}.
+        \end{cases}
+    \end{equation*}
+    Come nell'esempio della Sezione~\ref{sec:dimostrare-regolare}, la seconda condizione
+    non basta per il passo induttivo, perch\'e non dice in quale dei tre stati non finali
+    si trovi l'automa. La si scorpora quindi secondo il significato degli stati, ottenendo
+    la propriet\`a pi\`u forte
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(1)} \\
+            x \notin \mathcal{L} \land x = 0^{3i+1} \implies \hat{\delta}(q_0, x) = q_1,
+                & \text{(2)} \\
+            x \notin \mathcal{L} \land x = 0^{3i+2} \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(3)} \\
+            x \notin \mathcal{L} \land \text{``$x$ contiene almeno un $1$''}
+                \implies \hat{\delta}(q_0, x) = q_3,
+                & \text{(4)}
+        \end{cases}
+    \end{equation*}
+    con $i \geq 0$. Le quattro condizioni coprono tutte le stringhe e si escludono a
+    vicenda: una stringa o contiene almeno un $1$, oppure \`e della forma $0^k$, e in tal
+    caso $k$ diviso per $3$ d\`a resto $0$, $1$ o $2$.
+
+    Per $|x| \leq 2$ esistono sia stringhe in $\mathcal{L}$ sia stringhe non in
+    $\mathcal{L}$, quindi si sceglie questa come base:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            |x| = 0 \quad & x = \varepsilon \in \mathcal{L} & \qquad
+                & \hat{\delta}(q_0, \varepsilon) = q_0
+                &\quad \text{(caso 1 di $\Psi$)} \\
+            |x| = 1 \quad & x = 0 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 0) = q_1
+                &\quad \text{(caso 2 di $\Psi$)} \\
+            & x = 1 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 1) = q_3
+                &\quad \text{(caso 4 di $\Psi$)} \\
+            |x| = 2 \quad & x = 00 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 00) = q_2
+                &\quad \text{(caso 3 di $\Psi$)} \\
+            & x = 01 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 01) = q_3
+                &\quad \text{(caso 4 di $\Psi$)} \\
+            & x = 10 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 10) = q_3
+                &\quad \text{(caso 4 di $\Psi$)} \\
+            & x = 11 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 11) = q_3
+                &\quad \text{(caso 4 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 2$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'0$ oppure $x = x'1$, con $|x'| = n$: per ipotesi induttiva vale $\Psi(x')$, e
+    $x'$ soddisfa esattamente una delle quattro condizioni. Si distingue un caso per
+    ciascuna di esse.
+    \begin{enumerate}
+        \item $x' \in \mathcal{L}$, cio\`e $x' = 0^{3i}$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = 0^{3i+1}$, quindi $x \notin \mathcal{L}$ (caso 2 di
+                    $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_1.
+                    \end{equation*}
+                \item $x = x'1$ contiene un $1$, quindi $x \notin \mathcal{L}$ (caso 4 di
+                    $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_3.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x' = 0^{3i+1}$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = 0^{3i+2}$, quindi $x \notin \mathcal{L}$ (caso 3 di
+                    $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_2.
+                    \end{equation*}
+                \item $x = x'1$ contiene un $1$, quindi $x \notin \mathcal{L}$ (caso 4 di
+                    $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_3.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x' = 0^{3i+2}$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_2$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = 0^{3i+3} = 0^{3(i+1)}$, quindi $x \in \mathcal{L}$ (caso 1
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_2, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1$ contiene un $1$, quindi $x \notin \mathcal{L}$ (caso 4 di
+                    $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_2, 1) = q_3.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x'$ contiene almeno un $1$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_3$. Qualunque sia l'ultimo simbolo $a \in \{0, 1\}$,
+            anche $x = x'a$ contiene almeno un $1$, quindi $x \notin \mathcal{L}$ (caso 4 di
+            $\Psi$):
+            \begin{equation*}
+                \hat{\delta}(q_0, x'a)
+                \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), a)
+                \overset{\text{Hp}}{=} \delta(q_3, a) = q_3.
+            \end{equation*}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$, quindi
+    $\Psi(x)$ vale anche per $|x| = n + 1$ e, per induzione, per ogni $x \in \Sigma^*$. In
+    particolare, se $x \in \mathcal{L}$ allora $\hat{\delta}(q_0, x) = q_0 \in \mathcal{F}$;
+    se $x \notin \mathcal{L}$ allora $\hat{\delta}(q_0, x) \in \{q_1, q_2, q_3\}$, e nessuno
+    di questi stati \`e finale. Quindi $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    $\mathcal{L} = \{x \in \Sigma^* \mid \exists v \in \Sigma^*,\, a \in \Sigma.\;
+    x = v0a\}$ sull'alfabeto $\Sigma = \{0, 1\}$, formato dalle stringhe il cui penultimo
+    simbolo \`e $0$, \`e regolare.}
+
+    \textsc{Svolgimento}. Lo riconosce il DFA
+    $\mathcal{M} = \langle \{q_0, q_1, q_2, q_3\}, \{0, 1\}, \delta, q_0, \{q_2, q_3\}
+    \rangle$ della Figura~\ref{fig:es-penultimo}. Ogni stato ricorda gli ultimi due simboli
+    letti: $q_0$ corrisponde a $11$, $q_1$ a $10$, $q_2$ a $00$ e $q_3$ a $01$. Gli stati
+    finali sono quelli in cui il penultimo simbolo \`e $0$, cio\`e $q_2$ e $q_3$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+        ]
+            \node[state, initial] (q0) {$q_0$};
+            \node[state, right=of q0] (q1) {$q_1$};
+            \node[state, accepting, below=of q1] (q2) {$q_2$};
+            \node[state, accepting, below=of q0] (q3) {$q_3$};
+            \path (q0) edge node {$0$} (q1)
+                (q0) edge[loop above] node {$1$} ()
+                (q1) edge node {$0$} (q2)
+                (q1) edge[bend left=12] node[pos=0.3] {$1$} (q3)
+                (q3) edge[bend left=12] node[pos=0.3] {$0$} (q1)
+                (q2) edge[loop right] node {$0$} ()
+                (q2) edge node {$1$} (q3)
+                (q3) edge node {$1$} (q0);
+
+            % Matrice di transizione, a destra del diagramma
+            \node[right=2.6cm of q1, yshift=-1.25cm] {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_1$ & $q_0$ \\
+                    $q_1$ & $q_2$ & $q_3$ \\
+                    $q_2$ & $q_2$ & $q_3$ \\
+                    $q_3$ & $q_1$ & $q_0$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce le stringhe con penultimo simbolo $0$ e la sua matrice di
+            transizione.}
+        \label{fig:es-penultimo}
+    \end{figure}
+
+    Le stringhe con meno di due simboli non hanno un penultimo simbolo, quindi non
+    appartengono a $\mathcal{L}$. Per le stringhe con almeno due simboli si scorpora la
+    tesi secondo gli ultimi due simboli letti, ottenendo
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L} \land x = v00 \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(1)} \\
+            x \in \mathcal{L} \land x = v01 \implies \hat{\delta}(q_0, x) = q_3,
+                & \text{(2)} \\
+            x \notin \mathcal{L} \land x = v10 \implies \hat{\delta}(q_0, x) = q_1,
+                & \text{(3)} \\
+            x \notin \mathcal{L} \land x = v11 \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(4)}
+        \end{cases}
+    \end{equation*}
+    con $v \in \Sigma^*$. Per $|x| \geq 2$ le quattro condizioni coprono tutte le stringhe
+    e si escludono a vicenda, perch\'e dipendono solo dagli ultimi due simboli.
+
+    La prima lunghezza per cui esistono sia stringhe in $\mathcal{L}$ sia stringhe non in
+    $\mathcal{L}$ \`e $|x| = 2$, quindi la base comprende tutte le stringhe con
+    $|x| \leq 2$. Quelle pi\`u corte non soddisfano nessuna condizione di $\Psi$ e si
+    verificano direttamente sulla tesi:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            |x| = 0 \quad & x = \varepsilon \notin \mathcal{L} & \qquad
+                & \hat{\delta}(q_0, \varepsilon) = q_0 \notin \mathcal{F} & & \\
+            |x| = 1 \quad & x = 0 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 0) = q_1 \notin \mathcal{F} & & \\
+            & x = 1 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 1) = q_0 \notin \mathcal{F} & & \\
+            |x| = 2 \quad & x = 00 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 00) = q_2
+                &\quad & \text{(caso 1 di $\Psi$)} \\
+            & x = 01 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 01) = q_3
+                && \text{(caso 2 di $\Psi$)} \\
+            & x = 10 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 10) = q_1
+                && \text{(caso 3 di $\Psi$)} \\
+            & x = 11 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 11) = q_0
+                && \text{(caso 4 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $2 \leq |x| \leq n$, per un certo $n \geq 2$, e sia $x$ una stringa con
+    $|x| = n + 1$. Allora $x = x'0$ oppure $x = x'1$, con $|x'| = n \geq 2$: per ipotesi
+    induttiva vale $\Psi(x')$, e $x'$ soddisfa esattamente una delle quattro condizioni.
+    Gli ultimi due simboli di $x$ sono l'ultimo simbolo di $x'$ seguito da quello appena
+    letto.
+    \begin{enumerate}
+        \item $x' \in \mathcal{L}$ e $x' = v00$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_2$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = (v0)00$, quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_2, 0) = q_2.
+                    \end{equation*}
+                \item $x = x'1 = (v0)01$, quindi $x \in \mathcal{L}$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_2, 1) = q_3.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \in \mathcal{L}$ e $x' = v01$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_3$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = (v0)10$, quindi $x \notin \mathcal{L}$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_3, 0) = q_1.
+                    \end{equation*}
+                \item $x = x'1 = (v0)11$, quindi $x \notin \mathcal{L}$ (caso 4 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_3, 1) = q_0.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x' = v10$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = (v1)00$, quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_2.
+                    \end{equation*}
+                \item $x = x'1 = (v1)01$, quindi $x \in \mathcal{L}$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_3.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x' = v11$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = (v1)10$, quindi $x \notin \mathcal{L}$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_1.
+                    \end{equation*}
+                \item $x = x'1 = (v1)11$, quindi $x \notin \mathcal{L}$ (caso 4 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_0.
+                    \end{equation*}
+            \end{enumerate}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$, quindi
+    $\Psi(x)$ vale per ogni $x$ con $|x| \geq 2$. Ne segue la tesi: se $x \in \mathcal{L}$,
+    allora $|x| \geq 2$ e $x$ termina con $00$ o $01$, quindi
+    $\hat{\delta}(q_0, x) \in \{q_2, q_3\} = \mathcal{F}$; se $x \notin \mathcal{L}$, allora
+    $x$ ha meno di due simboli, e la base mostra che $\hat{\delta}(q_0, x) \notin
+    \mathcal{F}$, oppure termina con $10$ o $11$, e $\hat{\delta}(q_0, x) \in \{q_0, q_1\}$,
+    stati non finali. Quindi $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    $\mathcal{L} = \{x \in \Sigma^* \mid \text{``$x$ contiene almeno due $0$
+    consecutivi''}\}$ sull'alfabeto $\Sigma = \{0, 1\}$ \`e regolare.}
+
+    \textsc{Svolgimento}. Lo riconosce il DFA
+    $\mathcal{M} = \langle \{q_0, q_1, q_2\}, \{0, 1\}, \delta, q_0, \{q_2\} \rangle$
+    della Figura~\ref{fig:es-due-zeri}. Finch\'e non ha letto due $0$ consecutivi l'automa
+    ricorda soltanto l'ultimo simbolo: \`e in $q_1$ se l'ultimo simbolo \`e $0$ e in $q_0$
+    altrimenti. Appena legge il secondo $0$ consecutivo passa in $q_2$, da cui non esce
+    pi\`u.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+        ]
+            \node[state, initial] (q0) {$q_0$};
+            \node[state, right=of q0] (q1) {$q_1$};
+            \node[state, accepting, right=of q1] (q2) {$q_2$};
+            \path (q0) edge node {$0$} (q1)
+                (q1) edge[bend left] node {$1$} (q0)
+                (q1) edge node {$0$} (q2)
+                (q0) edge[loop above] node {$1$} ()
+                (q2) edge[loop above] node {$0, 1$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[right=1.8cm of q2] {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_1$ & $q_0$ \\
+                    $q_1$ & $q_2$ & $q_0$ \\
+                    $q_2$ & $q_2$ & $q_2$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce le stringhe con almeno due $0$ consecutivi e la sua
+            matrice di transizione.}
+        \label{fig:es-due-zeri}
+    \end{figure}
+
+    Si scorpora la tesi secondo il significato degli stati, ottenendo
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \notin \mathcal{L} \land x = w0 \implies \hat{\delta}(q_0, x) = q_1,
+                & \text{(1)} \\
+            x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(2)} \\
+            x \notin \mathcal{L} \land x = w1 \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(3)}
+        \end{cases}
+    \end{equation*}
+    con $w \in \Sigma^*$. Le tre condizioni si escludono a vicenda e coprono tutte le
+    stringhe tranne $\varepsilon$, che non ha un ultimo simbolo e si verifica a parte.
+
+    La prima lunghezza per cui esistono sia stringhe in $\mathcal{L}$ sia stringhe non in
+    $\mathcal{L}$ \`e $|x| = 2$, quindi la base comprende tutte le stringhe con
+    $|x| \leq 2$:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            |x| = 0 \quad & x = \varepsilon \notin \mathcal{L} & \qquad
+                & \hat{\delta}(q_0, \varepsilon) = q_0 \notin \mathcal{F} & & \\
+            |x| = 1 \quad & x = 0 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 0) = q_1
+                &\quad & \text{(caso 1 di $\Psi$)} \\
+            & x = 1 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 1) = q_0
+                && \text{(caso 3 di $\Psi$)} \\
+            |x| = 2 \quad & x = 00 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 00) = q_2
+                && \text{(caso 2 di $\Psi$)} \\
+            & x = 01 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 01) = q_0
+                && \text{(caso 3 di $\Psi$)} \\
+            & x = 10 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 10) = q_1
+                && \text{(caso 1 di $\Psi$)} \\
+            & x = 11 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 11) = q_0
+                && \text{(caso 3 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 2$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'0$ oppure $x = x'1$, con $|x'| = n \geq 2$: per ipotesi induttiva vale
+    $\Psi(x')$, e $x'$ soddisfa esattamente una delle tre condizioni.
+    \begin{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x' = w0$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = w00$ contiene due $0$ consecutivi, quindi
+                    $x \in \mathcal{L}$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_2.
+                    \end{equation*}
+                \item $x = x'1 = w01$: aggiungere un $1$ non crea due $0$ consecutivi,
+                    quindi $x \notin \mathcal{L}$ e $x$ termina con $1$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_0.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \in \mathcal{L}$: per ipotesi induttiva $\hat{\delta}(q_0, x') = q_2$.
+            Qualunque sia l'ultimo simbolo $a \in \{0, 1\}$, $x = x'a$ contiene ancora i due
+            $0$ consecutivi di $x'$, quindi $x \in \mathcal{L}$ (caso 2 di $\Psi$):
+            \begin{equation*}
+                \hat{\delta}(q_0, x'a)
+                \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), a)
+                \overset{\text{Hp}}{=} \delta(q_2, a) = q_2.
+            \end{equation*}
+        \item $x' \notin \mathcal{L}$ e $x' = w1$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = w10$: poich\'e $x'$ termina con $1$, aggiungere uno $0$ non
+                    crea due $0$ consecutivi, quindi $x \notin \mathcal{L}$ e $x$ termina con
+                    $0$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_1.
+                    \end{equation*}
+                \item $x = x'1 = w11$: aggiungere un $1$ non crea due $0$ consecutivi,
+                    quindi $x \notin \mathcal{L}$ e $x$ termina con $1$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_0.
+                    \end{equation*}
+            \end{enumerate}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$. Quindi
+    $\hat{\delta}(q_0, x) = q_2 \in \mathcal{F}$ se $x \in \mathcal{L}$, mentre se
+    $x \notin \mathcal{L}$ lo stato raggiunto \`e $q_0$ o $q_1$, che non sono finali:
+    $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    $\mathcal{L} = \{x \in \Sigma^* \mid \text{``$x$ non contiene due $1$
+    consecutivi''}\}$ sull'alfabeto $\Sigma = \{0, 1\}$ \`e regolare.}
+
+    \textsc{Svolgimento}. Lo riconosce il DFA
+    $\mathcal{M} = \langle \{q_0, q_1, q_2\}, \{0, 1\}, \delta, q_0, \{q_0, q_1\} \rangle$
+    della Figura~\ref{fig:es-no-uno}. Finch\'e non ha letto due $1$ consecutivi l'automa
+    ricorda soltanto l'ultimo simbolo: \`e in $q_1$ se l'ultimo simbolo \`e $1$ e in $q_0$
+    altrimenti. Appena legge il secondo $1$ consecutivo passa in $q_2$, da cui non esce
+    pi\`u e che non \`e finale.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            ->, >={Stealth}, auto, thick, initial text={}, node distance=2.5cm
+        ]
+            \node[state, initial, accepting] (q0) {$q_0$};
+            \node[state, accepting, right=of q0] (q1) {$q_1$};
+            \node[state, right=of q1] (q2) {$q_2$};
+            \path (q0) edge node {$1$} (q1)
+                (q1) edge[bend left] node {$0$} (q0)
+                (q1) edge node {$1$} (q2)
+                (q0) edge[loop above] node {$0$} ()
+                (q2) edge[loop above] node {$0, 1$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[right=1.8cm of q2] {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_0$ & $q_1$ \\
+                    $q_1$ & $q_0$ & $q_2$ \\
+                    $q_2$ & $q_2$ & $q_2$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce le stringhe senza due $1$ consecutivi e la sua matrice
+            di transizione.}
+        \label{fig:es-no-uno}
+    \end{figure}
+
+    Si scorpora la tesi secondo il significato degli stati, ottenendo
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L} \land x = w0 \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(1)} \\
+            x \in \mathcal{L} \land x = w1 \implies \hat{\delta}(q_0, x) = q_1,
+                & \text{(2)} \\
+            x \notin \mathcal{L} \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(3)}
+        \end{cases}
+    \end{equation*}
+    con $w \in \Sigma^*$. Anche qui le tre condizioni si escludono a vicenda e coprono
+    tutte le stringhe tranne $\varepsilon$, che si verifica a parte.
+
+    La prima lunghezza per cui esistono sia stringhe in $\mathcal{L}$ sia stringhe non in
+    $\mathcal{L}$ \`e $|x| = 2$, quindi la base comprende tutte le stringhe con
+    $|x| \leq 2$:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            |x| = 0 \quad & x = \varepsilon \in \mathcal{L} & \qquad
+                & \hat{\delta}(q_0, \varepsilon) = q_0 \in \mathcal{F} & & \\
+            |x| = 1 \quad & x = 0 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 0) = q_0
+                &\quad & \text{(caso 1 di $\Psi$)} \\
+            & x = 1 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 1) = q_1
+                && \text{(caso 2 di $\Psi$)} \\
+            |x| = 2 \quad & x = 00 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 00) = q_0
+                && \text{(caso 1 di $\Psi$)} \\
+            & x = 01 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 01) = q_1
+                && \text{(caso 2 di $\Psi$)} \\
+            & x = 10 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 10) = q_0
+                && \text{(caso 1 di $\Psi$)} \\
+            & x = 11 \notin \mathcal{L} &
+                & \hat{\delta}(q_0, 11) = q_2
+                && \text{(caso 3 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 2$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'0$ oppure $x = x'1$, con $|x'| = n \geq 2$: per ipotesi induttiva vale
+    $\Psi(x')$, e $x'$ soddisfa esattamente una delle tre condizioni.
+    \begin{enumerate}
+        \item $x' \in \mathcal{L}$ e $x' = w0$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = w00$: aggiungere uno $0$ non crea due $1$ consecutivi,
+                    quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1 = w01$: poich\'e $x'$ termina con $0$, aggiungere un $1$ non
+                    crea due $1$ consecutivi, quindi $x \in \mathcal{L}$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_1.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \in \mathcal{L}$ e $x' = w1$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0 = w10$: aggiungere uno $0$ non crea due $1$ consecutivi,
+                    quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1 = w11$ termina con due $1$ consecutivi, quindi
+                    $x \notin \mathcal{L}$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_2.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$: per ipotesi induttiva $\hat{\delta}(q_0, x') = q_2$.
+            Qualunque sia l'ultimo simbolo $a \in \{0, 1\}$, $x = x'a$ contiene ancora i due
+            $1$ consecutivi di $x'$, quindi $x \notin \mathcal{L}$ (caso 3 di $\Psi$):
+            \begin{equation*}
+                \hat{\delta}(q_0, x'a)
+                \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), a)
+                \overset{\text{Hp}}{=} \delta(q_2, a) = q_2.
+            \end{equation*}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$. Quindi
+    se $x \in \mathcal{L}$ lo stato raggiunto \`e $q_0$ o $q_1$, entrambi finali, mentre se
+    $x \notin \mathcal{L}$ \`e $q_2 \notin \mathcal{F}$: $\mathcal{L}(\mathcal{M}) =
+    \mathcal{L}$.
 \end{document}
