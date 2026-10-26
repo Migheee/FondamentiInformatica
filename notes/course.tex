@@ -33,7 +33,7 @@
 \setcounter{tocdepth}{1}
 \setlength{\skip\footins}{15pt plus 4pt minus 2pt}
 \usetikzlibrary{positioning, fit, arrows.meta, backgrounds, matrix,
-    decorations.pathreplacing, automata}
+decorations.pathreplacing, automata, decorations.pathmorphing}
 \defaultfontfeatures{}
 \setmonofont{JetBrainsMono Nerd Font}[
     Scale=MatchLowercase, Contextuals=Alternate
@@ -2353,31 +2353,235 @@
     \begin{proof}
         Si procede per induzione, costruendo per ogni caso base e per le applicazioni
         dei passi induttivi.
-
         \textsc{Caso Base}
         \begin{itemize}
             \item se $r = \varepsilon$, allora l'automa seguente
-                riconosce $\mathcal{L}(r) = \varepsilon$.
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}[
+                        shorten >=1pt,
+                        node distance=2cm,
+                        on grid,
+                        auto,
+                        every state/.style={draw, thick, minimum size=2em}
+                        ]
+                        \node[state, accepting] (q0) {$q_0$};
+                    \end{tikzpicture}
+
+                    \vspace{0.5em}
+                \end{figure}
+                riconosce $\mathcal{L}(r) = \{\varepsilon\}$.
             \item se $r = \emptyset$, allora l'automa seguente
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}[
+                        shorten >=1pt,
+                        node distance=2.5cm,
+                        on grid,
+                        auto,
+                        every state/.style={draw, thick, minimum size=2em}
+                        ]
+                        \node[state] (q0) {$q_0$};
+                        \node[state, accepting] (q1) [right of=q0] {$q_1$};
+                    \end{tikzpicture}
+                \end{figure}
                 riconosce $\mathcal{L}(r) = \emptyset$.
             \item se $r = a$, allora l'automa seguente
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}[
+                        shorten >=1pt,
+                        node distance=2.5cm,
+                        on grid,
+                        auto,
+                        every state/.style={draw, thick, minimum size=2em}
+                        ]
+                        \node[state] (q0) {$q_0$};
+                        \node[state, accepting] (q1) [right of=q0] {$q_1$};
+
+                        \path[->] (q0) edge node {a} (q1);
+                    \end{tikzpicture}
+                \end{figure}
                 riconosce $\mathcal{L}(r) = \emptyset$.
         \end{itemize}
-
+        \newpage
         \textsc{Passo Induttivo}
         Anche qui ci sono diversi casi da analizzare:
         \begin{itemize}
             \item Sia $r = r_1 + r_2$. Per $i \in \{1, 2\}$, sia $\mathcal{M}_i$, con stato 
                 iniziale $q_0^i$ e stato finale  $q_f^i$ che riconoscono il linguaggio
                 $\mathcal{L}(r_i)$. L'esistenza di tali automi \`e garantita per ipotesi
-                induttiva. Il seguente automa, con stato inziale $q_0$ e stato finale 
+                induttiva. Il seguente automa, con stato iniziale $q_0$ e stato finale 
                 $q_f$ riconosce il linguaggio $\mathcal{L}(r) = \mathcal{L}(r_1) \cup 
                 \mathcal{L}(r_2)$
-        \end{itemize}
 
+                \vspace{1.5em}
+                {\centering
+                    \begin{tikzpicture}[
+                        shorten >=1pt,
+                        node distance=2.5cm,
+                        on grid,
+                        auto,
+                        every state/.style={draw, thick, minimum size=2em, inner sep=1pt}
+                        ]
+                        % Stati
+                        \node[state, initial, initial text=] (q02) at (0, 0) {$q_0''$};
+                        \node[state] (q0)  at (2.5, 0.6) {$q_0$};
+                        \node[state] (qf)  at (5.5, 0.6) {$q_f$};
+                        \node[state] (q01) at (2.5, -0.6) {$q_0'$};
+                        \node[state] (qf1) at (5.5, -0.6) {$q_f'$};
+                        \node[state, accepting] (qf2) at (8, 0) {$q_f''$};
+
+                        % Transizioni epsilon
+                        \path[->]
+                            (q02) edge node {$\varepsilon$} (q0)
+                            (q02) edge node[swap] {$\varepsilon$} (q01)
+                            (qf)  edge node {$\varepsilon$} (qf2)
+                            (qf1) edge node[swap] {$\varepsilon$} (qf2);
+                        % Transizioni per i sotto-automi
+                        \draw[<->, decorate, 
+                            decoration={snake, amplitude=.4mm, segment length=2mm, 
+                            post length=1mm, pre length=1mm}] 
+                            (q0) -- node[above] {$\mathcal{L}(r)$} (qf);
+
+                        \draw[<->, decorate, 
+                            decoration={snake, amplitude=.4mm, segment length=2mm, 
+                            post length=1mm, pre length=1mm}] 
+                            (q01) -- node[below] {$\mathcal{L}(s)$} (qf1);   
+                \end{tikzpicture}\par}
+                \vspace{1.5em}
+
+            \item Sia $r = r_1r_2$. Per $i \in \{1,2\}$, sia $\mathcal{M}_i$, con 
+                stato iniziale
+                $q_0^i$ e stato finale $q_f^i$ l'automa che riconosce $\mathcal{L}(r_i)$.
+                L'esistenza di tali automi \`e assicurata dall'ipotesi induttiva.
+                Il seguente automa con stato iniziale $q_0$ e stato finale $q_f$
+                riconosce il linguaggio $\mathcal{L}(r_1)\mathcal{L}(r_2)$:
+
+                {\centering
+                    \vspace{0.5em}
+                    \begin{tikzpicture}[
+                        shorten >=1pt,
+                        node distance=1.0cm,
+                        on grid,
+                        auto,
+                        every state/.style={draw, thick, minimum size=2em, inner sep = 1pt}
+                        ]
+                        % Stati allineati in orizzontale
+                        \node[state, initial, initial text=] (q02) at (0, 0) {$q_0''$};
+                        \node[state] (q0)  at (2, 0) {$q_0$};
+                        \node[state] (qf)  at (5, 0) {$q_f$};
+                        \node[state] (q01) at (6.5, 0) {$q_0'$};
+                        \node[state] (qf1) at (9.25, 0) {$q_f'$};
+                        \node[state, accepting] (qf2) at (11, 0) {$q_f''$};
+
+                        % Transizioni epsilon
+                        \path[->]
+                            (q02) edge node {$\varepsilon$} (q0)
+                            (qf)  edge node {$\varepsilon$} (q01)
+                            (qf1) edge node {$\varepsilon$} (qf2);
+
+                        % Transizioni per i sotto-automi
+                        \draw[<->, decorate,
+                            decoration={snake, amplitude=.4mm, segment length=2mm,
+                            post length=1mm, pre length=1mm}]
+                            (q0) -- node[above] {$\mathcal{L}(r)$} (qf);
+
+                        \draw[<->, decorate,
+                            decoration={snake, amplitude=.4mm, segment length=2mm,
+                            post length=1mm, pre length=1mm}]
+                            (q01) -- node[above] {$\mathcal{L}(s)$} (qf1);
+                \end{tikzpicture}\par}
+
+                \vspace{1.5em}
+            \item $\mathcal{L}(r) = (\mathcal{L}(r_1))^*$:
+
+                Sia $\mathcal{M}_1$, con stato iniziale $q_0^1$ e stato 
+                finale $q_f^1$ l'automa che
+                riconosce $\mathcal{L}(r_1)$. \\ L'esistenza di tale automa \`e assicurata
+                dall'ipotesi induttiva. Il seguente automa, con stato iniziale
+                $q_0$ e stato finale $q_f$ riconosce $\mathcal{L}(r) = (\mathcal{L}(r_1))^*$:
+
+                \vspace{1em}
+                {\centering
+                    \begin{tikzpicture}[
+                        shorten >=1pt,
+                        node distance=3cm,
+                        on grid,
+                        auto,
+                        every state/.style={draw, thick, minimum size=2.5em, inner sep=1pt}
+                        ]
+                        % Stati allineati in orizzontale
+                        \node[state, initial, initial text=] (q01) at (0, 0) {$q_0'$};
+                        \node[state] (q0)  at (3, 0) {$q_0$};
+                        \node[state] (qf)  at (6, 0) {$q_f$};
+                        \node[state, accepting] (qf1) at (9, 0) {$q_f'$};
+
+                        % Transizioni epsilon standard e di ritorno
+                        \path[->]
+                            (q01) edge node {$\varepsilon$} (q0)
+                            (qf)  edge node {$\varepsilon$} (qf1)
+                            (qf)  edge[bend left=40] node {$\varepsilon$} (q0)
+                            (q01) edge[bend right=40] node[swap] {$\varepsilon$} (qf1);
+
+                        % Transizione per il sotto-automa (serpentina)
+                        \draw[<->, decorate,
+                            decoration={snake, amplitude=.4mm, segment length=2mm,
+                            post length=1mm, pre length=1mm}]
+                            (q0) -- node[above] {$\mathcal{L}(r)$} (qf);
+                \end{tikzpicture}\par}
+        \end{itemize}
     \end{proof}
 
-    
+    \section{Propriet\`a dei Linguaggi Regolari}
+
+    I linguaggi regolari godono di alcune propriet\`a di chiusura. Sia LR
+    l'insieme dei linguaggi regolari:
+    \begin{displaymath}
+        \mathrm{LR} = \{ \mathcal{L} \subseteq \Sigma^* \mid \text{``}\mathcal{L}
+            \text{ \`e un linguaggio regolare''} \}.
+    \end{displaymath}
+
+    LR \`e chiuso rispetto all'\textit{unione}, alla \textit{concatenazione}
+    e alla \textit{stella di Kleene}:\footnote{La chiusura rispetto a queste
+        operazioni deriva direttamente dall'equivalenza con le espressioni
+    regolari.}
+    \begin{displaymath}
+        \mathcal{L}_1, \mathcal{L}_2 \in \mathrm{LR} \implies
+        \begin{cases}
+            \mathcal{L}_1 \cup \mathcal{L}_2 \in \mathrm{LR} \\
+            \mathcal{L}_1 \cdot \mathcal{L}_2 \in \mathrm{LR} \\
+            \mathcal{L}_1^* \in \mathrm{LR}.
+        \end{cases}
+    \end{displaymath}
+
+    Inoltre, LR \`e chiuso anche rispetto alla
+    \textit{complementazione}:\footnote{L'operazione di complementazione si
+        traduce in un DFA nella semplice ridefinizione dell'insieme degli stati
+    finali come $F' = Q \setminus F$.}
+    \begin{displaymath}
+        \mathcal{L} \in \mathrm{LR} \implies \overline{\mathcal{L}} \in \mathrm{LR}.
+    \end{displaymath}
+
+    Per le leggi di De Morgan, la chiusura rispetto all'unione e alla
+    complementazione implica anche la chiusura rispetto
+    all'\textit{intersezione}:
+    \begin{displaymath}
+        \mathcal{L}_1 \cap \mathcal{L}_2 = \overline{\overline{\mathcal{L}_1} \cup 
+        \overline{\mathcal{L}_2}} \implies
+        \mathcal{L}_1 \cap \mathcal{L}_2 \in \mathrm{LR}.
+    \end{displaymath}
+
+    \textit{Nota.} La propriet\`a di chiusura rispetto all'unione e
+    all'intersezione si applica solo quando il numero di insiemi che si
+    stanno considerando \`e finito. Questo significa che, anche se i
+    singoli $L_n$ sono regolari:
+    \begin{align*}
+        \forall m \in \mathbb{N}, \mathcal{L}_m \text{ è regolare} &\not\implies 
+        \bigcup_{m \in \mathbb{N}} \mathcal{L}_m \text{ è regolare}\\
+        \forall m \in \mathbb{N}, \mathcal{L}_m \text{ è regolare} &\not\implies 
+        \bigcap_{m \in \mathbb{N}} \mathcal{L}_m \text{ è regolare}\\
+    \end{align*}
 
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
