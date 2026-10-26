@@ -2057,10 +2057,11 @@
         \eclosure(q) = \{p \in \mathcal{Q} \mid p \text{ \`e raggiungibile da } q
         \text{ con zero o pi\`u } \varepsilon\text{-transizioni}\}.
     \end{equation*}
-    Equivalentemente, \`e il pi\`u piccolo insieme che contiene $q$ e che, insieme a
-    ogni suo stato $p$, contiene anche $\delta(p, \varepsilon)$. In particolare
+    Equivalentemente, \`e il pi\`u piccolo insieme che contiene $q$, tutti gli stati $p$
+    raggingibili da $q$ fornendo come input $\varepsilon$ e
+    contiene anche $\delta(p, \varepsilon)$. In particolare
     $q \in \eclosure(q)$, perch\'e $q$ si raggiunge con zero $\varepsilon$-transizioni,
-    e $\delta(q, \varepsilon) \subseteq \eclosure(q)$. Se inoltre
+    e $\delta(q, \varepsilon) \subseteq \eclosure(q)$. Si consideri ad esempio
     $q \xrightarrow{\varepsilon} p \xrightarrow{\varepsilon} r$, anche $r$ appartiene a
     $\eclosure(q)$, pur non appartenendo necessariamente a $\delta(q, \varepsilon)$.
     Per un insieme di stati $S \subseteq \mathcal{Q}$ si pone
@@ -2109,12 +2110,13 @@
         $\hat{\delta}(q, \varepsilon) = \eclosure(q) = \{q\}$ e l'unione \`e su un solo
         stato. Leggendo $a$ si ottiene $\delta(q, a) = \{q'\}$, e infine si seguono tutte
         le catene di archi $\varepsilon$ a partire da $q'$:
-        \begin{equation*}
-            \hat{\delta}(q, a)
-            = \bigcup_{p \in \hat{\delta}(q, \varepsilon)} \eclosure(\delta(p, a))
-            = \eclosure(\{q'\})
-            = \{q', q'', q'''\}.
-        \end{equation*}
+        \begin{align*}
+            \hat{\delta}(q, a) &= \bigcup_{p \in \hat{\delta}(q, \varepsilon)} 
+            \eclosure(\delta(p, a))\\
+                               &= \eclosure(\{q'\}) \qquad
+                               \text{ Usando l'estensione sugli Insiemi }\\
+                               &= \{q', q'', q'''\}.
+        \end{align*}
         Per calcolare la chiusura si parte da $\{q'\}$ e si aggiungono gli stati
         raggiungibili con un arco $\varepsilon$ da quelli gi\`a presenti, finch\'e non se
         ne trovano di nuovi: prima $q''$, poi $q'''$. Da $q'''$ non escono archi
@@ -2169,7 +2171,7 @@
         \begin{equation*}
             \hat{\delta}(q, \varepsilon) = \eclosure(q) = \{q\},
         \end{equation*}
-        perch\'e $\delta(q, \varepsilon) = \emptyset$. Il livello intermedio legge $a$:
+        Il livello intermedio legge $a$:
         \begin{align*}
             \hat{\delta}(q, a)
                 &= \bigcup_{p \in \{q\}} \eclosure(\delta(p, a))
