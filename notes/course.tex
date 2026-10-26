@@ -1257,6 +1257,12 @@
         \end{itemize}
     \end{definition}
 
+    I DFA hanno una funzione di transizione deterministica. L'unica forma di memoria \`e
+    lo stato in cui l'automa si trova. Inoltre:
+    \[
+        \forall Stato \forall Simbolo \text{ esiste sempre una transizione}
+    \]
+
     \textsc{Notazione}: Useremo $p, q, r$ con o senza pedici per denotare stati, $P, Q, R, S$
     per insiemi di stati, $a, b$ con o senza pedici per denotare simboli di $\Sigma$, 
     $x, y, z, u, v, w$ sempre con o senza pedici per denotare stringhe.
@@ -1288,6 +1294,7 @@
             \mathcal{L} = \mathcal{L}(\mathcal{M}).
         \end{equation*}
     \end{definition}
+
 
     \begin{esempio}
         Il linguaggio vuoto $\mathcal{L} = \emptyset$ \`e regolare. Lo riconosce il DFA
@@ -1648,6 +1655,15 @@
     In un Automa a stati Finiti non Deterministico (NFA), la funzione di transizione 
     \`e l'unico elemento che varia rispetto ai Deterministici.
     L'obiettivo risulta verificare se il non determinismo cambia la potenza di calcolo.
+
+    I NFA hanno una funzione di transizione non deterministica. L'unica forma di memoria \`e
+    lo stato in cui l'automa si trova. Inoltre:
+    \[
+        \forall Stato \forall Simbolo \text{ posso eseguire zero o pi\`u transizioni di stato}
+    \]
+
+    Non c'\`e l'obbligo di cambiare stato ad ogni transizione. \`E dunque possibile
+    leggere simboli senza cambiare stato.
 
     \begin{definition}[Automa Non Deterministico]
         Un automa a stati finiti non deterministico (NFA) \`e una quintupla del tipo
@@ -2199,6 +2215,169 @@
         $p = q''$, raggiunto solo grazie alla $\varepsilon$-closure applicata dopo $a$, a
         portare in $s$.
     \end{esempio}
+
+    \begin{theorem}[Equivalenza tra NFA e $\varepsilon-NFA$]
+        \leavevmode
+        \begin{enumerate}[label=\alph*.]
+            \item Sia $\mathcal{N}_\varepsilon = \langle \mathcal{Q}, \Sigma, \delta, q_0, 
+            \mathcal{F}
+            \rangle$ un \varepsilon-NFA. Allora esiste un NFA $\mathcal{N} = \langle 
+            \mathcal{Q}', 
+            \Sigma', \delta', q_0', \mathcal{F}' \rangle$ tale per cui
+            $\mathcal{L}(\mathcal{N}_\varepsilon) =
+            \mathcal{L}(\mathcal{N})$.
+
+            \item Sia $\mathcal{N} = \langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F}
+            \rangle$ un \varepsilon-NFA. Allora esiste un NFA $\mathcal{N}_\varepsilon
+            = \langle \mathcal{Q}', 
+            \Sigma', \delta', q_0', \mathcal{F}' \rangle$ tale per cui 
+            $\mathcal{L}(\mathcal{N}) =
+            \mathcal{L}(\mathcal{N}_\varepsilon)$.
+        \end{enumerate}
+    \end{theorem}
+
+    \begin{proof}
+        Anche in questo caso di deve mostrare un'equivalenza. Pertanto, la dimostrazione
+        richiede entrambi i versi. L'esistenza di un $\varepsilon$-NFA dato un NFA \`e banale,
+        dato che un NFA \`e un $\varepsilon$-NFA dove non vi sono archi etichettati con 
+        $\varepsilon$.
+
+        \textbf{Da $\varepsilon$-NFA a NFA (Costruzione formale)}\\
+        La dimostrazione richiede teoricamente tre passaggi:
+        \begin{enumerate}[leftmargin=1.8em, itemsep=3pt, topsep=2pt]
+            \item Costruire un NFA equivalente definito come 
+                $\mathcal{N} = \langle Q', \Sigma, \delta', q_0, F' \rangle$.
+            \item Dimostrare che l'intersezione tra la chiusura transitiva dell'automa originale 
+                e i suoi stati finali equivale a quella del nuovo 
+                automa: $\hat{\delta}(q_0, x) \cap F = \hat{\delta}'(q_0, x) \cap F'$.
+            \item Dimostrare l'uguaglianza $\hat{\delta}(q_0, x) = \hat{\delta}'(q'_0, x)$ 
+                sfruttando il punto precedente.
+        \end{enumerate}
+
+        \textsc{Regole di trasformazione}\\
+        \begin{itemize}[leftmargin=1.8em, itemsep=3pt, topsep=2pt]
+            \item L'insieme degli stati ($Q' = Q$), l'alfabeto ($\Sigma' = \Sigma$) e 
+                lo stato iniziale ($q'_0 = q_0$) restano invariati rispetto 
+                all'automa originale.
+            \item L'insieme degli stati finali $F'$ ingloba lo stato iniziale se, partendo da 
+                esso, è possibile raggiungere un nodo di accettazione originale tramite 
+                soli passi $\varepsilon$:
+                \[
+                    F' = \begin{cases} 
+                        F \cup \{q_0\} & \text{se } \varepsilon\text{-closure}(q_0) 
+                        \cap F \neq \emptyset \\ 
+                        F & \text{altrimenti} 
+                    \end{cases}
+                \]
+            \item La nuova funzione di transizione ingloba le $\varepsilon$-transizioni 
+                originali direttamente nelle transizioni di base:
+                \[
+                    \delta'(q, a) = \hat{\delta}(q, a) \stackrel{\text{def}}{=} 
+                    \varepsilon\text{-closure}(\delta(q, a))
+                \]
+        \end{itemize}
+    \end{proof}
+
+    \section{Operazioni Tra Linguaggi}
+    Siano $\mathcal{L}, \mathcal{L}_1, \mathcal{L}_2$ linguaggi sull'alfabeto $\Sigma$.
+
+    Di seguito tutte le operazioni applicabili su linguaggi:
+    \begin{itemize}[leftmargin=1.8em, itemsep=3pt, topsep=2pt]
+        \item \textsc{Concatenazione}:
+            \[
+                \mathcal{L}_1 \cdot \mathcal{L}_2 = \{\, x \cdot y \mid x \in 
+                \mathcal{L}_1 \land y \in \mathcal{L}_2 \,\}
+            \]
+        \item \textsc{Unione}: $\mathcal{L}_1, \mathcal{L}_2$ su $\Sigma$:
+            \[
+                \mathcal{L}_1 \cup \mathcal{L}_2 = \{\, x \mid x \in \mathcal{L}_1 
+                \lor x \in \mathcal{L}_2 \,\}
+            \]
+        \item \textsc{Chiusura di Kleene}: $\mathcal{L}$ linguaggio su $\Sigma$:\\
+            \[
+                \text{Concatenazione Iterativa}:
+                \begin{cases}
+                    \mathcal{L}^0 = \{\varepsilon\} \\
+                    \mathcal{L}^{i+1} = \mathcal{L} \cdot \mathcal{L}^i
+                \end{cases} 
+            \]
+            \[
+                \mathcal{L}^* = \bigcup_{i \geq 0} \mathcal{L}^i \qquad
+                \mathcal{L}^+ = \bigcup_{i \geq 1} \mathcal{L}^i
+            \]
+    \end{itemize}
+
+    \section{Espressioni Regolari}
+    \begin{definition}[Espressioni Regolari]
+        Un'\textbf{espressione regolare} (RE) è uno strumento formale utilizzato 
+        per descrivere e generare in modo compatto le stringhe che appartengono a 
+        un linguaggio regolare.
+
+        Le RE vengono definite in modo induttivo:
+        \begin{itemize}
+            \item $\emptyset$ \`e un'espressione regolare che denota l'insieme vuoto.
+            \item $\varepsilon$ \`e un'espressione regolare che denota l'insieme 
+                $\{\varepsilon\}$.
+            \item Per ogni simbolo $a \in \Sigma$, $a$ \`e un'espressione regolare che denota
+                l'insieme $\{a\}$.
+            \item Se $r$ e $s$ sono espressioni regolari denotanti rispettivamente gli 
+                insiemi $R$ ed $S$, allora $(r + s)$, $(r \cdot s)$, e $(r^*)$ sono 
+                espressioni regolari che denotano gli insiemi $R \cup S$, $R \cdot S$, e 
+                $R^*$ rispettivamente. 
+        \end{itemize}
+    \end{definition}
+
+    Se $r$ \`e una espressione regolare, indicheremo con $\mathcal{L}(r)$ il linguaggio
+    denotato da $r$. Tra espressioni regolari valgono anche uguaglianza che permettono
+    la loro manipolazione algebrica.
+    In particolare: 
+    \[
+        r = s \iff \mathcal{L}(r) = \mathcal{L}(s)
+    \]
+
+    \begin{esempio}
+        Sia $\Sigma = \{0,1\}$. Il linguaggio associato all'espressione regolare 
+        $r = 1(0+1)^{*}00$. Allora: 
+        \[
+            \mathcal{L}(r) = \mathcal{L}(1)(\mathcal{L}(0) \cup \mathcal{L}(1))^{*}
+            \mathcal{L}(0)\mathcal{L}(0) = \{1x00 : x \in \Sigma^*\}
+        \]
+        Ossia tutte le stringhe che sono (in binario) un multiplo di 4.
+    \end{esempio}
+
+    \begin{theorem}[Equivalenza tra DFA e ER (McNaughton e Yamada, 1960)]
+        Sia $r$ un espressione regolare, allora esiste un $\varepsilon$-DFA 
+        $\mathcal{L}(\mathcal{M}) = \mathcal{L}(\mathcal{M})$.
+    \end{theorem}
+
+    \begin{proof}
+        Si procede per induzione, costruendo per ogni caso base e per le applicazioni
+        dei passi induttivi.
+
+        \textsc{Caso Base}
+        \begin{itemize}
+            \item se $r = \varepsilon$, allora l'automa seguente
+                riconosce $\mathcal{L}(r) = \varepsilon$.
+            \item se $r = \emptyset$, allora l'automa seguente
+                riconosce $\mathcal{L}(r) = \emptyset$.
+            \item se $r = a$, allora l'automa seguente
+                riconosce $\mathcal{L}(r) = \emptyset$.
+        \end{itemize}
+
+        \textsc{Passo Induttivo}
+        Anche qui ci sono diversi casi da analizzare:
+        \begin{itemize}
+            \item Sia $r = r_1 + r_2$. Per $i \in \{1, 2\}$, sia $\mathcal{M}_i$, con stato 
+                iniziale $q_0^i$ e stato finale  $q_f^i$ che riconoscono il linguaggio
+                $\mathcal{L}(r_i)$. L'esistenza di tali automi \`e garantita per ipotesi
+                induttiva. Il seguente automa, con stato inziale $q_0$ e stato finale 
+                $q_f$ riconosce il linguaggio $\mathcal{L}(r) = \mathcal{L}(r_1) \cup 
+                \mathcal{L}(r_2)$
+        \end{itemize}
+
+    \end{proof}
+
+    
 
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
