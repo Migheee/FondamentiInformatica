@@ -529,6 +529,39 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
         \end{itemize}
     \end{definition}
 
+    \subsubsection{Partizione di $S$}
+    Una relazione di equivalenza $R \subseteq S \times S$ induce
+    una \textbf{partizione} di $S$, ovvero una famiglia di
+    sottoinsiemi $\{S_1, S_2, \dots, S_m\}$ tale che:
+    \begin{equation*}
+        \begin{cases}
+            \displaystyle \bigcup_{i=1}^m S_i = S \\[1em]
+            \forall i \neq j, \quad S_i \cap S_j = \emptyset
+        \end{cases}
+    \end{equation*}
+
+    \vspace{1em}
+    \begin{center}
+        \begin{tikzpicture}[scale=1, thick]
+            % Contorno dell'insieme S
+            \draw (0,0) ellipse (3cm and 1.5cm);
+            \node at (3.4, -1) {$S$};
+
+            % Linee interne per simulare la partizione a mano
+            \draw (-1.5, 1.3) -- (-1.8, -1.2);
+            \draw (-1.5, 1.3) -- (1, -1.4);
+            \draw (-0.3, -0.2) -- (-1, -1.4);
+            \draw (0.3, 0.4) -- (2.5, -0.8);
+
+            % Etichette degli insiemi
+            \node at (-2.2, 0) {$S_1$};
+            \node at (-0.2, 0.8) {$S_2$};
+            \node at (-0.8, -0.8) {$S_3$};
+            \node at (0.8, -0.6) {$S_4$};
+            \node at (1.8, 0.2) {$S_5$};
+        \end{tikzpicture}
+    \end{center}
+
     \begin{esempio}
         La relazione $=$ \`e di equivalenza, $\subseteq$ \`e un ordine parziale ($\{1\}$ e
         $\{2\}$ non sono in relazione in nessuno dei due versi) e $\leq$ sui numeri naturali
@@ -897,9 +930,9 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
         di $S$ stesso.
 
         Si consideri l'insieme $A = \{x \in S \mid x \notin f(x)\} \subseteq S$. Dato che
-        $\mathcal{P}(S)$ contiene ogni sottoinsieme di $S$ e $A$ ne è uno, allora
+        $\mathcal{P}(S)$ contiene ogni sottoinsieme di $S$ e $A$ ne `e uno, allora
         $A \in \mathcal{P}(S)$. Pertanto, obbligatoriamente \\$\exists a \in S \;.\; f(a) = A$.
-        Quindi si hanno due possibilità:
+        Quindi si hanno due possibilit\`a:
         \begin{itemize}
             \item $a \in A$: allora, per costruzione di $A$, $a \notin f(a) = A$, 
                 $\lightning$.
@@ -909,8 +942,8 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
 
         Poiché in entrambi i casi si raggiunge una contraddizione, allora
         $\nexists a \in S \;.\; f(a) = A$.
-        Si conclude, quindi, che $A$ è un elemento privo di controimmagine e, di conseguenza,
-        la cardinalità di $S$ è strettamente inferiore a quella di $\mathcal{P}(S)$.
+        Si conclude, quindi, che $A$ \`e un elemento privo di controimmagine e, di conseguenza,
+        la cardinalit\`a di $S$ \`e strettamente inferiore a quella di $\mathcal{P}(S)$.
     \end{proof}
 
 
@@ -2261,7 +2294,7 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
                 lo stato iniziale ($q'_0 = q_0$) restano invariati rispetto 
                 all'automa originale.
             \item L'insieme degli stati finali $F'$ ingloba lo stato iniziale se, partendo da 
-                esso, è possibile raggiungere un nodo di accettazione originale tramite 
+                esso, \`e possibile raggiungere un nodo di accettazione originale tramite 
                 soli passi $\varepsilon$:
                 \[
                     F' = \begin{cases} 
@@ -2339,7 +2372,7 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
 
     \section{Espressioni Regolari}
     \begin{definition}[Espressioni Regolari]
-        Un'\textbf{espressione regolare} (RE) è uno strumento formale utilizzato 
+        Un'\textbf{espressione regolare} (RE) \`e uno strumento formale utilizzato 
         per descrivere e generare in modo compatto le stringhe che appartengono a 
         un linguaggio regolare.
 
@@ -2696,36 +2729,85 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
     stanno considerando \`e finito. Questo significa che, anche se i
     singoli $L_n$ sono regolari:
     \begin{align*}
-        \forall m \in \mathbb{N}, \mathcal{L}_m \text{ è regolare} &\not\implies 
-        \bigcup_{m \in \mathbb{N}} \mathcal{L}_m \text{ è regolare}\\
-        \forall m \in \mathbb{N}, \mathcal{L}_m \text{ è regolare} &\not\implies 
-        \bigcap_{m \in \mathbb{N}} \mathcal{L}_m \text{ è regolare}\\
+        \forall m \in \mathbb{N}, \mathcal{L}_m \text{ \`e regolare} &\not\implies 
+        \bigcup_{m \in \mathbb{N}} \mathcal{L}_m \text{ \`e regolare}\\
+        \forall m \in \mathbb{N}, \mathcal{L}_m \text{ \`e regolare} &\not\implies 
+        \bigcap_{m \in \mathbb{N}} \mathcal{L}_m \text{ \`e regolare}\\
     \end{align*}
+
 
     \section{Problemi di Decidibilit\`a}
 
-    Sia $\mathcal{L}$ un linguaggio regolare. Allora i seguenti problemi 
-    sono decidibili\footnote{
-        problema per cui esiste un algoritmo che, ricevuta in input un'istanza qualsiasi del 
-        problema, termina sempre in un numero finito di passi e fornisce una risposta 
-    corretta di tipo sì/no}
-    \begin{itemize}
-        \item $\mathcal{L} \neq \emptyset$ ($\mathcal{L} = \emptyset$)
+    Sia $\mathcal{L}$ un linguaggio regolare. I seguenti problemi
+    sono \textbf{decidibili}:\footnote{Un problema \`e decidibile se
+        esiste un algoritmo che, ricevuta in input un'istanza qualsiasi del
+        problema, termina sempre in un numero finito di passi e fornisce
+    la risposta corretta (s\`i/no).}
 
-            $\mathcal{L} \neq \emptyset \iff \mathcal{M} = \langle \mathcal{Q}, \Sigma, \delta,
-            q_0, \mathcal{F} \rangle$ automa t.c. $\mathcal{L} = \mathca{L}(\mathcal{M})$ 
-            accetta una stringa
-            $x$ t.c. $|x| < |\mathcal{Q}|$.
+    \begin{enumerate}
+        \item \textbf{Vacuit\`a} ($\mathcal{L} \neq \emptyset$):
+            \[
+                \mathcal{L} \neq \emptyset \iff \exists x \in
+                \mathcal{L}(\mathcal{M}) \quad\text{t.c.}\quad
+                |x| < |\mathcal{Q}|
+            \]
+            dove $\mathcal{M} = \langle \mathcal{Q}, \Sigma, \delta,
+            q_0, \mathcal{F} \rangle$ \`e l'automa tale che
+            $\mathcal{L} = \mathcal{L}(\mathcal{M})$.
 
-        \item $ \mathcal{L} = \omega$ (linguaggio infinito)
+            \vspace{0.4em}
+        \item \textbf{Infinit\`a} ($|\mathcal{L}| = \omega$):
+            \[
+                |\mathcal{L}| = \omega \iff \exists x \in
+                \mathcal{L}(\mathcal{M}) \quad\text{t.c.}\quad
+                n \le |x| < 2n
+            \]
+            dove $n = |\mathcal{Q}|$ \`e il numero di stati dell'automa
+            $\mathcal{M}$.
 
-            $|\mathcal{L} | = \omega \iff$ esiste una stringa $x \in \mathcal{L}(\mathcal{M})$
-            tale che
-            $n \le |x| < 2n$, dove $n = |\mathcal{Q}|$.
+            \vspace{0.4em}
+        \item \textbf{Equivalenza}:
+            \[
+                \text{Dati } \mathcal{M}_1 \text{ e } \mathcal{M}_2,
+                \text{ l'uguaglianza } \mathcal{L}(\mathcal{M}_1) =
+                \mathcal{L}(\mathcal{M}_2) \text{ \`e decidibile.}
+            \]
+    \end{enumerate}
 
-        \item Dati $\mathcal{M}_1$ e $\mathcal{M}_2$, l'uguaglianza $\mathcal{L}(\mathcal{M}_1
-            = \mathcal{L}(\mathcal{M}_2)$
-    \end{itemize}
+    \section{Relazioni di Equivalenza e Linguaggi}
+
+    \subsection*{Relazione di equivalenza indotta da $\mathcal{L}$}
+    Sia $\mathcal{L} \subseteq \Sigma^*$. Definiamo
+    $R_{\mathcal{L}} \subseteq \Sigma^* \times \Sigma^*$:
+    \[
+        \forall x, y \in \Sigma^*, \quad x \mathrel{R_{\mathcal{L}}} y
+        \iff (\forall z \in \Sigma^*, \ xz \in \mathcal{L} \iff
+        yz \in \mathcal{L})
+    \]
+
+    \subsection*{Relazione di equivalenza indotta da $\mathcal{M}$ (DFA)}
+    Sia $\mathcal{M} = \langle \mathcal{Q}, \Sigma, \delta, q_0,
+    \mathcal{F} \rangle$. Definiamo $R_{\mathcal{M}} \subseteq
+    \Sigma^* \times \Sigma^*$:
+    \[
+        \forall x, y \in \Sigma^*, \quad x \mathrel{R_{\mathcal{M}}} y
+        \iff \hat{\delta}(q_0, x) = \hat{\delta}(q_0, y)
+    \]
+
+    \subsection*{Relazione invariante a destra}
+    Sia $R \subseteq \Sigma^* \times \Sigma^*$ una relazione di
+    equivalenza. $R$ \`e \textbf{invariante a destra} se e solo se:
+    \[
+        x \mathrel{R} y \implies \forall z \in \Sigma^*, \
+        xz \mathrel{R} yz
+    \]
+    In particolare $R_{\mathcal{L}}$ \`e invariante a destra.
+
+    \subsection*{Linguaggio indotto da uno stato}
+    \[
+        \mathcal{L}_q = \{ x \in \Sigma^* \mid \hat{\delta}(q_0, x) = q \}
+    \]
+    \`e il linguaggio ``accettato'' dallo stato $q$.
 
     %TEORICA%
     \chapter{Esercizi}
