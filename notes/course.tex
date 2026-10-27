@@ -551,22 +551,33 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
     \vspace{1em}
     \begin{center}
         \begin{tikzpicture}[scale=1, thick]
+            % Nodi sul perimetro dell'ellisse definiti tramite angoli polari
+            \coordinate (A) at (115:3cm and 1.5cm);
+            \coordinate (B) at (235:3cm and 1.5cm);
+            \coordinate (C) at (310:3cm and 1.5cm);
+            \coordinate (E) at (265:3cm and 1.5cm);
+            \coordinate (G) at (15:3cm and 1.5cm);
+
             % Contorno dell'insieme S
             \draw (0,0) ellipse (3cm and 1.5cm);
-            \node at (3.4, -1) {$S$};
+            \node at (3.5, -1) {$S$};
 
-            % Linee interne per simulare la partizione a mano
-            \draw (-1.5, 1.3) -- (-1.8, -1.2);
-            \draw (-1.5, 1.3) -- (1, -1.4);
-            \draw (-0.3, -0.2) -- (-1, -1.4);
-            \draw (0.3, 0.4) -- (2.5, -0.8);
+            % Punti di diramazione interni calcolati sulla diagonale principale
+            % pos=0.35 e pos=0.7 indicano la percentuale esatta lungo il segmento AC
+            \path (A) -- (C) coordinate[pos=0.35] (F) coordinate[pos=0.7] (D);
 
-            % Etichette degli insiemi
-            \node at (-2.2, 0) {$S_1$};
-            \node at (-0.2, 0.8) {$S_2$};
-            \node at (-0.8, -0.8) {$S_3$};
-            \node at (0.8, -0.6) {$S_4$};
-            \node at (1.8, 0.2) {$S_5$};
+            % Disegno dei segmenti di partizione, ora perfettamente uniti
+            \draw (A) -- (B); % Linea per S1
+            \draw (A) -- (C); % Diagonale principale S1/S2/S3
+            \draw (D) -- (E); % Ramo per separare S3 da S4
+            \draw (F) -- (G); % Ramo per separare S2 da S5
+
+            % Etichette degli insiemi posizionate ordinatamente nelle aree vuote
+            \node at (-2.0, 0) {$S_1$};
+            \node at (0.2, 0.9) {$S_2$};
+            \node at (-0.8, -0.6) {$S_3$};
+            \node at (0.8, -1.0) {$S_4$};
+            \node at (1.8, 0.0) {$S_5$};
         \end{tikzpicture}
     \end{center}
 
@@ -2604,6 +2615,7 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
 
         Il seguente automa (ad-hoc) riconosce correttamenre il linguaggio, ma non 
         segue la costruzione vista nella dimostrazione del teorema.
+        \vspace{0.67em}
         \begin{center}
             \begin{tikzpicture}[
                 shorten >=1pt,
@@ -2630,7 +2642,7 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
             \end{tikzpicture}
         \end{center}
 
-        \vspace{2em}
+        \vspace{1em}
         Questo invece \`e costruito seguendo formalmente i passi
         induttivi della dimostrazione del teorema.
         \begin{center}
