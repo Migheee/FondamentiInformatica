@@ -2247,7 +2247,8 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
         \begin{enumerate}[leftmargin=1.8em, itemsep=3pt, topsep=2pt]
             \item Costruire un NFA equivalente definito come 
                 $\mathcal{N} = \langle Q', \Sigma, \delta', q_0, F' \rangle$.
-            \item Dimostrare che l'intersezione tra la chiusura transitiva dell'automa originale 
+            \item Dimostrare che l'intersezione tra la chiusura transitiva dell'automa 
+                originale 
                 e i suoi stati finali equivale a quella del nuovo 
                 automa: $\hat{\delta}(q_0, x) \cap F = \hat{\delta}'(q_0, x) \cap F'$.
             \item Dimostrare l'uguaglianza $\hat{\delta}(q_0, x) = \hat{\delta}'(q'_0, x)$ 
@@ -2264,7 +2265,7 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
                 soli passi $\varepsilon$:
                 \[
                     F' = \begin{cases} 
-                        F \cup \{q_0\} & \text{se } \varepsilon\text{-closure}(q_0) 
+                        F \cup \{q_0\} & \text{se } \eclosure(q_0) 
                         \cap F \neq \emptyset \\ 
                         F & \text{altrimenti} 
                     \end{cases}
@@ -2276,17 +2277,28 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
                     \varepsilon\text{-closure}(\delta(q, a))
                 \]
         \end{itemize}
+
+        Sarebba anche da dimostrare che
+        \footnote{a lezione non \`e stato visto}
+        \[
+            \hat{\delta}'(q_0', x) \cap \mathcal{F}' \neq \emptyset \iff 
+            \hat{\delta}(q_0, x) \cap \mathcal{F} \neq \emptyset  
+        \]
     \end{proof}
 
     \section{Operazioni Tra Linguaggi}
     Siano $\mathcal{L}, \mathcal{L}_1, \mathcal{L}_2$ linguaggi sull'alfabeto $\Sigma$.
-
     Di seguito tutte le operazioni applicabili su linguaggi:
     \begin{itemize}[leftmargin=1.8em, itemsep=3pt, topsep=2pt]
         \item \textsc{Concatenazione}:
             \[
                 \mathcal{L}_1 \cdot \mathcal{L}_2 = \{\, x \cdot y \mid x \in 
                 \mathcal{L}_1 \land y \in \mathcal{L}_2 \,\}
+            \]
+            Si noti che:
+            \[
+                \varepsilon \in \mathcal{L}_i \implies \mathcal{L}_i \subseteq \mathcal{L}_1
+                \cdot \mathcal{L}_2 \qquad i \in \{1,2\}
             \]
         \item \textsc{Unione}: $\mathcal{L}_1, \mathcal{L}_2$ su $\Sigma$:
             \[
@@ -2305,6 +2317,24 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
                 \mathcal{L}^* = \bigcup_{i \geq 0} \mathcal{L}^i \qquad
                 \mathcal{L}^+ = \bigcup_{i \geq 1} \mathcal{L}^i
             \]
+
+            \begin{esempio} sia $\mathcal{L} = \{ab\}$. Allora:
+                \begin{align*}
+                    \mathcal{L}^0 &= \{\varepsilon\}\\
+                    \mathcal{L}^1 &= \{ab\} \cdot \{\varepsilon\} = \{ab\}\\
+                    \mathcal{L}^2 &= \{ab\} \cdot \mathcal{L}^1 = \{ab\}\{ab\} = \{abab\}\\
+                    \vdots
+                \end{align*}
+
+                Invece, con $\mathcal{L} = \{ab, cd\}$:
+                \begin{align*}
+                    \mathcal{L}^0 &= \{\varepsilon\}\\
+                    \mathcal{L}^1 &= \{ab, cd\} \cdot \{\varepsilon\} = \{ab, cd\}\\
+                    \mathcal{L}^2 &= \{ab, cd\} \cdot \mathcal{L}^1 =
+                    \{abab, abcd, cdab, cdcd\}\\
+                    \vdots
+                \end{align*}
+            \end{esempio}
     \end{itemize}
 
     \section{Espressioni Regolari}
@@ -2404,7 +2434,6 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
                 \end{figure}
                 riconosce $\mathcal{L}(r) = \emptyset$.
         \end{itemize}
-        \newpage
         \textsc{Passo Induttivo}
         Anche qui ci sono diversi casi da analizzare:
         \begin{itemize}
@@ -2533,6 +2562,95 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
         \end{itemize}
     \end{proof}
 
+    \begin{esempio}
+        Si consideri l'espressione regolare $r = 0^m + 1^m + (01)^m$:
+        \begin{equation*}
+            \mathcal{L}(r) = \{ x \in \{0,1\}^* \mid \exists m \in \mathbb{N} \ .\ x = 0^m \lor
+            x = 1^m \lor x = (01)^m \}
+        \end{equation*}
+
+        \vspace{1em}
+
+        Il seguente automa (ad-hoc) riconosce correttamenre il linguaggio, ma non 
+        segue la costruzione vista nella dimostrazione del teorema.
+        \begin{center}
+            \begin{tikzpicture}[
+                shorten >=1pt,
+                node distance=2.5cm,
+                on grid,
+                auto,
+                every state/.style={draw, thick, minimum size=2em, inner sep=1pt}
+                ]
+                \node[state, initial, initial text=] (q0) at (0, 0) {$q_0$};
+                \node[state, accepting] (q01) at (3, 2) {$q_0'$};
+                \node[state, accepting] (q02) at (5, 1) {$q_0''$};
+                \node[state, accepting] (q03) at (6, -1) {$q_0'''$};
+                \node[state] (q1) at (6.5, -2.5) {$q_1$};
+
+                \path[->]
+                    (q0)  edge[bend left=10] node {$\varepsilon$} (q01)
+                    (q0)  edge node[above left] {$\varepsilon$} (q02)
+                    (q0)  edge[bend right=15] node[below] {$\varepsilon$} (q03)
+
+                    (q01) edge[loop right] node {$0$} (q01)
+                    (q02) edge[loop right] node {$1$} (q02)
+
+                    (q03) edge[bend left=20] node[right] {$0$} (q1)
+                    (q1)  edge[bend left=20] node[left] {$1$} (q03);
+            \end{tikzpicture}
+        \end{center}
+
+        \vspace{2em}
+
+        Questo invece \`e costruito seguendo formalmente i passi induttivi della
+        dimostrazione del teorema.
+        \begin{center}
+            \begin{tikzpicture}[
+                shorten >=1pt,
+                node distance=2.5cm,
+                on grid,
+                auto,
+                every state/.style={draw, thick, minimum size=2.2em, inner sep=1pt}
+                ]
+                % Stati
+                \node[state, initial, initial text=] (q0) at (0, 0) {$q_0$};
+
+                \node[state] (p0) at (2.5, 2.5) {$P_0$};
+                \node[state] (p1) at (2.5, 0) {$P_1$};
+                \node[state] (p2) at (2.5, -1.5) {$P_2$};
+                \node[state] (p3) at (5.0, -1.5) {$P_3$};
+
+                \node[state, accepting] (qf) at (7.5, 0) {$q_f$};
+
+                % Transizioni epsilon da q0
+                \path[->]
+                    (q0) edge[bend left=20] node {$\varepsilon$} (p0)
+                    (q0) edge node {$\varepsilon$} (p1)
+                    (q0) edge[bend right=20] node[below left] {$\varepsilon$} (p2);
+
+                % Transizioni da P0 e P1
+                \path[->]
+                    (p0) edge[loop above] node {$0$} (p0)
+                    (p0) edge[bend left=15] node {$\varepsilon$} (qf)
+
+                    (p1) edge[loop above] node {$1$} (p1)
+                    (p1) edge node {$\varepsilon$} (qf);
+
+                % Transizioni tra P2, P3 e qf
+                \path[->]
+                    (p2) edge[bend left=25] node[above] {$0$} (p3)
+                    (p3) edge[bend left=25] node[below] {$1$} (p2)
+                    (p2) edge[out=-50, in=-50, looseness=1.5]
+                    node[below] {$\varepsilon$} (qf);
+            \end{tikzpicture}
+        \end{center}
+    \end{esempio}
+    Ricapitolando:
+    \[
+        \text{Linguaggi Regolari} \iff \text{DFA} \iff \text{NFA} \iff 
+        \varepsilon\text{-NFA} \iff \text{ER}
+    \]
+
     \section{Propriet\`a dei Linguaggi Regolari}
 
     I linguaggi regolari godono di alcune propriet\`a di chiusura. Sia LR
@@ -2560,7 +2678,8 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
         traduce in un DFA nella semplice ridefinizione dell'insieme degli stati
     finali come $F' = Q \setminus F$.}
     \begin{displaymath}
-        \mathcal{L} \in \mathrm{LR} \implies \overline{\mathcal{L}} \in \mathrm{LR}.
+        \mathcal{L} \in \mathrm{LR} \implies \overline{\mathcal{L}} = \mathcal{L}
+        \setminus \Sigma^* \in \mathrm{LR}.
     \end{displaymath}
 
     Per le leggi di De Morgan, la chiusura rispetto all'unione e alla
@@ -2583,6 +2702,32 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
         \bigcap_{m \in \mathbb{N}} \mathcal{L}_m \text{ è regolare}\\
     \end{align*}
 
+    \section{Problemi di Decidibilit\`a}
+
+    Sia $\mathcal{L}$ un linguaggio regolare. Allora i seguenti problemi 
+    sono decidibili\footnote{
+        problema per cui esiste un algoritmo che, ricevuta in input un'istanza qualsiasi del 
+        problema, termina sempre in un numero finito di passi e fornisce una risposta 
+    corretta di tipo sì/no}
+    \begin{itemize}
+        \item $\mathcal{L} \neq \emptyset$ ($\mathcal{L} = \emptyset$)
+
+            $\mathcal{L} \neq \emptyset \iff \mathcal{M} = \langle \mathcal{Q}, \Sigma, \delta,
+            q_0, \mathcal{F} \rangle$ automa t.c. $\mathcal{L} = \mathca{L}(\mathcal{M})$ 
+            accetta una stringa
+            $x$ t.c. $|x| < |\mathcal{Q}|$.
+
+        \item $ \mathcal{L} = \omega$ (linguaggio infinito)
+
+            $|\mathcal{L} | = \omega \iff$ esiste una stringa $x \in \mathcal{L}(\mathcal{M})$
+            tale che
+            $n \le |x| < 2n$, dove $n = |\mathcal{Q}|$.
+
+        \item Dati $\mathcal{M}_1$ e $\mathcal{M}_2$, l'uguaglianza $\mathcal{L}(\mathcal{M}_1
+            = \mathcal{L}(\mathcal{M}_2)$
+    \end{itemize}
+
+    %TEORICA%
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
     Gli esercizi seguenti dimostrano che un linguaggio \`e regolare costruendo un DFA che
