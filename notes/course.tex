@@ -34,7 +34,8 @@
 \setcounter{tocdepth}{1}
 \setlength{\skip\footins}{15pt plus 4pt minus 2pt}
 \usetikzlibrary{positioning, fit, arrows.meta, backgrounds, matrix,
-decorations.pathreplacing, automata, decorations.pathmorphing}
+decorations.pathreplacing, automata, decorations.pathmorphing,
+shapes.geometric}
 
 % --- IMPOSTAZIONI GLOBALI PER I GRAFI TIKZ ---
 % Assicura che tutti i nodi (stati degli automi e punti negli insiemi) abbiano esattamente la stessa dimensione
@@ -319,6 +320,7 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
     \end{definition}
 
     \subsection{Equivalenze}
+    \label{sec:equivalenze}
     Si scrive $\phi \equiv \psi$ quando le formule $\phi$ e $\psi$ sono
     \emph{equivalenti}, ovvero assumono sempre lo stesso valore di verit\`a.
 
@@ -3130,6 +3132,305 @@ decorations.pathreplacing, automata, decorations.pathmorphing}
         Quindi $\mathcal{L} = \mathcal{L}(\mathcal{M}')$: $\mathcal{L}$ \`e regolare e
         vale (1).
     \end{proof}
+
+    \section{Pumping lemma per i linguaggi regolari}
+    \begin{theorem}[Pumping lemma]
+        \label{thm:pumping}
+        Sia $\mathcal{L}$ un linguaggio regolare. Allora esiste $k \in \mathbb{N}$ tale
+        che ogni stringa $z \in \mathcal{L}$ con $|z| \geq k$ si pu\`o suddividere in tre
+        parti, $z = uvw$, con
+        \begin{equation*}
+            |uv| \leq k,
+            \qquad\qquad
+            |v| > 0,
+        \end{equation*}
+        in modo che
+        \begin{equation*}
+            \forall i \in \mathbb{N}.\; uv^i w \in \mathcal{L}.
+        \end{equation*}
+    \end{theorem}
+    In altre parole, ogni stringa abbastanza lunga di $\mathcal{L}$ contiene, entro i
+    primi $k$ simboli, una parte non vuota $v$ che si pu\`o ripetere quante volte si
+    vuole, o togliere del tutto ($i = 0$), ottenendo sempre stringhe di $\mathcal{L}$,
+    come illustrato nella Figura~\ref{fig:pumping}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            parte/.style={draw, thick, minimum height=0.55cm, inner sep=0pt,
+                anchor=west},
+            ripetuta/.style={parte, fill=tenue}
+        ]
+            % Lunghezze di u, v, w (in cm) e posizione di k
+            \def\lu{1.6} \def\lv{1.4} \def\lw{2.2} \def\k{3.4}
+
+            % La stringa z = uvw, con il vincolo |uv| <= k
+            \node[anchor=east] at (-0.3, 0) {$z = uvw$};
+            \node[parte, minimum width=\lu cm] at (0, 0) {$u$};
+            \node[ripetuta, minimum width=\lv cm] at (\lu, 0) {$v$};
+            \node[parte, minimum width=\lw cm] at (\lu+\lv, 0) {$w$};
+            \draw[thick, decorate, decoration={brace, amplitude=4pt, raise=2pt}]
+                (0, 0.3) -- (\lu+\lv, 0.3) node[midway, above=6pt] {$|uv| \leq k$};
+            \draw[dashed, evidenza] (\k, -0.45) -- (\k, 0.75)
+                node[above, black] {$k$};
+
+            % Stringhe uv^i w, ottenute ripetendo v
+            \foreach \i/\y in {0/-1.1, 2/-1.9, 3/-2.7} {
+                \node[anchor=east] at (-0.3, \y) {$uv^{\i}w$};
+                \node[parte, minimum width=\lu cm] at (0, \y) {$u$};
+                \ifnum\i>0
+                    \foreach \j in {1,...,\i}
+                        \node[ripetuta, minimum width=\lv cm]
+                            at ({\lu + (\j - 1)*\lv}, \y) {$v$};
+                \fi
+                \node[parte, minimum width=\lw cm] at ({\lu + \i*\lv}, \y) {$w$};
+                \node[anchor=west] at ({\lu + \i*\lv + \lw + 0.2}, \y)
+                    {$\in \mathcal{L}$};
+            }
+        \end{tikzpicture}
+        \caption{Suddivisione $z = uvw$ con $|uv| \leq k$ e $|v| > 0$: ripetendo la
+            parte $v$, in grigio, zero o pi\`u volte si ottengono ancora stringhe di
+            $\mathcal{L}$.}
+        \label{fig:pumping}
+    \end{figure}
+
+    La Figura~\ref{fig:pumping-insiemi} mostra la struttura dei quantificatori del
+    lemma, dove $\mathcal{M}$ \`e un DFA che riconosce $\mathcal{L}$. Tra le stringhe di
+    $\mathcal{L} = \mathcal{L}(\mathcal{M})$ si considerano quelle con $|z| \geq k$; per
+    ciascuna di esse, tra tutte le suddivisioni $z = uvw$, ne esiste almeno una che
+    rispetta entrambi i vincoli, $|uv| \leq k$ e $|v| > 0$, e per questa vale
+    $uv^i w \in \mathcal{L}$ per ogni $i \in \mathbb{N}$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            freccia/.style={-{Stealth}, thick, evidenza},
+            etichetta/.style={font=\small}
+        ]
+            % Il linguaggio L = L(M)
+            \draw[thick, fill=black!4] (0, -0.4) rectangle (6, 3.4);
+            \node[etichetta, anchor=south west] at (0.1, -0.35)
+                {$\mathcal{L} = \mathcal{L}(\mathcal{M})$};
+
+            % Le stringhe di L con |z| >= k
+            \draw[thick, fill=tenue] (3.4, 2.0) ellipse (1.8 and 0.95);
+            \node[etichetta] at (3.4, 2.6) {$z \in \mathcal{L}$, $|z| \geq k$};
+            \foreach \x/\y in {-1.2/-0.1, -0.8/-0.45, -0.75/0.15, -0.35/-0.2,
+                    0.05/0.12, 0.1/-0.55, 0.45/-0.2, 0.8/0.1, 0.85/-0.5, -1.35/-0.45,
+                    -0.4/-0.65, 1.3/-0.25}
+                \node[punto] at (3.4 + \x, 2.0 + \y) {};
+            \node[punto, minimum size=5pt, label={[etichetta]above:$z$}] (z)
+                at (4.55, 1.75) {};
+
+            % Tutte le suddivisioni z = uvw
+            \draw[thick, dashed, fill=black!4] (6.8, -3.2) rectangle (12.4, 0.9);
+            \node[etichetta, anchor=north west] at (6.9, 0.85)
+                {$u, v, w$ tali che $z = uvw$};
+            \fill[black, fill opacity=0.1] (10.9, -0.75) circle (1.25);
+            \fill[black, fill opacity=0.1] (9.4, -1.75) circle (1.2);
+            \draw[thick] (10.9, -0.75) circle (1.25);
+            \draw[thick, densely dotted] (9.4, -1.75) circle (1.2);
+            \node[etichetta] at (11.35, -0.2) {$|v| > 0$};
+            \node[etichetta] at (9.3, -2.45) {$|uv| \leq k$};
+            \node[punto, minimum size=5pt] (s) at (10.1, -1.3) {};
+            \draw[thick] (s) circle (0.17);
+
+            % Frecce: dalla stringa alle sue suddivisioni, dalla suddivisione buona
+            % alla tesi
+            \draw[freccia] (z) to[bend left=25] (7.6, 0.95);
+            \node[draw, thick, ellipse, etichetta] (tesi) at (3.6, -2.2)
+                {$\forall i \in \mathbb{N}.\; uv^i w \in \mathcal{L}$};
+            \draw[freccia] (s) to[bend right=15] (tesi);
+        \end{tikzpicture}
+        \caption{Il pumping lemma visto con gli insiemi: per ogni $z \in \mathcal{L}$ con
+            $|z| \geq k$, tra tutte le suddivisioni $z = uvw$ (riquadro tratteggiato) ne
+            esiste una con $|uv| \leq k$ e $|v| > 0$, nell'intersezione dei due cerchi,
+            per cui $uv^i w \in \mathcal{L}$ per ogni $i$.}
+        \label{fig:pumping-insiemi}
+    \end{figure}
+
+    \begin{proof}[Dimostrazione del Teorema~\ref{thm:pumping}]
+        Poich\'e $\mathcal{L}$ \`e regolare, esiste un DFA
+        $\mathcal{M} = \langle \mathcal{Q}, \Sigma, \delta, q_0, \mathcal{F} \rangle$ tale
+        che $\mathcal{L} = \mathcal{L}(\mathcal{M})$. Sia $n = |\mathcal{Q}| \in \mathbb{N}$
+        il numero di stati di $\mathcal{M}$: si sceglie $k = n$, cio\`e la costante $k$ del
+        lemma \`e il numero di stati dell'automa.
+
+        Sia $z \in \mathcal{L}$ con $|z| \geq k$, che esiste perch\'e si considera
+        $\mathcal{L}$ infinito,\footnote{Se $\mathcal{L}$ \`e finito pu\`o non esistere
+        alcuna $z$ con $|z| \geq k$: in quel caso la tesi vale banalmente, perch\'e non
+        c'\`e nessuna stringa da considerare. Se $\mathcal{L}$ \`e infinito, invece, una
+        tale $z$ esiste sempre, perch\'e le stringhe di lunghezza minore di $k$ sono in
+        numero finito.} e sia
+        \begin{equation*}
+            z = a_1 a_2 \cdots a_m,
+            \qquad m \geq k,
+            \qquad a_1, a_2, \dots, a_m \in \Sigma.
+        \end{equation*}
+        Per essere riconosciuta, $z$ fa attraversare all'automa $m + 1$ stati: quello
+        iniziale e uno per ogni simbolo letto. Poich\'e $m \geq k = n$, si ha $m + 1 > n$:
+        si attraversano pi\`u di $n$ stati, ma gli stati sono solo $n$. Quindi, nel
+        cammino che riconosce $z$, almeno uno stato viene attraversato due volte.
+
+        Sia $q$ il \emph{primo} stato che si ripete. Come mostra la
+        Figura~\ref{fig:pumping-dimostrazione}, $z$ si suddivide in tre parti:
+        \begin{itemize}
+            \item $u$, che porta da $q_0$ alla prima visita di $q$;
+            \item $v$, che percorre un ciclo e riporta da $q$ di nuovo in $q$;
+            \item $w$, che porta da $q$ allo stato finale $q_f$ raggiunto leggendo $z$.
+        \end{itemize}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                automa,
+                graffa/.style={-, thin, decorate,
+                    decoration={brace, amplitude=5pt}},
+                graffasotto/.style={graffa, decoration={brace, amplitude=5pt, mirror}}
+            ]
+                \node[state, initial] (q0) at (0, 0) {$q_0$};
+                \node[state] (q1) at (1.9, 0) {$q_1$};
+                \node (p1) at (3.45, 0) {$\cdots$};
+                \node[state] (q) at (5, 0) {$q$};
+                \node (p2) at (6.65, 0) {$\cdots$};
+                \node[state, accepting] (qf) at (8.3, 0) {$q_f$};
+                \node[state] (r) at (5.9, -1.5) {};
+
+                \path (q0) edge node {$a_1$} (q1)
+                    (q1) edge (p1)
+                    (p1) edge (q)
+                    (q) edge (p2)
+                    (p2) edge node {$a_m$} (qf)
+                    (q) edge (r);
+                \draw[dashed] (r) to[out=200, in=230, looseness=1.6] (q);
+                \node[font=\small, align=center, anchor=south] at (5, 0.55)
+                    {primo stato\\che si ripete};
+
+                % Suddivisione z = uvw
+                \draw[graffa] (-0.3, 1.8) -- (5.3, 1.8)
+                    node[midway, above=5pt] {$u$};
+                \draw[graffasotto] (3.8, -2.3) -- (6.5, -2.3)
+                    node[midway, below=5pt] {$v$};
+                \draw[graffasotto] (6.0, -0.65) -- (8.8, -0.65)
+                    node[midway, below=5pt] {$w$};
+                \draw[graffasotto] (-0.3, -3.05) -- (8.8, -3.05)
+                    node[midway, below=5pt] {$z$};
+            \end{tikzpicture}
+            \caption{Cammino di $\mathcal{M}$ su $z$: $q$ \`e il primo stato che si
+                ripete, $u$ porta da $q_0$ a $q$, $v$ \`e il ciclo che riporta in $q$ e
+                $w$ porta da $q$ allo stato finale $q_f$.}
+            \label{fig:pumping-dimostrazione}
+        \end{figure}
+
+        La suddivisione rispetta i due vincoli del lemma.
+        \begin{itemize}
+            \item $|v| > 0$, perch\'e il ciclo da $q$ a $q$ legge almeno un simbolo.
+            \item $|uv| \leq k = n$, perch\'e $q$ \`e il primo stato che si ripete. Fino
+                alla seconda visita di $q$ gli stati attraversati sono tutti distinti,
+                tranne $q$ che compare due volte, quindi sono al pi\`u $n + 1$:
+                \begin{equation*}
+                    \underbrace{q_0, q_1, \dots, q_{n-1}, q_n}_{n + 1 \text{ stati}}
+                    \implies n \text{ simboli letti}.
+                \end{equation*}
+                La stringa $uv$, che porta alla seconda visita di $q$, ha quindi al pi\`u
+                $n$ simboli. Il caso limite, $|uv| = n$, si ha quando
+                $q_0, \dots, q_{n-1}$ sono tutti gli $n$ stati, diversi tra loro, e $q_n$
+                coincide con uno di essi. Ad esempio, se si ripete l'ultimo,
+                $q_n = q_{n-1}$, allora $|u| = n - 1 = k - 1$ e $|v| = 1$: $u$ attraversa
+                tutti gli $n$ stati e $v$, con un solo simbolo, riporta in $q_{n-1}$.
+        \end{itemize}
+        Infine, poich\'e $v$ riporta da $q$ in $q$, il ciclo si pu\`o percorrere un
+        numero qualsiasi di volte, o saltare: dopo aver letto $uv^i$ l'automa \`e sempre
+        in $q$, e da l\`i $w$ porta in $q_f \in \mathcal{F}$. Quindi
+        \begin{equation*}
+            |uv| \leq k \;\land\; |v| > 0 \implies
+            \forall i \in \mathbb{N}.\; uv^i w \in \mathcal{L}. \qedhere
+        \end{equation*}
+    \end{proof}
+
+    \begin{esempio}
+        Si consideri un DFA con $n = 6$ stati, $\mathcal{Q} = \{q_0, q_1, \dots, q_5\}$,
+        quindi $k = 6$, e una stringa $z \in \mathcal{L}$ con $|z| \geq k$:
+        \begin{equation*}
+            z = a_1 a_2 a_3 a_4 a_5 a_6 a_7.
+        \end{equation*}
+        Leggendo i $7$ simboli di $z$, l'automa attraversa $8$ stati:
+        \begin{equation*}
+            \underbrace{q_0 \xrightarrow{a_1} q_1 \xrightarrow{a_2} q_2
+            \xrightarrow{a_3} q_3 \xrightarrow{a_4} q_4 \xrightarrow{a_5} q_5
+            \xrightarrow{a_6} q_5 \xrightarrow{a_7} q_f}_{8 \text{ stati attraversati}},
+        \end{equation*}
+        dove $q_f$, uno dei sei stati, \`e lo stato finale raggiunto. Gli stati sono solo
+        $6$, quindi qualcuno si ripete: il primo \`e $q_5$, raggiunto dopo $a_5$ e di
+        nuovo dopo $a_6$, attraverso un cappio. \`E il caso limite descritto nella
+        dimostrazione, in cui si ripete l'ultimo stato:
+        \begin{equation*}
+            u = a_1 a_2 a_3 a_4 a_5,
+            \qquad
+            v = a_6,
+            \qquad
+            w = a_7,
+        \end{equation*}
+        con $|u| = 5 = k - 1$, $|v| = 1$ e $|uv| = 6 = k$, come mostra la
+        Figura~\ref{fig:pumping-esempio}.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                automa, node distance=0.85cm,
+                graffa/.style={-, thin, decorate,
+                    decoration={brace, amplitude=5pt}},
+                graffasotto/.style={graffa, decoration={brace, amplitude=5pt, mirror}}
+            ]
+                \node[state, initial] (q0) {$q_0$};
+                \node[state, right=of q0] (q1) {$q_1$};
+                \node[state, right=of q1] (q2) {$q_2$};
+                \node[state, right=of q2] (q3) {$q_3$};
+                \node[state, right=of q3] (q4) {$q_4$};
+                \node[state, right=of q4] (q5) {$q_5$};
+                \node[state, accepting, right=of q5] (qf) {$q_f$};
+                \path (q0) edge node {$a_1$} (q1)
+                    (q1) edge node {$a_2$} (q2)
+                    (q2) edge node {$a_3$} (q3)
+                    (q3) edge node {$a_4$} (q4)
+                    (q4) edge node {$a_5$} (q5)
+                    (q5) edge[loop below] node {$a_6$} ()
+                    (q5) edge node {$a_7$} (qf);
+
+                % Suddivisione z = uvw
+                \draw[graffa] ([yshift=0.75cm] q0.west) -- ([yshift=0.75cm] q5.center)
+                    node[midway, above=5pt] {$u = a_1 a_2 a_3 a_4 a_5$};
+                \draw[graffa] ([yshift=0.75cm] q5.center) -- ([yshift=0.75cm] qf.east)
+                    node[midway, above=5pt] {$w = a_7$};
+                \draw[graffasotto] ([xshift=-0.45cm, yshift=-1.75cm] q5.center)
+                    -- ([xshift=0.45cm, yshift=-1.75cm] q5.center)
+                    node[midway, below=5pt] {$v = a_6$};
+            \end{tikzpicture}
+            \caption{La suddivisione di $z = a_1 \cdots a_7$: il primo stato che si ripete
+                \`e $q_5$, e il cappio $a_6$ \`e la parte $v$.}
+            \label{fig:pumping-esempio}
+        \end{figure}
+
+        Ripetendo il cappio su $q_5$ un numero qualsiasi di volte, o saltandolo, si
+        arriva sempre in $q_5$ e poi, con $a_7$, in $q_f$. Quindi
+        $uv^i w = a_1 a_2 a_3 a_4 a_5 \, a_6^i \, a_7 \in \mathcal{L}$ per ogni
+        $i \in \mathbb{N}$.
+    \end{esempio}
+
+    Il lemma ha la forma di un'implicazione,
+    \begin{equation*}
+        \mathcal{L} \text{ regolare} \implies \text{vale la propriet\`a descritta},
+    \end{equation*}
+    e si usa soprattutto nella forma contronominale (Sezione~\ref{sec:equivalenze}),
+    \begin{equation*}
+        (A \implies B) \equiv (\neg B \implies \neg A),
+    \end{equation*}
+    che in questo caso diventa
+    \begin{equation*}
+        \text{non vale la propriet\`a descritta} \implies
+        \mathcal{L} \text{ non \`e regolare}.
+    \end{equation*}
+
 
     %TEORICA%
     \chapter{Esercizi}
