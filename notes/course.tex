@@ -449,6 +449,7 @@ shapes.geometric}
     Le coppie, ovvero le tuple di due elementi, si indicano anche con le parentesi tonde.
 
     \subsection{Propriet\`a delle relazioni}
+    \label{sec:proprieta-relazioni}
     Le propriet\`a seguenti riguardano le relazioni su un insieme $S$, ovvero
     $R \subseteq S \times S$.
 
@@ -3134,10 +3135,12 @@ shapes.geometric}
     \end{proof}
 
     \section{Pumping lemma per i linguaggi regolari}
+    Fornisce una condizione necessaria alla regolarit\`a, ovvero una condizione sufficiente
+    alla non \textbf{non} regolarit\`a.
     \begin{theorem}[Pumping lemma]
         \label{thm:pumping}
-        Sia $\mathcal{L}$ un linguaggio regolare. Allora esiste $k \in \mathbb{N}$ tale
-        che ogni stringa $z \in \mathcal{L}$ con $|z| \geq k$ si pu\`o suddividere in tre
+        Sia $\mathcal{L}$ un linguaggio regolare. Allora  $\exists k \in \mathbb{N}$ tale
+        che $\forall z \in \mathcal{L}$ con $|z| \geq k$ esiste una suddivisione in tre
         parti, $z = uvw$, con
         \begin{equation*}
             |uv| \leq k,
@@ -3294,7 +3297,7 @@ shapes.geometric}
                 \node[state] (q) at (5, 0) {$q$};
                 \node (p2) at (6.65, 0) {$\cdots$};
                 \node[state, accepting] (qf) at (8.3, 0) {$q_f$};
-                \node[state] (r) at (5.9, -1.5) {};
+                \node[state] (r) at (5.9, -1.5) {$q_i$};
 
                 \path (q0) edge node {$a_1$} (q1)
                     (q1) edge (p1)
@@ -3362,7 +3365,7 @@ shapes.geometric}
         \end{equation*}
         dove $q_f$, uno dei sei stati, \`e lo stato finale raggiunto. Gli stati sono solo
         $6$, quindi qualcuno si ripete: il primo \`e $q_5$, raggiunto dopo $a_5$ e di
-        nuovo dopo $a_6$, attraverso un cappio. \`E il caso limite descritto nella
+        nuovo dopo $a_6$, attraverso un arco auto-entrante. \`E il caso limite descritto nella
         dimostrazione, in cui si ripete l'ultimo stato:
         \begin{equation*}
             u = a_1 a_2 a_3 a_4 a_5,
@@ -3407,12 +3410,12 @@ shapes.geometric}
                     node[midway, below=5pt] {$v = a_6$};
             \end{tikzpicture}
             \caption{La suddivisione di $z = a_1 \cdots a_7$: il primo stato che si ripete
-                \`e $q_5$, e il cappio $a_6$ \`e la parte $v$.}
+                \`e $q_5$, e l'arco auto-entrante $a_6$ \`e la parte $v$.}
             \label{fig:pumping-esempio}
         \end{figure}
 
-        Ripetendo il cappio su $q_5$ un numero qualsiasi di volte, o saltandolo, si
-        arriva sempre in $q_5$ e poi, con $a_7$, in $q_f$. Quindi
+        Iterando un numero qualsiasi di volte sull'arco auto-entrante si arriva sempre
+        in $q_5$ e poi, con $a_7$, in $q_f$. Quindi
         $uv^i w = a_1 a_2 a_3 a_4 a_5 \, a_6^i \, a_7 \in \mathcal{L}$ per ogni
         $i \in \mathbb{N}$.
     \end{esempio}
@@ -3427,10 +3430,708 @@ shapes.geometric}
     \end{equation*}
     che in questo caso diventa
     \begin{equation*}
-        \text{non vale la propriet\`a descritta} \implies
+        \text{ la propriet\`a descritta non vale} \implies
         \mathcal{L} \text{ non \`e regolare}.
     \end{equation*}
 
+    Il pumping lemma fornisce una condizione necessaria alla regolarit\`a di un linguaggio,
+    ossia una condizione sufficiente alla non regolarit\`a.
+
+    L'utilizzo del pumping lemma per dimostrare la non regolarit\`a richiede la negazione
+    della condizione necessaria. Se
+    \begin{align*}
+        & \forall k \in \mathbb{N}. \\
+        & \exists z \in \mathcal{L} \text{ con } |z| \geq k. \\
+        & \forall z = uvw \text{ con } |uv| \leq k \text{ e } |v| > 0. \\
+        & \exists i \in \mathbb{N}.\; uv^i w \notin \mathcal{L},
+    \end{align*}
+    allora $\mathcal{L}$ \emph{non} \`e regolare.
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        \begin{equation*}
+            \mathcal{L} = \{a^n b^n \mid n \in \mathbb{N}\},
+        \end{equation*}
+        che contiene $\varepsilon$, $ab$, $aabb$ e cos\`i via. Per riconoscere la sola
+        stringa $ab$ basta il primo automa della Figura~\ref{fig:anbn}. Viene naturale
+        generalizzarlo con il secondo automa, in cui le frecce ondulate indicano i cammini
+        che leggono $a^n$ e $b^n$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                automa,
+                ondulata/.style={decorate, decoration={snake, amplitude=0.5mm,
+                    segment length=2.5mm, pre length=1mm, post length=3.5mm}}
+            ]
+                % Automa per la sola stringa ab
+                \node at (-1.9, 0) {$ab$};
+                \node[state, initial] (q0) at (0, 0) {$q_0$};
+                \node[state] (q1) at (2.6, 0) {$q_1$};
+                \node[state, accepting] (qf) at (5.2, 0) {$q_f$};
+                \path (q0) edge node {$a$} (q1)
+                    (q1) edge node {$b$} (qf);
+
+                % Automa con le frecce ondulate
+                \node at (-1.9, -1.9) {$a^n b^n$};
+                \node[state, initial] (p0) at (0, -1.9) {$q_0$};
+                \node[state] (p) at (2.6, -1.9) {$q$};
+                \node[state, accepting] (pf) at (5.2, -1.9) {$q_f$};
+                \draw[ondulata] (p0) -- node[below=2pt] {$a^n$} (p);
+                \draw[ondulata] (p) -- node[below=2pt] {$b^n$} (pf);
+            \end{tikzpicture}
+            \caption{L'automa che riconosce $ab$ e, con le frecce ondulate, quello per
+                $a^n b^n$, che esiste solo se $n$ \`e fissato a priori.}
+            \label{fig:anbn}
+        \end{figure}
+
+        Se $n$ \`e fissato a priori, il secondo automa esiste, perch\'e il linguaggio
+        contiene una sola stringa. Se invece $n$ non \`e fornito a priori, come in
+        $\mathcal{L}$, tale automa \emph{non} esiste. Il numero di $a$ ripetute
+        consecutivamente potrebbe infatti essere diverso dal numero di $b$, e l'automa
+        dovrebbe accettare soltanto le stringhe in cui i due numeri coincidono. L'unica
+        forma di memoria di un DFA, per\`o, \`e lo stato in cui si trova: gli stati sono in
+        numero finito, mentre $n$ pu\`o essere arbitrariamente grande, quindi non c'\`e
+        alcun modo di tenere traccia di quante $a$ sono state lette.
+
+        Si dimostra ora che $\mathcal{L}$ non \`e regolare usando il pumping lemma, cio\`e
+        verificando la negazione della condizione necessaria, un quantificatore alla volta.
+        \begin{itemize}
+            \item $\forall k \in \mathbb{N}$: si sceglie un valore generico $k$, la
+                costante del pumping lemma, sul quale non si pu\`o porre \emph{alcuna}
+                condizione: la dimostrazione deve valere qualunque sia $k$.
+            \item $\exists z \in \mathcal{L}$ con $|z| \geq k$: basta individuare una
+                stringa che appartenga a $\mathcal{L}$ e abbia lunghezza almeno $k$. Si
+                sceglie
+                \begin{equation*}
+                    z = a^k b^k,
+                \end{equation*}
+                in cui il numero di $a$ \`e uguale al numero di $b$, quindi
+                $z \in \mathcal{L}$, e $|z| = 2k \geq k$.
+            \item $\forall z = uvw$ con $|uv| \leq k$ e $|v| > 0$: si devono considerare
+                \emph{tutte} le suddivisioni di $z$ che rispettano i due vincoli. I primi
+                $k$ simboli di $z$ sono tutti $a$, quindi il vincolo $|uv| \leq k$ impone
+                che $uv$ sia contenuta in $a^k$. Infatti, se $v$ contenesse almeno una $b$,
+                allora $uv$ conterrebbe tutte le $k$ occorrenze di $a$ e almeno una $b$, e
+                quindi sarebbe $|uv| > k$, come mostra la
+                Figura~\ref{fig:anbn-suddivisioni}.
+        \end{itemize}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                parte/.style={draw, thick, minimum height=0.55cm, inner sep=0pt,
+                    anchor=west},
+                ripetuta/.style={parte, fill=tenue},
+                esclusa/.style={dashed},
+                vincolo/.style={anchor=west, font=\small}
+            ]
+                % La stringa z = a^k b^k
+                \node[anchor=east] at (-0.3, 0) {$z$};
+                \node[parte, minimum width=4cm] at (0, 0) {$a^k$};
+                \node[parte, minimum width=4cm] at (4, 0) {$b^k$};
+
+                % Suddivisione che rispetta il vincolo: uv contenuta in a^k
+                \node[parte, minimum width=1.6cm] at (0, -0.8) {$u$};
+                \node[ripetuta, minimum width=1.6cm] at (1.6, -0.8) {$v$};
+                \node[parte, minimum width=4.8cm] at (3.2, -0.8) {$w$};
+                \node[vincolo] at (8.2, -0.8) {$|uv| \leq k$};
+
+                % Suddivisioni escluse: v contiene almeno una b
+                \node[parte, esclusa, minimum width=2.2cm] at (0, -1.6) {$u$};
+                \node[ripetuta, esclusa, minimum width=2.8cm] at (2.2, -1.6) {$v$};
+                \node[parte, esclusa, minimum width=3cm] at (5, -1.6) {$w$};
+                \node[vincolo] at (8.2, -1.6) {$|uv| > k$};
+
+                \node[parte, esclusa, minimum width=5.2cm] at (0, -2.4) {$u$};
+                \node[ripetuta, esclusa, minimum width=1.4cm] at (5.2, -2.4) {$v$};
+                \node[parte, esclusa, minimum width=1.4cm] at (6.6, -2.4) {$w$};
+                \node[vincolo] at (8.2, -2.4) {$|uv| > k$};
+
+                % Posizione di k, dove finiscono le a
+                \draw[dashed, evidenza] (4, -2.8) -- (4, 0.5) node[above, black] {$k$};
+            \end{tikzpicture}
+            \caption{La stringa $z = a^k b^k$ e alcune sue suddivisioni: se $uv$ \`e
+                contenuta in $a^k$ il vincolo \`e rispettato, mentre le suddivisioni
+                tratteggiate, in cui $v$ contiene almeno una $b$, hanno $|uv| > k$.}
+            \label{fig:anbn-suddivisioni}
+        \end{figure}
+
+        Dunque $z = uvw$ con $uv$ contenuta in $a^k$: $v$ \`e formata solo da $a$ e,
+        poich\'e $|v| > 0$, ne contiene almeno una.
+        \begin{itemize}
+            \item $\exists i \in \mathbb{N}.\; uv^i w \notin \mathcal{L}$: ripetendo $v$
+                cambia solo il numero di $a$, perch\'e rispetto a $z$ ci sono $i - 1$
+                copie di $v$ in pi\`u:
+                \begin{equation*}
+                    z_i = uv^i w = a^{k + (i - 1)|v|} b^k,
+                \end{equation*}
+                come mostra la Figura~\ref{fig:anbn-pompate}.
+        \end{itemize}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                parte/.style={draw, thick, minimum height=0.55cm, inner sep=0pt,
+                    anchor=west},
+                ripetuta/.style={parte, fill=tenue}
+            ]
+                % Lunghezze di u, v, w e delle a contenute in w (in cm)
+                \def\lu{1.5} \def\lv{1.2} \def\lw{4.1} \def\la{0.7}
+
+                \foreach \i/\y/\nome/\forma in {
+                        1/0/{z}/{a^k b^k},
+                        2/-0.85/{z_2}/{a^{k + |v|} b^k},
+                        3/-1.7/{z_3}/{a^{k + 2|v|} b^k},
+                        0/-2.55/{z_0}/{a^{k - |v|} b^k}} {
+                    \node[anchor=east] at (-0.3, \y) {$\nome$};
+                    \node[parte, minimum width=\lu cm] at (0, \y) {$u$};
+                    \ifnum\i>0
+                        \foreach \j in {1,...,\i}
+                            \node[ripetuta, minimum width=\lv cm]
+                                at ({\lu + (\j - 1)*\lv}, \y) {$v$};
+                    \fi
+                    \node[parte, minimum width=\lw cm] at ({\lu + \i*\lv}, \y) {$w$};
+
+                    % Punto in cui finiscono le a e iniziano le b
+                    \draw[densely dotted, thick] ({\lu + \i*\lv + \la}, {\y - 0.275})
+                        -- ++(0, 0.55);
+                    \node[anchor=west] at ({\lu + \i*\lv + \lw + 0.2}, \y) {$\forma$};
+                }
+            \end{tikzpicture}
+            \caption{Le stringhe $z_i = uv^i w$: ogni copia di $v$ in pi\`u aggiunge $|v|$
+                simboli $a$, mentre togliendo $v$ ne restano $k - |v|$. La linea
+                punteggiata segna il punto in cui finiscono le $a$ e iniziano le $b$.}
+            \label{fig:anbn-pompate}
+        \end{figure}
+
+        La condizione di appartenenza a $\mathcal{L}$ \`e che il numero di $a$ sia uguale
+        al numero di $b$, cio\`e $a^n b^m \in \mathcal{L}$ se e solo se $n = m$. Quindi
+        \begin{equation*}
+            z_i \in \mathcal{L}
+            \iff k + (i - 1)|v| = k
+            \iff (i - 1)|v| = 0.
+        \end{equation*}
+        Basta trovare un solo valore di $i$: si sceglie $i = 2$. Se fosse
+        $z_2 \in \mathcal{L}$ si avrebbe $|v| = 0$, assurdo per l'ipotesi $|v| > 0$ fatta
+        sulla suddivisione, quindi $z_2 \notin \mathcal{L}$.
+
+        Il ragionamento vale per ogni $k$ e per ogni suddivisione che rispetta i vincoli,
+        quindi la negazione della condizione necessaria \`e verificata: $\mathcal{L}$
+        non \`e regolare.
+    \end{esempio}
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        \begin{equation*}
+            \mathcal{L} = \{0^n \mid n \text{ \`e un quadrato perfetto}\}
+            = \{0^n \mid \exists m.\; n = m^2\}.
+        \end{equation*}
+        Si dimostra che $\mathcal{L}$ non \`e regolare. La condizione di appartenenza a
+        $\mathcal{L}$ \`e
+        \begin{equation*}
+            0^n \in \mathcal{L} \iff \exists m \in \mathbb{N}.\; n = m^2.
+        \end{equation*}
+        Come nell'esempio precedente, si verifica la negazione della condizione necessaria.
+        \begin{itemize}
+            \item $\forall k \in \mathbb{N}$: si sceglie un valore generico $k$, sul quale
+                non si pu\`o porre alcuna condizione.
+            \item $\exists z \in \mathcal{L}$ con $|z| \geq k$: la scelta $z = 0^k$ non
+                andrebbe bene, perch\'e apparterrebbe a $\mathcal{L}$ solo se $k$ fosse un
+                quadrato perfetto. Si sceglie invece $n = k^2$, cio\`e
+                \begin{equation*}
+                    z = 0^{k^2},
+                \end{equation*}
+                che appartiene a $\mathcal{L}$, perch\'e $k^2$ \`e il quadrato di $k$, e ha
+                lunghezza $|z| = k^2 \geq k$.
+            \item $\forall z = uvw$ con $|uv| \leq k$ e $|v| > 0$: poich\'e $z$ \`e formata
+                solo da $0$, anche $v$ lo \`e. Inoltre $|v| \leq |uv| \leq k$, quindi
+                $0 < |v| \leq k$.
+            \item $\exists i \in \mathbb{N}.\; uv^i w \notin \mathcal{L}$: rispetto a $z$ ci
+                sono $i - 1$ copie di $v$ in pi\`u, quindi
+                \begin{equation*}
+                    z_i = uv^i w = 0^{k^2 + (i - 1)|v|}.
+                \end{equation*}
+                Si sceglie $i = 2$: si ha $z_2 = 0^{k^2 + |v|}$, e $z_2 \in \mathcal{L}$ se
+                e solo se $k^2 + |v|$ \`e un quadrato perfetto.
+        \end{itemize}
+        Che $k^2 + |v|$ non sia un quadrato perfetto si pu\`o dimostrare in due modi.
+
+        \textit{Prima dimostrazione, per assurdo}. Se $k^2 + |v|$ fosse un quadrato
+        perfetto, esisterebbe $j \in \mathbb{N}$ tale che $k^2 + |v| = j^2$. Poich\'e
+        $|v| \geq 1$ si ha $j^2 > k^2$ e, poich\'e il quadrato \`e una funzione crescente,
+        $j > k$. Esiste quindi $m \geq 1$ tale che $j = k + m$, da cui
+        \begin{equation*}
+            k^2 + |v| = (k + m)^2 = k^2 + 2km + m^2
+            \implies |v| = 2km + m^2 > 2k \geq k.
+        \end{equation*}
+        Allora $|uv| = |u| + |v| \geq |v| > k$, assurdo per l'ipotesi $|uv| \leq k$ fatta
+        sulla suddivisione.
+
+        \textit{Seconda dimostrazione, tra due quadrati consecutivi}. Da $0 < |v| \leq k$
+        si ottiene
+        \begin{equation*}
+            k^2 < k^2 + |v| \leq k^2 + k < k^2 + 2k + 1 = (k + 1)^2.
+        \end{equation*}
+        Il numero $k^2 + |v|$ cade quindi strettamente tra due quadrati consecutivi, e tra
+        due quadrati consecutivi non ci sono altri quadrati.
+
+        In entrambi i casi $z_2 \notin \mathcal{L}$. Il ragionamento vale per ogni $k$ e per
+        ogni suddivisione che rispetta i vincoli, quindi $\mathcal{L}$ non \`e regolare.
+    \end{esempio}
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        \begin{equation*}
+            \mathcal{L} = \{0^n 0^{n+1} \mid n \in \mathbb{N}\}
+            = \{0^{2n+1} \mid n \in \mathbb{N}\},
+        \end{equation*}
+        ovvero l'insieme delle stringhe di $0$ di lunghezza dispari: $0$, $000$, $00000$ e
+        cos\`i via. Nonostante la somiglianza con $a^n b^n$, $\mathcal{L}$ \`e regolare:
+        lo riconosce il DFA della Figura~\ref{fig:dfa-dispari}, che ricorda soltanto se il
+        numero di simboli letti \`e pari ($q_0$) o dispari ($q_1$), e lo denota
+        l'espressione regolare $0(00)^*$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[automa]
+                \node[state, initial] (q0) {$q_0$};
+                \node[state, accepting, right=of q0] (q1) {$q_1$};
+                \path (q0) edge[bend left=20] node {$0$} (q1)
+                    (q1) edge[bend left=20] node {$0$} (q0);
+
+                % Matrice di transizione, a destra del diagramma
+                \node[right=2cm of q1] {%
+                    \begin{tabular}{cc}
+                        \toprule
+                        $\delta$ & $0$ \\
+                        \midrule
+                        $q_0$ & $q_1$ \\
+                        $q_1$ & $q_0$ \\
+                        \bottomrule
+                    \end{tabular}};
+            \end{tikzpicture}
+            \caption{DFA che riconosce le stringhe di $0$ di lunghezza dispari e la sua
+                matrice di transizione.}
+            \label{fig:dfa-dispari}
+        \end{figure}
+
+        Non basterebbe restare nello stato finale dopo il primo $0$: l'automa accetterebbe
+        anche $00$, che non sta in $\mathcal{L}$, perch\'e $2$ non \`e della forma
+        $2n + 1$.
+
+        A differenza di $a^n b^n$, qui il simbolo \`e uno solo: non ci sono due parti da
+        confrontare e conta solo la lunghezza totale. Per sapere se \`e dispari basta una
+        memoria finita.
+    \end{esempio}
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        \begin{equation*}
+            \mathcal{L}' = \{0^n 1^{n+1} \mid n \in \mathbb{N}\}.
+        \end{equation*}
+        Rispetto all'esempio precedente cambia solo il secondo simbolo, ma \`e proprio
+        questo a contare: le due parti ora si distinguono e il numero di $1$ dipende da
+        quanti $0$ sono stati letti, che non \`e limitato. Per questo $\mathcal{L}'$
+        non \`e regolare.
+
+        Con il pumping lemma: per ogni $k \in \mathbb{N}$ si sceglie
+        $z = 0^k 1^{k+1}$, che appartiene a $\mathcal{L}'$ e ha lunghezza
+        $|z| = 2k + 1 \geq k$. In ogni suddivisione con $|uv| \leq k$ e $|v| > 0$, $v$
+        contiene solo $0$, quindi
+        \begin{equation*}
+            z_2 = 0^{k + |v|} 1^{k+1}.
+        \end{equation*}
+        In $\mathcal{L}'$ il numero di $1$ \`e il numero di $0$ pi\`u uno, quindi
+        $z_2 \in \mathcal{L}'$ solo se $k + 1 = k + |v| + 1$, cio\`e se $|v| = 0$, che \`e
+        assurdo. Dunque $z_2 \notin \mathcal{L}'$ e $\mathcal{L}'$ non \`e regolare.
+    \end{esempio}
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        \begin{equation*}
+            \mathcal{L}'' = \{0^n 1 0^{n+1} \mid n \in \mathbb{N}\}.
+        \end{equation*}
+        Le stringhe sono fatte quasi solo di $0$, come nel linguaggio delle stringhe di
+        lunghezza dispari, ma qui l'$1$ fa da separatore: le due parti si distinguono e
+        vanno confrontate, quindi $\mathcal{L}''$ non \`e regolare.
+
+        Con il pumping lemma: per ogni $k \in \mathbb{N}$ si sceglie
+        $z = 0^k 1 0^{k+1}$, che appartiene a $\mathcal{L}''$ e ha lunghezza
+        $|z| = 2k + 2 \geq k$. In ogni suddivisione con $|uv| \leq k$ e $|v| > 0$, $v$
+        contiene solo zeri che precedono l'$1$, quindi
+        \begin{equation*}
+            z_2 = 0^{k + |v|} 1 0^{k+1}.
+        \end{equation*}
+        In $\mathcal{L}''$ gli zeri dopo l'$1$ sono uno in pi\`u di quelli prima, quindi
+        $z_2 \in \mathcal{L}''$ solo se $k + 1 = k + |v| + 1$, cio\`e se $|v| = 0$, che \`e
+        assurdo. Dunque $z_2 \notin \mathcal{L}''$ e $\mathcal{L}''$ non \`e regolare.
+    \end{esempio}
+
+    \begin{esempio}
+        Sia $m \in \mathbb{N}$ fissato e si consideri il linguaggio, indicato anche con
+        $\mathcal{L}(m)$,
+        \begin{equation*}
+            \mathcal{L}_m = \{0^m 1 0^{m+n} \mid n \in \mathbb{N}\}.
+        \end{equation*}
+        Poich\'e $0^m 1 0^{m+n} = 0^m 1 0^m 0^n$, il linguaggio \`e denotato
+        dall'espressione regolare $0^m 1 0^m 0^*$, quindi \`e regolare. Qui $m$ non \`e un
+        input dell'automa, ma un parametro stabilito prima di costruirlo: c'\`e un automa
+        diverso per ogni $m$, come quello della Figura~\ref{fig:dfa-lm}, e contare fino a
+        un numero fissato richiede solo un numero finito di stati.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[automa]
+                \node[state, initial] (q0) at (0, 0) {$q_0$};
+                \node (p1) at (1.7, 0) {$\cdots$};
+                \node[state] (qm) at (3.4, 0) {$q_m$};
+                \node[state] (r0) at (5.4, 0) {$r_0$};
+                \node (p2) at (7.1, 0) {$\cdots$};
+                \node[state, accepting] (rm) at (8.8, 0) {$r_m$};
+                \path (q0) edge node {$0$} (p1)
+                    (p1) edge node {$0$} (qm)
+                    (qm) edge node {$1$} (r0)
+                    (r0) edge node {$0$} (p2)
+                    (p2) edge node {$0$} (rm)
+                    (rm) edge[loop above] node {$0$} ();
+            \end{tikzpicture}
+            \caption{DFA che riconosce $\mathcal{L}_m$: lo stato pozzo, non finale, in cui
+                finiscono tutte le altre letture \`e omesso.}
+            \label{fig:dfa-lm}
+        \end{figure}
+
+        L'automa legge $m$ zeri, un $1$ e altri $m$ zeri. Raggiunto $r_m$, ogni altro zero
+        non cambia nulla: $n$ non va memorizzato, perch\'e non deve essere confrontato con
+        nessun altro valore.
+    \end{esempio}
+
+    \begin{esempio}
+        Si consideri ora il linguaggio
+        \begin{equation*}
+            \mathcal{L} = \{0^m 1 0^{m+n} \mid n, m \in \mathbb{N}\}
+            = \bigcup_{m \in \mathbb{N}} \mathcal{L}_m.
+        \end{equation*}
+        Ogni $\mathcal{L}_m$ \`e regolare, ma $\mathcal{L}$ non lo \`e: la chiusura
+        rispetto all'unione (Teorema~\ref{thm:chiusura}) vale solo per un numero finito di
+        linguaggi. Ora $m$ non \`e pi\`u fissato, quindi bisognerebbe ricordare quanti zeri
+        sono stati letti prima dell'$1$, un numero che non \`e limitato.
+
+        Con il pumping lemma: per ogni $k \in \mathbb{N}$ si sceglie $z = 0^k 1 0^k$, che
+        appartiene a $\mathcal{L}$, con $m = k$ e $n = 0$, e ha lunghezza
+        $|z| = 2k + 1 \geq k$. In ogni suddivisione con $|uv| \leq k$ e $|v| > 0$, $v$
+        contiene solo zeri che precedono l'$1$, quindi
+        \begin{equation*}
+            z_2 = 0^{k + |v|} 1 0^k.
+        \end{equation*}
+        Dopo l'$1$ ci sono $k$ zeri, ma ne servirebbero almeno $k + |v|$, quindi
+        $z_2 \notin \mathcal{L}$ e $\mathcal{L}$ non \`e regolare.
+
+        Qui la scelta di $i$ conta: con $i = 0$ si otterrebbe $0^{k - |v|} 1 0^k$, che
+        appartiene a $\mathcal{L}$, perch\'e togliendo zeri prima dell'$1$ la condizione
+        resta vera. Serve quindi un $i \geq 2$.
+
+        Anche la scelta $z = 0^k 1 0^{2k}$, con $m = n = k$, porta alla stessa conclusione,
+        ma ha un margine di $k$ zeri: $i = 2$ non basta, perch\'e $k + |v| \leq 2k$ e
+        quindi $z_2 \in \mathcal{L}$. Si sceglie allora $i = k + 2$, che pu\`o dipendere da
+        $k$ perch\'e nella negazione $\exists i$ viene dopo $\forall k$:
+        \begin{equation*}
+            z_{k+2} = 0^{k + (k + 1)|v|} 1 0^{2k}.
+        \end{equation*}
+        Si ha quindi
+        \begin{equation*}
+            z_{k+2} \in \mathcal{L}
+            \iff 2k \geq k + (k + 1)|v|
+            \iff k \geq (k + 1)|v|.
+        \end{equation*}
+        Poich\'e $|v| \geq 1$, si ha $(k + 1)|v| \geq k + 1 > k$, quindi la condizione \`e
+        falsa e $z_{k+2} \notin \mathcal{L}$. La strada \`e valida, ma richiede pi\`u conti
+        rispetto a $z = 0^k 1 0^k$, che non ha margine.
+    \end{esempio}
+
+    \chapter{Linguaggi Context-Free}
+
+    \section{Grammatiche libere dal contesto}
+    Finora si sono visti i linguaggi regolari. Il linguaggio $\{a^n b^n \mid n \in
+    \mathbb{N}\}$, per\`o, non \`e regolare: per descrivere linguaggi di questo tipo si
+    introducono i linguaggi \emph{context-free} (CF).
+
+    \begin{definition}[Grammatica libera dal contesto]
+        Una \emph{grammatica libera dal contesto} (CF) \`e una quadrupla
+        $\mathcal{G} = \langle V, T, P, S \rangle$, dove:
+        \begin{itemize}
+            \item $V$ \`e un insieme finito di simboli detti \emph{non terminali};
+            \item $T$ \`e un insieme finito di simboli detti \emph{terminali}, con
+                $V \cap T = \emptyset$;
+            \item $P$ \`e un insieme finito di \emph{produzioni}, ovvero regole di
+                sostituzione, della forma $A \to \alpha$, dove $A \in V$ \`e un simbolo non
+                terminale e $\alpha \in (V \cup T)^*$ \`e una sequenza di simboli in
+                $V \cup T$;
+            \item $S \in V$ \`e il simbolo \emph{iniziale}.
+        \end{itemize}
+    \end{definition}
+    I simboli di $V$ fanno da segnaposto: indicano una parte della stringa ancora da
+    costruire. I simboli di $T$ si chiamano \emph{terminali} perch\'e, una volta scritti,
+    sono definitivi: il lato sinistro di una produzione \`e sempre un non terminale, quindi
+    nessuna produzione li riscrive. Il simbolo iniziale $S$ \`e il non terminale da cui si
+    parte per generare le stringhe, come $q_0$ in un automa: con le stesse produzioni, un
+    simbolo iniziale diverso pu\`o generare un altro linguaggio. La forma delle produzioni
+    determina il tipo di grammatica.
+
+    Le produzioni di $P$ si dicono \emph{libere dal contesto} (CF) perch\'e $A \to \alpha$
+    significa che $A$ si pu\`o sostituire con $\alpha$ \emph{indipendentemente} dal suo
+    contesto, ovvero dai simboli presenti prima o dopo $A$.
+
+    \begin{esempio}
+        Le espressioni booleane sono generate dalla grammatica
+        \begin{equation*}
+            \mathcal{G} = \langle \{E\},\;
+            \{\mathrm{or}, \mathrm{and}, \mathrm{not}, (, ), 0, 1\},\; P,\; E \rangle,
+        \end{equation*}
+        con $V = \{E\}$, $T = \{\mathrm{or}, \mathrm{and}, \mathrm{not}, (, ), 0, 1\}$,
+        simbolo iniziale $E$ e produzioni
+        \begin{align*}
+            E &\to 0 \mid 1, \\
+            E &\to (E \;\mathrm{or}\; E), \\
+            E &\to (E \;\mathrm{and}\; E), \\
+            E &\to (\mathrm{not}\; E).
+        \end{align*}
+        Il simbolo $\mid$ si legge \emph{oppure}: $E \to 0 \mid 1$ equivale alle due
+        produzioni $E \to 0$ ed $E \to 1$.
+
+        La stringa $((1 \;\mathrm{and}\; 0) \;\mathrm{or}\; 0)$ si ottiene partendo da $E$
+        e sostituendo a ogni passo una sola $E$ con una produzione:
+        \begin{align*}
+            E &\Rightarrow (E \;\mathrm{or}\; E)
+                && \text{($E \to (E \;\mathrm{or}\; E)$)} \\
+            &\Rightarrow ((E \;\mathrm{and}\; E) \;\mathrm{or}\; E)
+                && \text{($E \to (E \;\mathrm{and}\; E)$ sulla prima $E$)} \\
+            &\Rightarrow ((E \;\mathrm{and}\; E) \;\mathrm{or}\; 0)
+                && \text{($E \to 0$ sull'ultima $E$)} \\
+            &\Rightarrow ((1 \;\mathrm{and}\; E) \;\mathrm{or}\; 0)
+                && \text{($E \to 1$ sulla prima $E$)} \\
+            &\Rightarrow ((1 \;\mathrm{and}\; 0) \;\mathrm{or}\; 0)
+                && \text{($E \to 0$ sulla $E$ rimasta)}.
+        \end{align*}
+    \end{esempio}
+
+    \section{Linguaggio generato da \texorpdfstring{$\mathcal{G}$}{G}}
+    Una produzione $(A \to \beta) \in P$ dice che $A$ pu\`o essere sostituito con
+    $\beta \in (V \cup T)^*$, qualunque cosa ci sia prima e dopo $A$:
+    \begin{equation*}
+        \alpha A \gamma \Rightarrow \alpha \beta \gamma,
+        \qquad \alpha, \gamma \in (V \cup T)^*.
+    \end{equation*}
+    Le stringhe $\alpha$ e $\gamma$ sono il contesto di $A$ e possono contenere qualsiasi
+    combinazione di terminali e non terminali: indipendentemente dalla loro natura, $A$
+    pu\`o essere sostituito con $\beta$, perch\'e la produzione guarda solo $A$. \`E questo
+    il significato di \emph{libera dal contesto}.
+
+    \begin{definition}[Derivazione immediata]
+        Se $(A \to \beta) \in P$ e $\alpha, \gamma \in (V \cup T)^*$, si dice che
+        $\alpha \beta \gamma$ \emph{deriva immediatamente} da $\alpha A \gamma$, e si scrive
+        $\alpha A \gamma \Rightarrow \alpha \beta \gamma$.
+    \end{definition}
+    Una derivazione immediata \`e quindi l'applicazione di una sola produzione a una sola
+    occorrenza di $A$: $\alpha$ e $\gamma$ restano invariate e solo $A$ viene sostituita
+    da $\beta$, come mostra la Figura~\ref{fig:derivazione-immediata}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            segmento/.style={|-|, thick},
+            sostituito/.style={|-|, line width=1.6pt},
+            guida/.style={dashed, evidenza}
+        ]
+            % La produzione (A -> beta) in P
+            \node[punto, minimum size=5pt, label=above:$A$] (a) at (0, 1.3) {};
+            \draw[thick] (a) -- (-0.9, 0) (a) -- (0.9, 0);
+            \draw[sostituito] (-0.9, 0) -- node[below=2pt] {$\beta$} (0.9, 0);
+            \node at (1.45, 0.55) {$\in P$};
+
+            % Prima della sostituzione: alpha A gamma
+            \draw[segmento] (3.2, 1.3) -- node[above=2pt] {$\alpha$} (4.7, 1.3);
+            \node[punto, minimum size=5pt, label=above:$A$] at (5, 1.3) {};
+            \draw[segmento] (5.3, 1.3) -- node[above=2pt] {$\gamma$} (6.8, 1.3);
+
+            % Dopo la sostituzione: alpha beta gamma
+            \draw[segmento] (3.2, 0) -- node[below=2pt] {$\alpha$} (4.7, 0);
+            \draw[sostituito] (4.7, 0) -- node[below=2pt] {$\beta$} (6.5, 0);
+            \draw[segmento] (6.5, 0) -- node[below=2pt] {$\gamma$} (8, 0);
+
+            % Corrispondenza tra le due stringhe
+            \draw[guida] (3.2, 1.3) -- (3.2, 0)
+                (4.7, 1.3) -- (4.7, 0)
+                (5.3, 1.3) -- (6.5, 0)
+                (6.8, 1.3) -- (8, 0);
+            \draw[-{Stealth}, thick] (8.6, 1.3) -- node[right] {$\Rightarrow$} (8.6, 0);
+        \end{tikzpicture}
+        \caption{A sinistra la produzione $(A \to \beta) \in P$; a destra la derivazione
+            immediata $\alpha A \gamma \Rightarrow \alpha \beta \gamma$, in cui $\alpha$ e
+            $\gamma$ restano invariate.}
+        \label{fig:derivazione-immediata}
+    \end{figure}
+
+    \begin{definition}[Derivazione in pi\`u passi]
+        Siano $\alpha_1, \alpha_2, \dots, \alpha_i \in (V \cup T)^*$ sequenze di simboli in
+        $V \cup T$ tali che da ognuna derivi immediatamente la successiva:
+        \begin{equation*}
+            \forall j \leq i - 1.\; \alpha_j \Rightarrow \alpha_{j+1}.
+        \end{equation*}
+        Si dice che da $\alpha_1$ \emph{deriva} $\alpha_i$ in $i - 1$ passi, e si scrive
+        \begin{equation*}
+            \alpha_1 \overset{\mathcal{G}}{\Rightarrow}_{i-1} \alpha_i.
+        \end{equation*}
+    \end{definition}
+
+    \begin{definition}[Simbolo di generazione]
+        Il \emph{simbolo di generazione} $\overset{\mathcal{G}}{\Rightarrow}$ \`e la
+        chiusura transitiva (Sezione~\ref{sec:proprieta-relazioni}) di $\Rightarrow$:
+        $\alpha \overset{\mathcal{G}}{\Rightarrow} \beta$ indica che $\beta$ si ottiene da
+        $\alpha$ con una o pi\`u derivazioni immediate nella grammatica $\mathcal{G}$.
+    \end{definition}
+
+    \begin{esempio}
+        Nella grammatica delle espressioni booleane, a ogni passo si applica una sola
+        produzione:
+        \begin{align*}
+            E &\Rightarrow (E \;\mathrm{and}\; E) \\
+            &\Rightarrow ((E \;\mathrm{or}\; E) \;\mathrm{and}\; E) \\
+            &\Rightarrow ((E \;\mathrm{or}\; E) \;\mathrm{and}\; 1) \\
+            &\Rightarrow ((0 \;\mathrm{or}\; E) \;\mathrm{and}\; 1) \\
+            &\Rightarrow ((0 \;\mathrm{or}\; 1) \;\mathrm{and}\; 1) \in T^*.
+        \end{align*}
+        I passi sono cinque, quindi si scrive
+        \begin{equation*}
+            E \overset{\mathcal{G}}{\Rightarrow}_5
+            ((0 \;\mathrm{or}\; 1) \;\mathrm{and}\; 1).
+        \end{equation*}
+    \end{esempio}
+
+    In generale, per indicare un numero qualsiasi di passi si usa il pedice $*$:
+    \begin{equation*}
+        \alpha \overset{\mathcal{G}}{\Rightarrow}_* \beta \iff
+        \exists i \in \mathbb{N}.\; \alpha \overset{\mathcal{G}}{\Rightarrow}_i \beta.
+    \end{equation*}
+    Poich\'e $\mathbb{N}$ comprende lo $0$, vale anche
+    $\alpha \overset{\mathcal{G}}{\Rightarrow}_0 \alpha$: con zero passi ogni stringa
+    deriva da se stessa, ad esempio
+    $E \;\mathrm{or}\; E \overset{\mathcal{G}}{\Rightarrow}_0 E \;\mathrm{or}\; E$. Il caso
+    $i = 0$ \`e quello della \emph{chiusura riflessiva}, mentre i casi $i \geq 1$ danno la
+    chiusura transitiva, quindi $\overset{\mathcal{G}}{\Rightarrow}_*$ \`e la chiusura
+    riflessiva e transitiva di $\Rightarrow$.
+
+    \begin{definition}[Linguaggio generato da una grammatica]
+        Sia $\mathcal{G} = \langle V, T, P, S \rangle$ una grammatica CF. Il
+        \emph{linguaggio generato} da $\mathcal{G}$ \`e
+        \begin{equation*}
+            \mathcal{L}(\mathcal{G}) = \{x \in T^* \mid
+            S \overset{\mathcal{G}}{\Rightarrow}_* x\},
+        \end{equation*}
+        ovvero l'insieme di tutte le sequenze di simboli terminali che si possono generare a
+        partire dal simbolo iniziale $S$.
+    \end{definition}
+
+    \begin{definition}[Linguaggio CF]
+        Un linguaggio $\mathcal{L} \subseteq T^*$ \`e un \emph{linguaggio CF} se esiste una
+        grammatica CF $\mathcal{G}$ che lo genera, ovvero tale che
+        \begin{equation*}
+            \mathcal{L} = \mathcal{L}(\mathcal{G}).
+        \end{equation*}
+    \end{definition}
+
+    \begin{definition}[Grammatiche equivalenti]
+        Due grammatiche $\mathcal{G}_1$ e $\mathcal{G}_2$ sono \emph{equivalenti} se
+        generano lo stesso linguaggio, ovvero se
+        $\mathcal{L}(\mathcal{G}_1) = \mathcal{L}(\mathcal{G}_2)$.
+    \end{definition}
+
+    \begin{esempio}
+        Il linguaggio $\{0^n 1^n \mid n \in \mathbb{N}\}$ non \`e regolare, come
+        $\{a^n b^n \mid n \in \mathbb{N}\}$, ma \`e CF: \`e generato dalla grammatica con
+        produzioni $S \to 0S1 \mid \varepsilon$. Scrivere solo le produzioni \`e
+        un'abbreviazione dell'intera quadrupla:
+        \begin{equation*}
+            S \to 0S1 \mid \varepsilon
+            \quad\equiv\quad
+            \langle \{S\},\; \{0, 1\},\; \{S \to 0S1,\; S \to \varepsilon\},\; S \rangle.
+        \end{equation*}
+        Ogni applicazione di $S \to 0S1$ aggiunge uno $0$ e un $1$ insieme, quindi il loro
+        numero resta sempre uguale, senza bisogno di contarli. Ad esempio,
+        \begin{equation*}
+            S \Rightarrow 0S1 \Rightarrow 00S11 \Rightarrow 0011.
+        \end{equation*}
+    \end{esempio}
+
+    \subsection{Come dimostrare che un linguaggio \`e CF}
+    \label{sec:dimostrare-cf}
+    Per dimostrare che un linguaggio $\mathcal{L}$ \`e CF si costruisce una grammatica
+    $\mathcal{G}$ e si dimostra che $\mathcal{L} = \mathcal{L}(\mathcal{G})$, mediante la
+    duplice inclusione:
+    \begin{itemize}
+        \item $\mathcal{L} \subseteq \mathcal{L}(\mathcal{G})$: se $x \in \mathcal{L}$,
+            allora $S \overset{\mathcal{G}}{\Rightarrow}_* x$, cio\`e esiste una derivazione
+            per $x$ in $\mathcal{G}$. Si dimostra per induzione su $|x|$;
+        \item $\mathcal{L}(\mathcal{G}) \subseteq \mathcal{L}$: se
+            $S \overset{\mathcal{G}}{\Rightarrow}_i x$, cio\`e se esiste una derivazione per
+            $x$ in $\mathcal{G}$, allora $x \in \mathcal{L}$. Si dimostra per induzione su
+            $i$, la lunghezza della derivazione.
+    \end{itemize}
+    La grammatica si pu\`o scegliere liberamente: la definizione di linguaggio CF chiede solo
+    che ne esista una, quindi basta esibirla, purch\'e generi tutte e sole le stringhe di
+    $\mathcal{L}$. Di solito conviene quella pi\`u semplice, perch\'e ha meno casi da
+    dimostrare. Se invece la grammatica \`e data, bisogna dimostrare che proprio quella
+    genera $\mathcal{L}$.
+
+    \begin{esempio}
+        Si dimostra che il linguaggio $\mathcal{L} = \{0^n 1^n \mid n \in \mathbb{N}\}$ \`e
+        generato dalla grammatica $\mathcal{G}$ con produzioni
+        $S \to 0S1 \mid \varepsilon$.
+
+        \textsc{Inclusione} $\mathcal{L} \subseteq \mathcal{L}(\mathcal{G})$. Si procede per
+        induzione sulla lunghezza di $x$.
+
+        \textsc{Base}. Si prende la stringa pi\`u corta di $\mathcal{L}$ e si costruisce la
+        sua derivazione in $\mathcal{G}$: $\varepsilon \in \mathcal{L}$ e, grazie alla
+        produzione $S \to \varepsilon$, si ha $S \Rightarrow \varepsilon$.
+
+        \textsc{Passo induttivo}. Si suppone che per ogni $x \in \mathcal{L}$ con
+        $|x| \leq m$ esista $S \overset{\mathcal{G}}{\Rightarrow}_* x$ e si dimostra che
+        la derivazione esiste anche per ogni $x \in \mathcal{L}$ con $|x| = m + 1$.
+        \begin{enumerate}
+            \item Sia $x \in \mathcal{L}$ con $|x| = m + 1$. Per definizione di
+                $\mathcal{L}$ esiste $h \in \mathbb{N}$ tale che $x = 0^h 1^h$, con
+                $h \geq 1$ perch\'e $|x| > 0$.
+            \item Si riscrive $x$ in termini di una stringa $x'$ con $|x'| < |x|$, cos\`i da
+                poter applicare l'ipotesi induttiva a $x'$:
+                \begin{equation*}
+                    x = \underbrace{0^{h-1}}_{x_1} \, 01 \, \underbrace{1^{h-1}}_{x_2},
+                    \qquad\qquad
+                    x' = x_1 x_2 = 0^{h-1} 1^{h-1}.
+                \end{equation*}
+                Per definizione di $\mathcal{L}$ si ha $x' \in \mathcal{L}$, e
+                $|x'| = m - 1$. Per questo l'ipotesi induttiva riguarda tutte le stringhe
+                con $|x| \leq m$, e non solo quelle lunghe $m$.
+            \item Per ipotesi induttiva esiste $S \overset{\mathcal{G}}{\Rightarrow}_* x'$.
+                L'unico non terminale \`e $S$ e l'unica produzione che lo elimina \`e
+                $S \to \varepsilon$, quindi, per come \`e definita $\mathcal{G}$, la
+                derivazione termina necessariamente con $S \to \varepsilon$:
+                \begin{equation*}
+                    S \overset{\mathcal{G}}{\Rightarrow}_* 0^{h-1} S 1^{h-1}
+                    \Rightarrow 0^{h-1} 1^{h-1} = x'.
+                \end{equation*}
+            \item Da qui si ricostruisce la derivazione per $x$: ci si ferma prima
+                dell'ultimo passo e, al posto di $S \to \varepsilon$, si applicano
+                $S \to 0S1$ e poi $S \to \varepsilon$:
+                \begin{equation*}
+                    S \overset{\mathcal{G}}{\Rightarrow}_* 0^{h-1} S 1^{h-1}
+                    \Rightarrow 0^{h-1} \, 0S1 \, 1^{h-1}
+                    \Rightarrow 0^{h-1} \, 01 \, 1^{h-1} = 0^h 1^h = x.
+                \end{equation*}
+        \end{enumerate}
+        Non si possono applicare le produzioni direttamente a $x'$, perch\'e contiene solo
+        terminali: non ha pi\`u nessuna $S$ da sostituire.
+    \end{esempio}
 
     %TEORICA%
     \chapter{Esercizi}
