@@ -4131,6 +4131,70 @@ shapes.geometric}
         \end{enumerate}
         Non si possono applicare le produzioni direttamente a $x'$, perch\'e contiene solo
         terminali: non ha pi\`u nessuna $S$ da sostituire.
+
+        \textsc{Inclusione} $\mathcal{L}(\mathcal{G}) \subseteq \mathcal{L}$. Si procede per
+        induzione sulla lunghezza della derivazione. Poich\'e
+        \begin{equation*}
+            x \in \mathcal{L}(\mathcal{G}) \iff
+            \exists i \in \mathbb{N}.\; S \overset{\mathcal{G}}{\Rightarrow}_i x,
+        \end{equation*}
+        bisogna dimostrare che da $S \overset{\mathcal{G}}{\Rightarrow}_i x$ segue
+        $x \in \mathcal{L}$.
+
+        Questa inclusione \`e necessaria perch\'e la prima non basta: una grammatica potrebbe
+        generare tutte le stringhe di $\mathcal{L}$ e anche altre che non vi appartengono.
+        Ad esempio, la grammatica $\mathcal{G}'$ con produzioni
+        $S \to 0S1 \mid \varepsilon \mid 0$ \`e in grado di ottenere ogni stringa di
+        $\mathcal{L}$, ma genera anche stringhe che non appartengono a $\mathcal{L}$:
+        \begin{equation*}
+            S \Rightarrow 0,
+            \qquad\qquad
+            S \Rightarrow 0S1 \Rightarrow 001.
+        \end{equation*}
+        Per $\mathcal{G}'$ vale quindi $\mathcal{L} \subseteq \mathcal{L}(\mathcal{G}')$, ma
+        non $\mathcal{L}(\mathcal{G}') \subseteq \mathcal{L}$.
+
+        \textsc{Base}. Si prende la derivazione pi\`u corta che porta a una stringa di soli
+        terminali e si verifica che la stringa generata sia in $\mathcal{L}$. Qui \`e
+        $S \Rightarrow \varepsilon$, e $\varepsilon = 0^0 1^0 \in \mathcal{L}$.
+
+        \textsc{Passo induttivo}. Si suppone che ogni stringa di soli terminali generata in
+        $i \geq 1$ passi stia in $\mathcal{L}$, e sia
+        $S \overset{\mathcal{G}}{\Rightarrow}_{i+1} x$ con $x \in T^*$: da questa derivazione
+        se ne deve ricavare una lunga $i$, per poter applicare l'ipotesi induttiva. Si separa
+        quindi l'ultimo passo, cio\`e l'$(i + 1)$-esimo:
+        \begin{equation*}
+            S \overset{\mathcal{G}}{\Rightarrow}_{i+1} x
+            \quad\equiv\quad
+            S \overset{\mathcal{G}}{\Rightarrow}_i x_1 S x_2 \Rightarrow x_1 x_2 = x.
+        \end{equation*}
+        \begin{enumerate}
+            \item La stringa $x_1 S x_2$ contiene ancora $S$, quindi l'$i$-esimo passo ha
+                applicato $S \to 0S1$, l'unica produzione che mantiene $S$. Esistono quindi
+                $x_1'$ e $x_2'$ tali che $x_1 = x_1' 0$ e $x_2 = 1 x_2'$:
+                \begin{equation*}
+                    S \overset{\mathcal{G}}{\Rightarrow}_{i-1} x_1' S x_2'
+                    \Rightarrow x_1' \, 0S1 \, x_2' = x_1 S x_2.
+                \end{equation*}
+            \item Al posto di $S \to 0S1$ si applica $S \to \varepsilon$, ottenendo una
+                derivazione in $\mathcal{G}$ lunga $i$:
+                \begin{equation*}
+                    S \overset{\mathcal{G}}{\Rightarrow}_{i-1} x_1' S x_2'
+                    \Rightarrow x_1' x_2'.
+                \end{equation*}
+                Per come \`e fatta $\mathcal{G}$, $x_1'$ \`e formata solo da $0$ e $x_2'$
+                solo da $1$.
+            \item Si pu\`o ora applicare l'ipotesi induttiva e spostare il ragionamento su
+                $\mathcal{L}$: si ha $x_1' x_2' \in \mathcal{L}$ e quindi, per definizione di
+                $\mathcal{L}$, esiste $h$ tale che $x_1' = 0^h$ e $x_2' = 1^h$.
+            \item Di conseguenza
+                \begin{equation*}
+                    x = x_1 x_2 = x_1' \, 01 \, x_2' = 0^h \, 01 \, 1^h
+                    = 0^{h+1} 1^{h+1} \in \mathcal{L}.
+                \end{equation*}
+        \end{enumerate}
+        Le due inclusioni danno $\mathcal{L} = \mathcal{L}(\mathcal{G})$, quindi
+        $\mathcal{L}$ \`e CF.
     \end{esempio}
 
     %TEORICA%
