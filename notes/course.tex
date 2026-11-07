@@ -4077,6 +4077,18 @@ shapes.geometric}
             $x$ in $\mathcal{G}$, allora $x \in \mathcal{L}$. Si dimostra per induzione su
             $i$, la lunghezza della derivazione.
     \end{itemize}
+    Servono entrambe: una grammatica potrebbe generare tutte le stringhe di $\mathcal{L}$ e
+    anche altre che non vi appartengono. Ad esempio, per
+    $\mathcal{L} = \{0^n 1^n \mid n \in \mathbb{N}\}$ la grammatica con produzioni
+    $S \to 0S1 \mid \varepsilon \mid 0$ genera ogni stringa di $\mathcal{L}$, ma anche $0$
+    e $001$, che non vi appartengono:
+    \begin{equation*}
+        S \Rightarrow 0,
+        \qquad\qquad
+        S \Rightarrow 0S1 \Rightarrow 001.
+    \end{equation*}
+    Per questa grammatica vale la prima inclusione ma non la seconda.
+
     La grammatica si pu\`o scegliere liberamente: la definizione di linguaggio CF chiede solo
     che ne esista una, quindi basta esibirla, purch\'e generi tutte e sole le stringhe di
     $\mathcal{L}$. Di solito conviene quella pi\`u semplice, perch\'e ha meno casi da
@@ -4085,117 +4097,304 @@ shapes.geometric}
 
     \begin{esempio}
         Si dimostra che il linguaggio $\mathcal{L} = \{0^n 1^n \mid n \in \mathbb{N}\}$ \`e
-        generato dalla grammatica $\mathcal{G}$ con produzioni
-        $S \to 0S1 \mid \varepsilon$.
+        generato dalla grammatica $\mathcal{G}$ con produzioni $S \to 0S1 \mid \varepsilon$,
+        verificando le due inclusioni.
 
-        \textsc{Inclusione} $\mathcal{L} \subseteq \mathcal{L}(\mathcal{G})$. Si procede per
-        induzione sulla lunghezza di $x$.
+        \medskip
+        \noindent\textsc{Prima inclusione}: $\mathcal{L} \subseteq \mathcal{L}(\mathcal{G})$,
+        per induzione sulla lunghezza di $x$.
 
-        \textsc{Base}. Si prende la stringa pi\`u corta di $\mathcal{L}$ e si costruisce la
-        sua derivazione in $\mathcal{G}$: $\varepsilon \in \mathcal{L}$ e, grazie alla
-        produzione $S \to \varepsilon$, si ha $S \Rightarrow \varepsilon$.
+        \textit{Base}. La stringa pi\`u corta di $\mathcal{L}$ \`e $\varepsilon$, e grazie
+        alla produzione $S \to \varepsilon$ si ha $S \Rightarrow \varepsilon$.
 
-        \textsc{Passo induttivo}. Si suppone che per ogni $x \in \mathcal{L}$ con
-        $|x| \leq m$ esista $S \overset{\mathcal{G}}{\Rightarrow}_* x$ e si dimostra che
-        la derivazione esiste anche per ogni $x \in \mathcal{L}$ con $|x| = m + 1$.
+        \textit{Ipotesi induttiva}. Per ogni $x \in \mathcal{L}$ con $|x| \leq m$ esiste
+        $S \overset{\mathcal{G}}{\Rightarrow}_* x$.
+
+        \textit{Passo induttivo}. Sia $x \in \mathcal{L}$ con $|x| = m + 1$.
         \begin{enumerate}
-            \item Sia $x \in \mathcal{L}$ con $|x| = m + 1$. Per definizione di
-                $\mathcal{L}$ esiste $h \in \mathbb{N}$ tale che $x = 0^h 1^h$, con
-                $h \geq 1$ perch\'e $|x| > 0$.
-            \item Si riscrive $x$ in termini di una stringa $x'$ con $|x'| < |x|$, cos\`i da
-                poter applicare l'ipotesi induttiva a $x'$:
+            \item Per definizione di $\mathcal{L}$ si ha $x = 0^h 1^h$, con $h \geq 1$
+                perch\'e $|x| > 0$. Si riscrive $x$ in termini di una stringa pi\`u corta
+                $x'$, a cui applicare l'ipotesi induttiva:
                 \begin{equation*}
-                    x = \underbrace{0^{h-1}}_{x_1} \, 01 \, \underbrace{1^{h-1}}_{x_2},
+                    x = 0^{h-1} \, 01 \, 1^{h-1},
                     \qquad\qquad
-                    x' = x_1 x_2 = 0^{h-1} 1^{h-1}.
+                    x' = 0^{h-1} 1^{h-1} \in \mathcal{L}.
                 \end{equation*}
-                Per definizione di $\mathcal{L}$ si ha $x' \in \mathcal{L}$, e
-                $|x'| = m - 1$. Per questo l'ipotesi induttiva riguarda tutte le stringhe
-                con $|x| \leq m$, e non solo quelle lunghe $m$.
+                Poich\'e $|x'| = m - 1$, l'ipotesi deve valere per tutte le stringhe con
+                $|x| \leq m$, e non solo per quelle lunghe $m$.
             \item Per ipotesi induttiva esiste $S \overset{\mathcal{G}}{\Rightarrow}_* x'$.
-                L'unico non terminale \`e $S$ e l'unica produzione che lo elimina \`e
-                $S \to \varepsilon$, quindi, per come \`e definita $\mathcal{G}$, la
-                derivazione termina necessariamente con $S \to \varepsilon$:
+                L'unica produzione che elimina $S$ \`e $S \to \varepsilon$, quindi la
+                derivazione termina necessariamente cos\`i:
                 \begin{equation*}
                     S \overset{\mathcal{G}}{\Rightarrow}_* 0^{h-1} S 1^{h-1}
                     \Rightarrow 0^{h-1} 1^{h-1} = x'.
                 \end{equation*}
-            \item Da qui si ricostruisce la derivazione per $x$: ci si ferma prima
-                dell'ultimo passo e, al posto di $S \to \varepsilon$, si applicano
-                $S \to 0S1$ e poi $S \to \varepsilon$:
+            \item Ci si ferma prima dell'ultimo passo, perch\'e $x'$ non contiene pi\`u $S$,
+                e al posto di $S \to \varepsilon$ si applicano $S \to 0S1$ e poi
+                $S \to \varepsilon$:
                 \begin{equation*}
                     S \overset{\mathcal{G}}{\Rightarrow}_* 0^{h-1} S 1^{h-1}
                     \Rightarrow 0^{h-1} \, 0S1 \, 1^{h-1}
-                    \Rightarrow 0^{h-1} \, 01 \, 1^{h-1} = 0^h 1^h = x.
+                    \Rightarrow 0^{h-1} \, 01 \, 1^{h-1} = x.
                 \end{equation*}
         \end{enumerate}
-        Non si possono applicare le produzioni direttamente a $x'$, perch\'e contiene solo
-        terminali: non ha pi\`u nessuna $S$ da sostituire.
 
-        \textsc{Inclusione} $\mathcal{L}(\mathcal{G}) \subseteq \mathcal{L}$. Si procede per
-        induzione sulla lunghezza della derivazione. Poich\'e
+        \medskip
+        \noindent\textsc{Seconda inclusione}: $\mathcal{L}(\mathcal{G}) \subseteq
+        \mathcal{L}$, per induzione sulla lunghezza $i$ della derivazione. Poich\'e
+        $x \in \mathcal{L}(\mathcal{G})$ se e solo se esiste $i \in \mathbb{N}$ tale che
+        $S \overset{\mathcal{G}}{\Rightarrow}_i x$, bisogna dimostrare l'implicazione
         \begin{equation*}
-            x \in \mathcal{L}(\mathcal{G}) \iff
-            \exists i \in \mathbb{N}.\; S \overset{\mathcal{G}}{\Rightarrow}_i x,
+            \forall x \in T^*.\;
+            \bigl(S \overset{\mathcal{G}}{\Rightarrow}_i x \implies x \in \mathcal{L}\bigr).
         \end{equation*}
-        bisogna dimostrare che da $S \overset{\mathcal{G}}{\Rightarrow}_i x$ segue
-        $x \in \mathcal{L}$.
 
-        Questa inclusione \`e necessaria perch\'e la prima non basta: una grammatica potrebbe
-        generare tutte le stringhe di $\mathcal{L}$ e anche altre che non vi appartengono.
-        Ad esempio, la grammatica $\mathcal{G}'$ con produzioni
-        $S \to 0S1 \mid \varepsilon \mid 0$ \`e in grado di ottenere ogni stringa di
-        $\mathcal{L}$, ma genera anche stringhe che non appartengono a $\mathcal{L}$:
-        \begin{equation*}
-            S \Rightarrow 0,
-            \qquad\qquad
-            S \Rightarrow 0S1 \Rightarrow 001.
-        \end{equation*}
-        Per $\mathcal{G}'$ vale quindi $\mathcal{L} \subseteq \mathcal{L}(\mathcal{G}')$, ma
-        non $\mathcal{L}(\mathcal{G}') \subseteq \mathcal{L}$.
+        \textit{Base}. La derivazione pi\`u corta di una stringa di soli terminali \`e
+        $S \Rightarrow \varepsilon$, ed $\varepsilon = 0^0 1^0 \in \mathcal{L}$.
 
-        \textsc{Base}. Si prende la derivazione pi\`u corta che porta a una stringa di soli
-        terminali e si verifica che la stringa generata sia in $\mathcal{L}$. Qui \`e
-        $S \Rightarrow \varepsilon$, e $\varepsilon = 0^0 1^0 \in \mathcal{L}$.
+        \textit{Ipotesi induttiva}. Ogni stringa di soli terminali generata in $i \geq 1$
+        passi appartiene a $\mathcal{L}$.
 
-        \textsc{Passo induttivo}. Si suppone che ogni stringa di soli terminali generata in
-        $i \geq 1$ passi stia in $\mathcal{L}$, e sia
-        $S \overset{\mathcal{G}}{\Rightarrow}_{i+1} x$ con $x \in T^*$: da questa derivazione
-        se ne deve ricavare una lunga $i$, per poter applicare l'ipotesi induttiva. Si separa
-        quindi l'ultimo passo, cio\`e l'$(i + 1)$-esimo:
-        \begin{equation*}
-            S \overset{\mathcal{G}}{\Rightarrow}_{i+1} x
-            \quad\equiv\quad
-            S \overset{\mathcal{G}}{\Rightarrow}_i x_1 S x_2 \Rightarrow x_1 x_2 = x.
-        \end{equation*}
+        \textit{Passo induttivo}. Sia $S \overset{\mathcal{G}}{\Rightarrow}_{i+1} x$ con
+        $x \in T^*$. Da questa derivazione se ne ricava una lunga $i$, per poter applicare
+        l'ipotesi induttiva.
         \begin{enumerate}
-            \item La stringa $x_1 S x_2$ contiene ancora $S$, quindi l'$i$-esimo passo ha
-                applicato $S \to 0S1$, l'unica produzione che mantiene $S$. Esistono quindi
-                $x_1'$ e $x_2'$ tali che $x_1 = x_1' 0$ e $x_2 = 1 x_2'$:
-                \begin{equation*}
+            \item Si separano gli ultimi due passi. L'ultimo, l'$(i + 1)$-esimo, elimina $S$,
+                quindi applica $S \to \varepsilon$. Il penultimo, l'$i$-esimo, porta a una
+                stringa che contiene ancora $S$, quindi applica $S \to 0S1$, l'unica
+                produzione che la mantiene. Con $x_1 = x_1' 0$ e $x_2 = 1 x_2'$:
+                \begin{align*}
+                    S \overset{\mathcal{G}}{\Rightarrow}_{i+1} x
+                    \quad&\equiv\quad
+                    S \overset{\mathcal{G}}{\Rightarrow}_i x_1 S x_2 \Rightarrow x_1 x_2 = x
+                    \\
+                    &\equiv\quad
                     S \overset{\mathcal{G}}{\Rightarrow}_{i-1} x_1' S x_2'
-                    \Rightarrow x_1' \, 0S1 \, x_2' = x_1 S x_2.
-                \end{equation*}
-            \item Al posto di $S \to 0S1$ si applica $S \to \varepsilon$, ottenendo una
-                derivazione in $\mathcal{G}$ lunga $i$:
+                    \Rightarrow x_1' \, 0S1 \, x_2' \Rightarrow x_1' \, 01 \, x_2' = x.
+                \end{align*}
+            \item Saltando il passo con $S \to 0S1$ si ottiene una derivazione lunga $i$:
                 \begin{equation*}
                     S \overset{\mathcal{G}}{\Rightarrow}_{i-1} x_1' S x_2'
                     \Rightarrow x_1' x_2'.
                 \end{equation*}
-                Per come \`e fatta $\mathcal{G}$, $x_1'$ \`e formata solo da $0$ e $x_2'$
-                solo da $1$.
-            \item Si pu\`o ora applicare l'ipotesi induttiva e spostare il ragionamento su
-                $\mathcal{L}$: si ha $x_1' x_2' \in \mathcal{L}$ e quindi, per definizione di
-                $\mathcal{L}$, esiste $h$ tale che $x_1' = 0^h$ e $x_2' = 1^h$.
-            \item Di conseguenza
+                Per come \`e fatta $\mathcal{G}$, $x_1'$ contiene solo $0$ e $x_2'$ solo
+                $1$.
+            \item Per ipotesi induttiva $x_1' x_2' \in \mathcal{L}$, quindi esiste $h$ tale
+                che $x_1' = 0^h$ e $x_2' = 1^h$, e
                 \begin{equation*}
-                    x = x_1 x_2 = x_1' \, 01 \, x_2' = 0^h \, 01 \, 1^h
-                    = 0^{h+1} 1^{h+1} \in \mathcal{L}.
+                    x = x_1' \, 01 \, x_2' = 0^h \, 01 \, 1^h = 0^{h+1} 1^{h+1}
+                    \in \mathcal{L}.
                 \end{equation*}
         \end{enumerate}
         Le due inclusioni danno $\mathcal{L} = \mathcal{L}(\mathcal{G})$, quindi
         $\mathcal{L}$ \`e CF.
     \end{esempio}
+
+    \section{Alberi di derivazione}
+    \begin{definition}[Albero di derivazione]
+        Sia $\mathcal{G} = \langle V, T, P, S \rangle$ una grammatica CF. Un \emph{albero di
+        derivazione} per $\mathcal{G}$ \`e un albero tale che:
+        \begin{enumerate}
+            \item ogni vertice ha un'etichetta in $V \cup T \cup \{\varepsilon\}$;
+            \item la radice ha etichetta in $V$ (ad esempio il simbolo iniziale
+                $S \in V$);
+            \item ogni vertice interno, cio\`e non foglia, ha etichetta in $V$;
+            \item se un vertice $n$ \`e etichettato con $A \in V$ e $n_1, n_2, \dots, n_k$,
+                da sinistra a destra, sono i figli di $n$, etichettati con
+                $X_1, X_2, \dots, X_k \in V \cup T \cup \{\varepsilon\}$, allora
+                \begin{equation*}
+                    (A \to X_1 X_2 \cdots X_k) \in P;
+                \end{equation*}
+            \item se un vertice $n$ ha etichetta $\varepsilon$, allora $n$ \`e una foglia ed
+                \`e l'unico figlio del vertice padre;
+            \item se $A$ \`e l'etichetta di un vertice $n$ e $X \in V \cup T$ \`e
+                l'etichetta di un vertice $n_1$, allora $n_1$ \`e figlio di $n$ se
+                $(A \to X) \in P$.
+        \end{enumerate}
+    \end{definition}
+    La condizione~4 \`e illustrata nella Figura~\ref{fig:albero-vertice}: i figli di un
+    vertice, letti da sinistra a destra, formano il lato destro della produzione applicata a
+    quel vertice.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            every node/.style={font=\ttfamily},
+            nome/.style={font=\small\ttfamily, evidenza}
+        ]
+            \node[label={[nome]left:n}] (n) at (0, 0) {A};
+            \node[label={[nome]left:n\textsubscript{1}}] (n1) at (-2.2, -1.5) {X\textsubscript{1}};
+            \node[label={[nome]left:n\textsubscript{2}}] (n2) at (-0.6, -1.5) {X\textsubscript{2}};
+            \node at (0.9, -1.5) {...};
+            \node[label={[nome]left:n\textsubscript{k}}] (nk) at (2.4, -1.5) {X\textsubscript{k}};
+            \draw[thick] (n) -- (n1) (n) -- (n2) (n) -- (nk);
+        \end{tikzpicture}
+        \caption{Un vertice $n$ etichettato con $A$ e i suoi figli $n_1, \dots, n_k$: la
+            produzione $A \to X_1 X_2 \cdots X_k$ appartiene a $P$.}
+        \label{fig:albero-vertice}
+    \end{figure}
+
+    \begin{esempio}
+        Nella grammatica delle espressioni booleane, l'albero della
+        Figura~\ref{fig:albero-booleano} rappresenta una derivazione di
+        $((0 \;\mathrm{or}\; 1) \;\mathrm{and}\; (\mathrm{not}\; 0))$. Prendendo le
+        foglie da sinistra a destra si ottiene proprio la stringa generata, che non contiene
+        simboli non terminali: tutti i non terminali sono vertici interni.
+
+        La $E$ di sinistra, insieme a tutti i suoi discendenti, forma un
+        \emph{sottoalbero}, evidenziato in grigio nella figura. \`E a sua volta un albero di
+        derivazione, con radice $E$, e le sue foglie formano
+        $(0 \;\mathrm{or}\; 1)$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                every node/.style={inner sep=2pt, text height=1.6ex, text depth=0.5ex,
+                    font=\ttfamily},
+                proiezione/.style={densely dotted, evidenza}
+            ]
+                % Radice e primo livello
+                \node (r) at (0, 0) {E};
+                \node (a1) at (-5, -1.2) {(};
+                \node (el) at (-2.6, -1.2) {E};
+                \node (and) at (0, -1.2) {and};
+                \node (er) at (2.6, -1.2) {E};
+                \node (a5) at (5, -1.2) {)};
+
+                % Sottoalbero di sinistra: (E or E)
+                \node (b1) at (-4.4, -2.4) {(};
+                \node (e1) at (-3.4, -2.4) {E};
+                \node (or) at (-2.6, -2.4) {or};
+                \node (e2) at (-1.8, -2.4) {E};
+                \node (b5) at (-0.8, -2.4) {)};
+                \node (z1) at (-3.4, -3.6) {0};
+                \node (u1) at (-1.8, -3.6) {1};
+
+                % Sottoalbero di destra: (not E)
+                \node (c1) at (1.2, -2.4) {(};
+                \node (not) at (2.2, -2.4) {not};
+                \node (e3) at (3.2, -2.4) {E};
+                \node (c4) at (4.2, -2.4) {)};
+                \node (z2) at (3.2, -3.6) {0};
+
+                \draw (r) -- (a1) (r) -- (el) (r) -- (and) (r) -- (er) (r) -- (a5)
+                    (el) -- (b1) (el) -- (e1) (el) -- (or) (el) -- (e2) (el) -- (b5)
+                    (e1) -- (z1) (e2) -- (u1)
+                    (er) -- (c1) (er) -- (not) (er) -- (e3) (er) -- (c4)
+                    (e3) -- (z2);
+
+                % Sottoalbero con radice nella E di sinistra
+                \begin{scope}[on background layer]
+                    \node[fill=tenue, rounded corners=6pt, inner sep=3pt,
+                        fit=(el)(b1)(b5)(z1)(u1)] {};
+                \end{scope}
+
+                % Le foglie, lette da sinistra a destra, riportate in basso
+                \foreach \f/\x in {a1/-5, b1/-4.4, z1/-3.4, or/-2.6, u1/-1.8, b5/-0.8,
+                        and/0, c1/1.2, not/2.2, z2/3.2, c4/4.2, a5/5}
+                    \draw[proiezione] (\f.south) -- (\x, -4.45);
+                \draw[thin] (-5.3, -4.5) -- (5.3, -4.5);
+                % Le parentesi vanno tra graffe, altrimenti \foreach le legge come
+                % coordinate
+                \foreach \simbolo/\x in {{(}/-5, {(}/-4.4, 0/-3.4, or/-2.6,
+                        1/-1.8, {)}/-0.8, and/0, {(}/1.2, not/2.2,
+                        0/3.2, {)}/4.2, {)}/5}
+                    \node[anchor=north] at (\x, -4.55) {\simbolo};
+            \end{tikzpicture}
+            \caption{Albero di derivazione di
+                $((0 \;\mathrm{or}\; 1) \;\mathrm{and}\; (\mathrm{not}\; 0))$: le foglie,
+                riportate in basso e lette da sinistra a destra, formano la stringa
+                generata. In grigio il sottoalbero con radice nella $E$ di sinistra.}
+            \label{fig:albero-booleano}
+        \end{figure}
+    \end{esempio}
+
+    \begin{theorem}[Derivazioni e alberi]
+        \label{thm:derivazioni-alberi}
+        Sia $\mathcal{G} = \langle V, T, P, S \rangle$ una grammatica CF. Allora
+        $S \overset{\mathcal{G}}{\Rightarrow}_* x$ se e solo se esiste un albero di
+        derivazione per $\mathcal{G}$ con radice $S$ la cui sequenza di foglie, letta da
+        sinistra a destra, \`e uguale a $x$.
+    \end{theorem}
+    Il teorema \`e dato senza dimostrazione.
+
+    \section{Ambiguit\`a}
+    \begin{definition}[Grammatica ambigua]
+        Una grammatica CF $\mathcal{G}$ \`e detta \emph{ambigua} se esiste almeno una
+        stringa generata da $\mathcal{G}$ per la quale esiste pi\`u di un albero di
+        derivazione.
+    \end{definition}
+
+    \begin{esempio}
+        Si consideri la grammatica con produzioni
+        \begin{equation*}
+            E \to E + E \mid E * E \mid 0 \mid 1 \mid 2.
+        \end{equation*}
+        La stringa $2 * 0 + 1$, che ha la forma $E * E + E$, ha due alberi di derivazione,
+        mostrati nella Figura~\ref{fig:ambiguita}. Nel primo la produzione applicata alla
+        radice \`e $E \to E * E$, e la stringa si legge come $2 * (0 + 1) = 2$; nel secondo
+        \`e $E \to E + E$, e la stringa si legge come $(2 * 0) + 1 = 1$. I due alberi
+        raggruppano i simboli in modo diverso e danno quindi due valori diversi: la
+        grammatica \`e ambigua.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                every node/.style={inner sep=2pt, text height=1.6ex, text depth=0.5ex,
+                    font=\ttfamily},
+                lettura/.style={font=\small\ttfamily, evidenza}
+            ]
+                % Primo albero: radice E -> E * E
+                \node (r) at (0, 0) {E};
+                \node (a) at (-1.2, -1) {E};
+                \node (m) at (0, -1) {*};
+                \node (b) at (1.2, -1) {E};
+                \node (d2) at (-1.2, -2) {2};
+                \node (b1) at (0.4, -2) {E};
+                \node (p) at (1.2, -2) {+};
+                \node (b2) at (2, -2) {E};
+                \node (d0) at (0.4, -3) {0};
+                \node (d1) at (2, -3) {1};
+                \draw (r) -- (a) (r) -- (m) (r) -- (b)
+                    (a) -- (d2)
+                    (b) -- (b1) (b) -- (p) (b) -- (b2)
+                    (b1) -- (d0) (b2) -- (d1);
+                \node[lettura] at (0.4, -3.9) {2 * (0 + 1) = 2};
+
+                % Secondo albero: radice E -> E + E
+                \node (s) at (7, 0) {E};
+                \node (c) at (5.8, -1) {E};
+                \node (q) at (7, -1) {+};
+                \node (e) at (8.2, -1) {E};
+                \node (c1) at (5, -2) {E};
+                \node (t) at (5.8, -2) {*};
+                \node (c2) at (6.6, -2) {E};
+                \node (u1) at (8.2, -2) {1};
+                \node (u2) at (5, -3) {2};
+                \node (u0) at (6.6, -3) {0};
+                \draw (s) -- (c) (s) -- (q) (s) -- (e)
+                    (c) -- (c1) (c) -- (t) (c) -- (c2)
+                    (e) -- (u1)
+                    (c1) -- (u2) (c2) -- (u0);
+                \node[lettura] at (6.6, -3.9) {(2 * 0) + 1 = 1};
+            \end{tikzpicture}
+            \caption{I due alberi di derivazione di $2 * 0 + 1$: a sinistra la radice
+                applica $E \to E * E$, a destra $E \to E + E$.}
+            \label{fig:ambiguita}
+        \end{figure}
+    \end{esempio}
+
+    \begin{definition}[Linguaggio inerentemente ambiguo]
+        Un linguaggio CF $\mathcal{L}$ \`e detto \emph{inerentemente ambiguo} se ogni
+        grammatica CF che lo genera \`e ambigua:
+        \begin{equation*}
+            \forall \mathcal{G} \text{ CF}.\;
+            \bigl(\mathcal{L} = \mathcal{L}(\mathcal{G}) \implies
+            \mathcal{G} \text{ \`e ambigua}\bigr).
+        \end{equation*}
+    \end{definition}
+    In questo caso l'ambiguit\`a \`e una propriet\`a del linguaggio e non della singola
+    grammatica: non si pu\`o eliminare cambiando grammatica.
 
     %TEORICA%
     \chapter{Esercizi}
