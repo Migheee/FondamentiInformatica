@@ -4396,6 +4396,129 @@ shapes.geometric}
     In questo caso l'ambiguit\`a \`e una propriet\`a del linguaggio e non della singola
     grammatica: non si pu\`o eliminare cambiando grammatica.
 
+    \section{Forme normali}
+    In una grammatica CF ogni produzione ha la forma $A \to \beta$: a sinistra della
+    freccia c'\`e sempre una sola variabile $A \in V$, a destra una stringa qualsiasi
+    $\beta \in (V \cup T)^*$. Una \emph{forma normale} descrive le produzioni fissando la
+    forma che possono avere; poich\'e il lato sinistro \`e gi\`a fissato, i vincoli
+    riguardano solo il lato destro $\beta$. Le due forme normali principali sono la forma
+    normale di Chomsky e la forma normale di Greibach.
+
+    \begin{definition}[Forma normale di Chomsky]
+        Una grammatica CF $\mathcal{G} = \langle V, T, P, S \rangle$ \`e in \emph{forma
+        normale di Chomsky} se ogni sua produzione \`e di uno dei due tipi
+        \begin{equation*}
+            A \to BC \qquad \text{oppure} \qquad A \to a,
+        \end{equation*}
+        con $A, B, C \in V$ e $a \in T$.
+    \end{definition}
+    Con produzioni di questi due tipi non si pu\`o generare $\varepsilon$: se
+    $\varepsilon \in \mathcal{L}(\mathcal{G})$ si ammette in pi\`u la produzione
+    $S \to \varepsilon$ (Sezione~\ref{sec:semplificazioni}).
+
+    \begin{definition}[Forma normale di Greibach]
+        Una grammatica CF $\mathcal{G} = \langle V, T, P, S \rangle$ \`e in \emph{forma
+        normale di Greibach} se ogni sua produzione \`e del tipo
+        \begin{equation*}
+            A \to a\gamma,
+        \end{equation*}
+        con $A \in V$, $a \in T$ e $\gamma \in (V \cup T)^*$.
+    \end{definition}
+    Il lato destro di ogni produzione inizia quindi con un terminale.
+
+    \subsection{Semplificazioni}
+    \label{sec:semplificazioni}
+    Per portare una grammatica CF in forma normale di Chomsky occorre prima semplificarla,
+    imponendo tre condizioni, ciascuna ottenuta eliminando dalla grammatica un tipo di
+    simboli o di produzioni:
+    \begin{enumerate}
+        \item \textsc{Eliminazione dei simboli inutili}: ogni simbolo, terminale o non
+            terminale, deve essere coinvolto in almeno una derivazione di una stringa di
+            terminali (Sezione~\ref{sec:simboli-inutili}).
+        \item \textsc{Eliminazione delle $\varepsilon$-produzioni}: non devono esserci
+            \emph{$\varepsilon$-produzioni}, cio\`e produzioni della forma
+            $A \to \varepsilon$. L'unica deroga riguarda il caso
+            $\varepsilon \in \mathcal{L}(\mathcal{G})$: allora \`e ammessa la sola
+            produzione $S \to \varepsilon$.
+        \item \textsc{Eliminazione delle produzioni unitarie}: non devono esserci
+            \emph{produzioni unitarie}, cio\`e produzioni della forma $A \to B$ con
+            $A, B \in V$.
+    \end{enumerate}
+
+    \section{Eliminazione dei simboli inutili}
+    \label{sec:simboli-inutili}
+    In questa sezione $\mathcal{G} = \langle V, T, P, S \rangle$ \`e una grammatica CF.
+
+    \begin{definition}[Simbolo utile]
+        Un simbolo $X \in V \cup T$ \`e \emph{utile} se esiste almeno una derivazione
+        \begin{equation*}
+            S \overset{\mathcal{G}}{\Rightarrow}_* \alpha X \beta
+            \overset{\mathcal{G}}{\Rightarrow}_* w,
+        \end{equation*}
+        con $\alpha, \beta \in (V \cup T)^*$ e $w \in T^*$. Un simbolo che non \`e utile
+        \`e detto \emph{inutile}.
+    \end{definition}
+    La derivazione ha due parti. La prima, $S \overset{\mathcal{G}}{\Rightarrow}_* \alpha
+    X \beta$, dice che $X$ \`e \emph{raggiungibile} da $S$; la seconda,
+    $\alpha X \beta \overset{\mathcal{G}}{\Rightarrow}_* w$, dice che $X$ \`e coinvolto
+    nella generazione di una sequenza di terminali. Deve terminare l'intera stringa
+    $\alpha X \beta$, non solo $X$. Un simbolo inutile non contribuisce al linguaggio
+    generato: si pu\`o eliminare, insieme alle produzioni che lo contengono, senza
+    cambiare $\mathcal{L}(\mathcal{G})$.
+
+    \begin{esempio}
+        Si consideri la grammatica con $V = \{S, A, B\}$, $T = \{a, b\}$, simbolo
+        iniziale $S$ e produzioni
+        \begin{align*}
+            S &\to aS \mid b \mid aA, \\
+            A &\to aA, \\
+            B &\to b.
+        \end{align*}
+        I simboli $A$ e $B$ sono inutili, ciascuno per una delle due parti della
+        definizione.
+
+        Il simbolo $A$ \`e raggiungibile, poich\'e $S \Rightarrow aA$, ma non porta a
+        terminali: ogni produzione di $A$ rimette una $A$,
+        \begin{equation*}
+            A \Rightarrow aA \Rightarrow aaA \Rightarrow aaaA \Rightarrow \cdots,
+        \end{equation*}
+        e la stringa non diventa mai di soli terminali.
+
+        Il simbolo $B$ porta a terminali, poich\'e $B \Rightarrow b$, ma non \`e
+        raggiungibile: nessuna produzione ha $B$ nel lato destro, quindi nessuna
+        stringa derivata da $S$ contiene~$B$.
+
+        Gli altri simboli sono utili: $S \Rightarrow aS \Rightarrow ab$ \`e una
+        derivazione completa che coinvolge $S$, $a$ e $b$. Eliminando $A$ e $B$ insieme
+        alle produzioni che li contengono, cio\`e $S \to aA$, $A \to aA$ e $B \to b$,
+        resta
+        \begin{equation*}
+            S \to aS \mid b,
+        \end{equation*}
+        che genera lo stesso linguaggio $\{a^n b \mid n \geq 0\}$: le derivazioni che
+        passano per $A$ non terminano mai, e $B$ non viene mai usato.
+    \end{esempio}
+
+    La prima semplificazione elimina le variabili $X \in V$ da cui non si raggiunge
+    nessuna stringa $w \in T^*$, cio\`e quelle che non rispettano la seconda parte della
+    definizione.
+
+    \begin{theorem}[Prima semplificazione]
+        \label{thm:prima-semplificazione}
+        Sia $\mathcal{G} = \langle V, T, P, S \rangle$ una grammatica CF con
+        ${\mathcal{L}(\mathcal{G}) \neq \emptyset}$. Si pu\`o costruire in modo effettivo
+        una grammatica CF $\mathcal{G}' = \langle V', T, P', S \rangle$, con
+        $\mathcal{L}(\mathcal{G}') = \mathcal{L}(\mathcal{G})$, tale che
+        \begin{equation*}
+            \forall A \in V'.\; \exists w \in T^*.\;
+            A \overset{\mathcal{G}'}{\Rightarrow}_* w.
+        \end{equation*}
+    \end{theorem}
+    \emph{In modo effettivo} significa che esiste un algoritmo che, data $\mathcal{G}$,
+    costruisce $\mathcal{G}'$. L'ipotesi $\mathcal{L}(\mathcal{G}) \neq \emptyset$ serve
+    perch\'e $S$ resti in $V'$: se $\mathcal{L}(\mathcal{G}) = \emptyset$, da $S$ non si
+    raggiunge nessuna stringa di terminali e $S$ andrebbe eliminato.
+
     %TEORICA%
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
