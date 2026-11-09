@@ -4459,12 +4459,50 @@ shapes.geometric}
         \`e detto \emph{inutile}.
     \end{definition}
     La derivazione ha due parti. La prima, $S \overset{\mathcal{G}}{\Rightarrow}_* \alpha
-    X \beta$, dice che $X$ \`e \emph{raggiungibile} da $S$; la seconda,
+    X \beta$, dice che $X$ \`e \emph{raggiungibile} dal simbolo iniziale $S$; la seconda,
     $\alpha X \beta \overset{\mathcal{G}}{\Rightarrow}_* w$, dice che $X$ \`e coinvolto
     nella generazione di una sequenza di terminali. Deve terminare l'intera stringa
     $\alpha X \beta$, non solo $X$. Un simbolo inutile non contribuisce al linguaggio
     generato: si pu\`o eliminare, insieme alle produzioni che lo contengono, senza
     cambiare $\mathcal{L}(\mathcal{G})$.
+
+    Quindi esiste almeno una derivazione da $S$ a una sequenza $w$ di soli simboli
+    terminali che usa $X$. L'eliminazione dei simboli inutili avviene in due fasi:
+    \begin{enumerate}
+        \item \textsc{Fase 1}: eliminazione dei simboli non terminali che non portano a
+            sequenze di terminali. L'idea \`e partire dai simboli terminali e procedere
+            all'indietro nelle produzioni, cercando i simboli collegati. Si definisce
+            l'operatore
+            \begin{equation*}
+                \Gamma(W) = \{A \in V \mid \exists \alpha \in (T \cup W)^*.\;
+                A \to \alpha \in P\},
+            \end{equation*}
+            dove $W \subseteq V$ contiene le variabili di cui si sa gi\`a che portano a
+            terminali: se $\alpha \in (T \cup W)^*$, ogni simbolo di $\alpha$ \`e un
+            terminale o una variabile di $W$, quindi anche da $A$ si deriva una stringa di
+            terminali. Poich\'e $\varepsilon \in (T \cup W)^*$, anche una produzione
+            $A \to \varepsilon$ mette $A$ in $\Gamma(W)$. Iterativamente si costruisce
+            \begin{equation*}
+                \Gamma^0(\emptyset) = \emptyset, \qquad
+                \Gamma^{i+1}(\emptyset) = \Gamma(\Gamma^i(\emptyset)),
+            \end{equation*}
+            cio\`e l'insieme dei simboli non terminali da cui si deriva una stringa di
+            terminali con un albero di derivazione di altezza al pi\`u $i$. Ci si ferma
+            quando $\Gamma^{i+1}(\emptyset) = \Gamma^i(\emptyset)$, il che accade entro
+            $|V|$ passi; le variabili che non stanno nell'ultimo insieme si eliminano,
+            insieme alle produzioni che le contengono.
+        \item \textsc{Fase 2}: eliminazione di tutti i simboli mai raggiunti dal simbolo
+            iniziale. Iterativamente si costruisce
+            \begin{equation*}
+                \Gamma^0 = \{S\}, \qquad
+                \Gamma^{i+1} = \Gamma^i \cup \{X \in V \cup T \mid \exists A \in \Gamma^i.\;
+                A \to \alpha X \beta \in P\},
+            \end{equation*}
+            cio\`e l'insieme dei simboli che da $S$ sono generabili in al pi\`u $i$
+            passi.\footnote{Il simbolo iniziale $S$ appartiene a ogni $\Gamma^i$.} Ci si
+            ferma quando $\Gamma^{i+1} = \Gamma^i$; i simboli che non stanno nell'ultimo
+            insieme si eliminano, insieme alle produzioni che li contengono.
+    \end{enumerate}
 
     \begin{esempio}
         Si consideri la grammatica con $V = \{S, A, B\}$, $T = \{a, b\}$, simbolo
@@ -4499,25 +4537,84 @@ shapes.geometric}
         passano per $A$ non terminano mai, e $B$ non viene mai usato.
     \end{esempio}
 
-    La prima semplificazione elimina le variabili $X \in V$ da cui non si raggiunge
-    nessuna stringa $w \in T^*$, cio\`e quelle che non rispettano la seconda parte della
-    definizione.
+    \begin{esempio}
+        Si consideri la grammatica con $V = \{S, A, B, C, D, E\}$, $T = \{0, 1, 2\}$,
+        simbolo iniziale $S$ e produzioni
+        \begin{align*}
+            S &\to AB \mid 0D, \\
+            A &\to 0A \mid 1, \\
+            B &\to A0 \mid 1C, \\
+            C &\to BC, \\
+            D &\to 0D, \\
+            E &\to 2.
+        \end{align*}
 
-    \begin{theorem}[Prima semplificazione]
-        \label{thm:prima-semplificazione}
-        Sia $\mathcal{G} = \langle V, T, P, S \rangle$ una grammatica CF con
-        ${\mathcal{L}(\mathcal{G}) \neq \emptyset}$. Si pu\`o costruire in modo effettivo
-        una grammatica CF $\mathcal{G}' = \langle V', T, P', S \rangle$, con
-        $\mathcal{L}(\mathcal{G}') = \mathcal{L}(\mathcal{G})$, tale che
+        \textsc{Fase 1}. Si parte da $\Gamma^0(\emptyset) = \emptyset$. Al primo passo
+        $W = \emptyset$ e $(T \cup W)^* = T^*$: entrano le variabili con una produzione
+        fatta di soli terminali, cio\`e $A$ (per $A \to 1$) ed $E$ (per $E \to 2$). Ai
+        passi successivi entra ogni variabile con una produzione il cui lato destro
+        contiene solo terminali e variabili gi\`a trovate. La Tabella~\ref{tab:fase1}
+        riassume i passi.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{clll}
+                \toprule
+                \textsc{Passo} $i$ & $W = \Gamma^{i-1}(\emptyset)$
+                    & \textsc{Nuove variabili} & $\Gamma^i(\emptyset)$ \\
+                \midrule
+                $1$ & $\emptyset$ & $A$ (per $A \to 1$), $E$ (per $E \to 2$)
+                    & $\{A, E\}$ \\
+                $2$ & $\{A, E\}$ & $B$ (per $B \to A0$) & $\{A, B, E\}$ \\
+                $3$ & $\{A, B, E\}$ & $S$ (per $S \to AB$) & $\{A, B, E, S\}$ \\
+                $4$ & $\{A, B, E, S\}$ & nessuna & $\{A, B, E, S\}$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{I passi della fase 1: a ogni passo entrano le variabili con una
+                produzione il cui lato destro sta in $(T \cup W)^*$.}
+            \label{tab:fase1}
+        \end{table}
+
+        Al passo 2 la variabile $S$ non entra ancora: in $AB$ la variabile $A$ \`e in
+        $W$, ma $B$ no, e servono tutti i simboli del lato destro. Poich\'e
+        $\Gamma^4(\emptyset) = \Gamma^3(\emptyset)$ ci si ferma: $C$ e $D$ non portano mai a
+        terminali, perch\'e ogni loro produzione rimette la stessa variabile,
         \begin{equation*}
-            \forall A \in V'.\; \exists w \in T^*.\;
-            A \overset{\mathcal{G}'}{\Rightarrow}_* w.
+            C \Rightarrow BC \Rightarrow A0C \Rightarrow \cdots, \qquad
+            D \Rightarrow 0D \Rightarrow 00D \Rightarrow \cdots.
         \end{equation*}
-    \end{theorem}
-    \emph{In modo effettivo} significa che esiste un algoritmo che, data $\mathcal{G}$,
-    costruisce $\mathcal{G}'$. L'ipotesi $\mathcal{L}(\mathcal{G}) \neq \emptyset$ serve
-    perch\'e $S$ resti in $V'$: se $\mathcal{L}(\mathcal{G}) = \emptyset$, da $S$ non si
-    raggiunge nessuna stringa di terminali e $S$ andrebbe eliminato.
+        Si eliminano insieme alle produzioni che le contengono, cio\`e $S \to 0D$,
+        $B \to 1C$, $C \to BC$ e $D \to 0D$, e resta
+        \begin{equation*}
+            S \to AB, \qquad A \to 0A \mid 1, \qquad B \to A0, \qquad E \to 2.
+        \end{equation*}
+
+        \textsc{Fase 2}. Si parte da $\Gamma^0 = \{S\}$ e a ogni passo si aggiungono i
+        simboli che compaiono nei lati destri delle produzioni dei simboli gi\`a
+        raggiunti:
+        \begin{align*}
+            \Gamma^0 &= \{S\}, \\
+            \Gamma^1 &= \{S, A, B\}
+                && \text{(da $S \to AB$)}, \\
+            \Gamma^2 &= \{S, A, B, 0, 1\}
+                && \text{(da $A \to 0A \mid 1$ e $B \to A0$)}, \\
+            \Gamma^3 &= \Gamma^2.
+        \end{align*}
+        I simboli $E$ e $2$ non vengono mai raggiunti, quindi si elimina la produzione
+        $E \to 2$. La grammatica finale
+        \begin{equation*}
+            S \to AB, \qquad A \to 0A \mid 1, \qquad B \to A0
+        \end{equation*}
+        ha solo simboli utili, per esempio
+        $S \Rightarrow AB \Rightarrow 1B \Rightarrow 1A0 \Rightarrow 110$, e genera lo
+        stesso linguaggio: $A$ genera le stringhe $0^n 1$, $B$ le stringhe $0^m 1 0$ e
+        $S$ le stringhe $0^n 1 0^m 1 0$.
+    \end{esempio}
+
+    \section{Eliminazione delle \texorpdfstring{$\varepsilon$}{epsilon}-produzioni}
+    Si eliminano le produzioni della forma $X \to \varepsilon$ con $X \in V \setminus \{S\}$.
+    Iterativamente si costruisce $\Gamma^i$, l'insieme dei simboli non terminali che
+    generano $\varepsilon$.
 
     %TEORICA%
     \chapter{Esercizi}
