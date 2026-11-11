@@ -4844,6 +4844,153 @@ shapes.geometric}
         \end{align*}
     \end{esempio}
 
+    \section{Pumping lemma per i linguaggi CF}
+    \label{sec:pumping-cf}
+    Come per i linguaggi regolari (Teorema~\ref{thm:pumping}), il pumping lemma per i
+    linguaggi CF fornisce una \emph{condizione necessaria} perch\'e un linguaggio sia CF.
+    Detta $\Pi$ la propriet\`a espressa dal lemma, vale
+    \begin{equation*}
+        \mathcal{L} \text{ CF} \implies \Pi,
+    \end{equation*}
+    e, per contrapposizione, se la propriet\`a $\Pi$ \`e falsa il linguaggio non \`e CF:
+    \begin{equation*}
+        \neg \Pi \implies \mathcal{L} \text{ non \`e CF}.
+    \end{equation*}
+    La condizione \`e solo necessaria e non sufficiente: il viceversa,
+    $\Pi \implies \mathcal{L}$ CF, non vale. Il lemma serve quindi a dimostrare che un
+    linguaggio \emph{non} \`e CF, ma non che lo \`e.
+
+    \begin{theorem}[Pumping lemma per i linguaggi CF]
+        \label{thm:pumping-cf}
+        Sia $\mathcal{L}$ un linguaggio CF, cio\`e esiste una grammatica CF
+        $\mathcal{G} = \langle V, T, P, S \rangle$ tale che
+        $\mathcal{L} = \mathcal{L}(\mathcal{G})$. Allora $\exists k \in \mathbb{N}$ tale
+        che $\forall z \in \mathcal{L}$ con $|z| \geq k$ esiste una suddivisione in
+        cinque parti, $z = uvwxy$, con
+        \begin{equation*}
+            |vwx| \leq k,
+            \qquad\qquad
+            |vx| > 0,
+        \end{equation*}
+        in modo che
+        \begin{equation*}
+            \forall i \in \mathbb{N}.\; uv^i w x^i y \in \mathcal{L}.
+        \end{equation*}
+    \end{theorem}
+    In altre parole, ogni stringa abbastanza lunga di $\mathcal{L}$ contiene due parti
+    $v$ e $x$, non entrambe vuote e comprese in un tratto $vwx$ lungo al pi\`u $k$, che
+    si possono ripetere \emph{lo stesso numero di volte} o togliere insieme, ottenendo
+    sempre stringhe di $\mathcal{L}$. A differenza del caso regolare, le parti da ripetere
+    sono due e il tratto $vwx$ non deve stare all'inizio della stringa. La
+    Figura~\ref{fig:pumping-cf} mostra i tre casi:
+    \begin{itemize}
+        \item $i = 1$: $uv^1 w x^1 y = uvwxy$ \`e la stringa $z$ stessa;
+        \item $i > 1$: $v$ e $x$ si ripetono entrambe $i$ volte, per esempio con $i = 2$
+            si ottiene $uvvwxxy$;
+        \item $i = 0$: $v$ e $x$ si tolgono entrambe e resta $uwy$.
+    \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            parte/.style={draw, thick, minimum height=0.55cm, inner sep=0pt,
+                anchor=west},
+            ripetuta/.style={parte, fill=tenue}
+        ]
+            % Lunghezze di u, v, w, x, y (in cm)
+            \def\lu{1.1} \def\lv{0.9} \def\lw{1.3} \def\lx{0.9} \def\ly{1.1}
+
+            % Le stringhe uv^i w x^i y per i = 1, 2, 0
+            \foreach \i/\y/\etichetta in {1/0/{$i = 1$: \ $z = uvwxy$},
+                    2/-1.1/{$i = 2$: \ $uv^2 w x^2 y$}, 0/-2.2/{$i = 0$: \ $uwy$}} {
+                \node[anchor=east] at (-0.3, \y) {\etichetta};
+                \node[parte, minimum width=\lu cm] at (0, \y) {$u$};
+                \ifnum\i>0
+                    \foreach \j in {1,...,\i}
+                        \node[ripetuta, minimum width=\lv cm]
+                            at ({\lu + (\j - 1)*\lv}, \y) {$v$};
+                \fi
+                \pgfmathsetmacro{\xw}{\lu + \i*\lv}
+                \node[parte, minimum width=\lw cm] at (\xw, \y) {$w$};
+                \ifnum\i>0
+                    \foreach \j in {1,...,\i}
+                        \node[ripetuta, minimum width=\lx cm]
+                            at ({\xw + \lw + (\j - 1)*\lx}, \y) {$x$};
+                \fi
+                \pgfmathsetmacro{\xy}{\xw + \lw + \i*\lx}
+                \node[parte, minimum width=\ly cm] at (\xy, \y) {$y$};
+                \node[anchor=west] at ({\xy + \ly + 0.2}, \y) {$\in \mathcal{L}$};
+            }
+
+            % Il vincolo |vwx| <= k sulla stringa z
+            \draw[thick, decorate, decoration={brace, amplitude=4pt, raise=2pt}]
+                (\lu, 0.3) -- (\lu + \lv + \lw + \lx, 0.3)
+                node[midway, above=6pt] {$|vwx| \leq k$};
+        \end{tikzpicture}
+        \caption{Suddivisione $z = uvwxy$ con $|vwx| \leq k$ e $|vx| > 0$: per $i = 1$ si
+            ritrova $z$, per $i > 1$ (qui $i = 2$) le parti $v$ e $x$, in grigio, si
+            ripetono lo stesso numero di volte, per $i = 0$ si tolgono entrambe. In ogni
+            caso si ottengono stringhe di $\mathcal{L}$.}
+        \label{fig:pumping-cf}
+    \end{figure}
+
+    La Figura~\ref{fig:pumping-cf-insiemi} mostra la struttura dei quantificatori del
+    lemma, come la Figura~\ref{fig:pumping-insiemi} per il caso regolare. Per ogni
+    stringa $z \in \mathcal{L}$ con $|z| \geq k$ si considerano tutte le suddivisioni
+    $z = uvwxy$: tra queste ne \emph{esiste} almeno una, indicata con $\exists$
+    nell'intersezione, che rispetta entrambi i vincoli, $|vwx| \leq k$ e $|vx| > 0$, e
+    per questa vale $uv^i w x^i y \in \mathcal{L}$ per ogni $i \in \mathbb{N}$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            freccia/.style={-{Stealth}, thick, evidenza},
+            etichetta/.style={font=\small}
+        ]
+            % Il linguaggio L = L(G)
+            \draw[thick, fill=black!4] (0, -0.4) rectangle (6, 3.4);
+            \node[etichetta, anchor=south west] at (0.1, -0.35)
+                {$\mathcal{L} = \mathcal{L}(\mathcal{G})$};
+
+            % Le stringhe di L con |z| >= k
+            \draw[thick, fill=tenue] (3.4, 2.0) ellipse (1.8 and 0.95);
+            \node[etichetta] at (3.4, 2.6) {$\forall z \in \mathcal{L}$, $|z| \geq k$};
+            \foreach \x/\y in {-1.2/-0.1, -0.8/-0.45, -0.75/0.15, -0.35/-0.2,
+                    0.05/0.12, 0.1/-0.55, 0.45/-0.2, 0.8/0.1, 0.85/-0.5, -1.35/-0.45,
+                    -0.4/-0.65, 1.3/-0.25}
+                \node[punto] at (3.4 + \x, 2.0 + \y) {};
+            \node[punto, minimum size=5pt, label={[etichetta]above:$z$}] (z)
+                at (4.55, 1.75) {};
+
+            % Tutte le suddivisioni z = uvwxy
+            \draw[thick, dashed, fill=black!4] (6.8, -3.2) rectangle (12.4, 0.9);
+            \node[etichetta, anchor=north west] at (6.9, 0.85)
+                {suddivisioni $z = uvwxy$};
+            \fill[black, fill opacity=0.1] (10.9, -0.75) circle (1.25);
+            \fill[black, fill opacity=0.1] (9.4, -1.75) circle (1.2);
+            \draw[thick] (10.9, -0.75) circle (1.25);
+            \draw[thick, densely dotted] (9.4, -1.75) circle (1.2);
+            \node[etichetta] at (11.35, -0.2) {$|vx| > 0$};
+            \node[etichetta] at (9.3, -2.45) {$|vwx| \leq k$};
+            \node[punto, minimum size=5pt] (s) at (10.1, -1.3) {};
+            \draw[thick] (s) circle (0.17);
+            \node[etichetta] at (10.1, -0.9) {$\exists$};
+
+            % Frecce: dalla stringa alle sue suddivisioni, dalla suddivisione buona
+            % alla tesi
+            \draw[freccia] (z) to[bend left=25] (7.6, 0.95);
+            \node[draw, thick, ellipse, etichetta] (tesi) at (3.6, -2.2)
+                {$\forall i \in \mathbb{N}.\; uv^i w x^i y \in \mathcal{L}$};
+            \draw[freccia] (s) to[bend right=15] (tesi);
+        \end{tikzpicture}
+        \caption{Il pumping lemma per i linguaggi CF visto con gli insiemi: per ogni
+            $z \in \mathcal{L}$ con $|z| \geq k$, tra tutte le suddivisioni $z = uvwxy$
+            (riquadro tratteggiato) ne esiste una ($\exists$) con $|vwx| \leq k$ e
+            $|vx| > 0$, nell'intersezione dei due cerchi, per cui
+            $uv^i w x^i y \in \mathcal{L}$ per ogni $i$.}
+        \label{fig:pumping-cf-insiemi}
+    \end{figure}
+
     %TEORICA%
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
