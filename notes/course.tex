@@ -5227,6 +5227,175 @@ shapes.geometric}
         \end{equation*}
     \end{proof}
 
+    L'utilizzo del pumping lemma per dimostrare che un linguaggio non \`e CF richiede la
+    negazione della condizione necessaria: se vale $\neg \Pi$, $\mathcal{L}$ non \`e CF.
+    Negando $\Pi$, ogni quantificatore si scambia, $\exists$ con $\forall$ e viceversa, e
+    la formula finale si nega, come mostra la Tabella~\ref{tab:negazione-pumping-cf}.
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{lcl}
+            \toprule
+            $\mathcal{L}$ CF $\implies \Pi$ & &
+                $\neg \Pi \implies \mathcal{L}$ non CF \\
+            \midrule
+            $\exists k \in \mathbb{N}$ & $\to$ & $\forall k \in \mathbb{N}$ \\
+            $\forall z \in \mathcal{L}$ con $|z| \geq k$ & $\to$ &
+                $\exists z \in \mathcal{L}$ con $|z| \geq k$ \\
+            $\exists z = uvwxy$ con $|vwx| \leq k$ e $|vx| > 0$ & $\to$ &
+                $\forall z = uvwxy$ con $|vwx| \leq k$ e $|vx| > 0$ \\
+            $\forall i \in \mathbb{N}.\; uv^i w x^i y \in \mathcal{L}$ & $\to$ &
+                $\exists i \in \mathbb{N}.\; uv^i w x^i y \notin \mathcal{L}$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{La propriet\`a $\Pi$ del pumping lemma e la sua negazione: ogni
+            quantificatore si scambia e l'appartenenza a $\mathcal{L}$ diventa
+            non appartenenza.}
+        \label{tab:negazione-pumping-cf}
+    \end{table}
+
+    La Figura~\ref{fig:pumping-cf-negazione} mostra la negazione con gli insiemi, da
+    confrontare con la Figura~\ref{fig:pumping-cf-insiemi}. Per ogni $k$ basta trovare
+    \emph{una} stringa $z \in \mathcal{L}$ con $|z| \geq k$; per questa stringa,
+    per\`o, si devono considerare \emph{tutte} le suddivisioni che rispettano i due
+    vincoli, cio\`e tutti i punti dell'intersezione, e per ciascuna trovare un $i$ che
+    faccia uscire da $\mathcal{L}$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            freccia/.style={-{Stealth}, thick, evidenza},
+            etichetta/.style={font=\small}
+        ]
+            % Il linguaggio L, per ogni k
+            \draw[thick, fill=black!4] (0, -0.4) rectangle (6, 3.4);
+            \node[etichetta, anchor=south west] at (0.1, -0.35) {$\mathcal{L}$};
+            \node[etichetta, anchor=north west] at (0.1, 3.35) {$\forall k$};
+
+            % Una sola stringa con |z| >= k
+            \draw[thick, fill=tenue] (3.4, 2.0) ellipse (1.8 and 0.95);
+            \node[etichetta] at (3.4, 2.6) {$|z| \geq k$};
+            \node[punto, minimum size=5pt, label={[etichetta]above:$\exists z$}] (z)
+                at (4.2, 1.6) {};
+
+            % Tutte le suddivisioni z = uvwxy
+            \draw[thick, dashed, fill=black!4] (6.8, -3.2) rectangle (12.4, 0.9);
+            \node[etichetta, anchor=north west] at (6.9, 0.85)
+                {suddivisioni $z = uvwxy$};
+            \fill[black, fill opacity=0.1] (10.9, -0.75) circle (1.25);
+            \fill[black, fill opacity=0.1] (9.4, -1.75) circle (1.2);
+            \draw[thick] (10.9, -0.75) circle (1.25);
+            \draw[thick, densely dotted] (9.4, -1.75) circle (1.2);
+            \node[etichetta] at (11.35, -0.2) {$|vx| > 0$};
+            \node[etichetta] at (9.3, -2.45) {$|vwx| \leq k$};
+
+            % Tutti i punti dell'intersezione
+            \foreach \x/\y in {9.95/-1.25, 10.25/-1.3, 10.05/-1.6, 10.35/-1.6}
+                \node[punto] at (\x, \y) {};
+            \node[etichetta] at (10.1, -0.95) {$\forall$};
+            \coordinate (s) at (9.85, -1.45);
+
+            % Frecce: dalla stringa alle sue suddivisioni, dalle suddivisioni alla tesi
+            \draw[freccia] (z) to[bend left=25] (7.6, 0.95);
+            \node[draw, thick, ellipse, etichetta] (tesi) at (3.6, -2.2)
+                {$\exists i \in \mathbb{N}.\; uv^i w x^i y \notin \mathcal{L}$};
+            \draw[freccia] (s) to[bend right=15] (tesi);
+        \end{tikzpicture}
+        \caption{La negazione del pumping lemma vista con gli insiemi: per ogni $k$
+            esiste una $z \in \mathcal{L}$ con $|z| \geq k$ tale che, per tutte le sue
+            suddivisioni con $|vwx| \leq k$ e $|vx| > 0$, esiste un $i$ con
+            $uv^i w x^i y \notin \mathcal{L}$.}
+        \label{fig:pumping-cf-negazione}
+    \end{figure}
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        \begin{equation*}
+            \mathcal{L} = \{a^n b^n c^n \mid n \in \mathbb{N}\}.
+        \end{equation*}
+        Si dimostra che $\mathcal{L}$ non \`e CF verificando la negazione della condizione
+        necessaria, un quantificatore alla volta.
+        \begin{itemize}
+            \item $\forall k \in \mathbb{N}$: si sceglie un valore generico $k$, sul
+                quale non si pu\`o porre alcuna condizione.
+            \item $\exists z \in \mathcal{L}$ con $|z| \geq k$: si sceglie
+                \begin{equation*}
+                    z = a^k b^k c^k,
+                \end{equation*}
+                che sta in $\mathcal{L}$ e ha $|z| = 3k \geq k$.
+            \item $\forall z = uvwxy$ con $|vwx| \leq k$ e $|vx| > 0$: si devono
+                considerare \emph{tutte} le suddivisioni che rispettano i vincoli. Ogni
+                blocco di $z$ \`e lungo $k$, quindi il tratto $vwx$ non pu\`o toccare
+                tutti e tre i blocchi: se contenesse una $a$ e una $c$, conterrebbe
+                anche tutto $b^k$, e sarebbe $|vwx| \geq k + 2 > k$. La
+                Figura~\ref{fig:anbncn-casi} mostra i casi possibili, con $v$ e $x$
+                entrambe in $a^k$, in $b^k$ o in $c^k$, oppure in due blocchi
+                consecutivi.\footnote{$v$ o $x$ potrebbero anche stare a cavallo tra
+                due blocchi, per esempio $v = ab$: il ragionamento che segue vale lo
+                stesso, perch\'e usa solo il fatto che $vwx$ tocca al pi\`u due
+                blocchi.}
+        \end{itemize}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                parte/.style={draw, thick, minimum height=0.55cm, inner sep=0pt,
+                    anchor=west},
+                pezzo/.style={draw, thick, fill=tenue, minimum height=0.4cm,
+                    minimum width=0.5cm, inner sep=0pt, anchor=west, font=\small},
+                escluso/.style={pezzo, dashed},
+                caso/.style={anchor=west, font=\small}
+            ]
+                % La stringa z = a^k b^k c^k
+                \node[anchor=east] at (-0.3, 0) {$z$};
+                \node[parte, minimum width=3.2cm] at (0, 0) {$a^k$};
+                \node[parte, minimum width=3.2cm] at (3.2, 0) {$b^k$};
+                \node[parte, minimum width=3.2cm] at (6.4, 0) {$c^k$};
+
+                % Confini tra i blocchi
+                \foreach \x in {3.2, 6.4}
+                    \draw[dashed, evidenza] (\x, -0.3) -- (\x, -5.3);
+
+                % Posizioni possibili di v e x
+                \foreach \y/\xv/\xx/\testo in {-0.9/0.8/1.9/{$a$},
+                        -1.6/2.3/3.6/{$a$ e $b$}, -2.3/4.0/5.2/{$b$},
+                        -3.0/5.6/6.8/{$b$ e $c$}, -3.7/7.3/8.5/{$c$}} {
+                    \draw[thin] (0, \y) -- (9.6, \y);
+                    \node[pezzo] at (\xv, \y) {$v$};
+                    \node[pezzo] at (\xx, \y) {$x$};
+                    \node[caso] at (9.8, \y) {\testo};
+                }
+
+                % Caso escluso: v nelle a e x nelle c
+                \draw[thin, dashed] (0, -4.6) -- (9.6, -4.6);
+                \node[escluso] at (2.0, -4.6) {$v$};
+                \node[escluso] at (7.2, -4.6) {$x$};
+                \draw[thick, decorate, decoration={brace, amplitude=4pt, mirror}]
+                    (2.0, -4.9) -- (7.7, -4.9)
+                    node[midway, below=4pt, font=\small] {$|vwx| > k$};
+                \node[caso] at (9.8, -4.6) {escluso};
+            \end{tikzpicture}
+            \caption{Le posizioni possibili di $v$ e $x$ in $z = a^k b^k c^k$, con a
+                destra i blocchi toccati. Poich\'e $|vwx| \leq k$, il tratto $vwx$
+                tocca al pi\`u due blocchi consecutivi; l'ultima riga, tratteggiata, \`e
+                esclusa, perch\'e $vwx$ conterrebbe tutto $b^k$.}
+            \label{fig:anbncn-casi}
+        \end{figure}
+
+        \begin{itemize}
+            \item $\exists i \in \mathbb{N}.\; uv^i w x^i y \notin \mathcal{L}$: si
+                sceglie $i = 0$. Togliendo $v$ e $x$ i simboli restano nell'ordine
+                $a$, $b$, $c$, quindi $uwy = a^p b^q c^r$ per qualche $p, q, r$. Poich\'e
+                $vwx$ tocca al pi\`u due blocchi, in $vx$ manca almeno uno dei tre
+                simboli, che in $uwy$ compare ancora $k$ volte; poich\'e $|vx| > 0$,
+                invece, almeno un altro simbolo compare meno di $k$ volte. I tre numeri
+                $p$, $q$, $r$ non sono tutti uguali, quindi $uwy \notin \mathcal{L}$.
+        \end{itemize}
+        Il ragionamento vale per ogni $k$ e per ogni suddivisione che rispetta i vincoli,
+        quindi la negazione della condizione necessaria \`e verificata: $\mathcal{L}$
+        non \`e CF.
+    \end{esempio}
+
     %TEORICA%
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
