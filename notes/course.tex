@@ -4397,6 +4397,7 @@ shapes.geometric}
     grammatica: non si pu\`o eliminare cambiando grammatica.
 
     \section{Forme normali}
+    \label{sec:forme-normali}
     In una grammatica CF ogni produzione ha la forma $A \to \beta$: a sinistra della
     freccia c'\`e sempre una sola variabile $A \in V$, a destra una stringa qualsiasi
     $\beta \in (V \cup T)^*$. Una \emph{forma normale} descrive le produzioni fissando la
@@ -4467,154 +4468,384 @@ shapes.geometric}
     cambiare $\mathcal{L}(\mathcal{G})$.
 
     Quindi esiste almeno una derivazione da $S$ a una sequenza $w$ di soli simboli
-    terminali che usa $X$. L'eliminazione dei simboli inutili avviene in due fasi:
-    \begin{enumerate}
-        \item \textsc{Fase 1}: eliminazione dei simboli non terminali che non portano a
-            sequenze di terminali. L'idea \`e partire dai simboli terminali e procedere
-            all'indietro nelle produzioni, cercando i simboli collegati. Si definisce
-            l'operatore
-            \begin{equation*}
-                \Gamma(W) = \{A \in V \mid \exists \alpha \in (T \cup W)^*.\;
-                A \to \alpha \in P\},
-            \end{equation*}
-            dove $W \subseteq V$ contiene le variabili di cui si sa gi\`a che portano a
-            terminali: se $\alpha \in (T \cup W)^*$, ogni simbolo di $\alpha$ \`e un
-            terminale o una variabile di $W$, quindi anche da $A$ si deriva una stringa di
-            terminali. Poich\'e $\varepsilon \in (T \cup W)^*$, anche una produzione
-            $A \to \varepsilon$ mette $A$ in $\Gamma(W)$. Iterativamente si costruisce
-            \begin{equation*}
-                \Gamma^0(\emptyset) = \emptyset, \qquad
-                \Gamma^{i+1}(\emptyset) = \Gamma(\Gamma^i(\emptyset)),
-            \end{equation*}
-            cio\`e l'insieme dei simboli non terminali da cui si deriva una stringa di
-            terminali con un albero di derivazione di altezza al pi\`u $i$. Ci si ferma
-            quando $\Gamma^{i+1}(\emptyset) = \Gamma^i(\emptyset)$, il che accade entro
-            $|V|$ passi; le variabili che non stanno nell'ultimo insieme si eliminano,
-            insieme alle produzioni che le contengono.
-        \item \textsc{Fase 2}: eliminazione di tutti i simboli mai raggiunti dal simbolo
-            iniziale. Iterativamente si costruisce
-            \begin{equation*}
-                \Gamma^0 = \{S\}, \qquad
-                \Gamma^{i+1} = \Gamma^i \cup \{X \in V \cup T \mid \exists A \in \Gamma^i.\;
-                A \to \alpha X \beta \in P\},
-            \end{equation*}
-            cio\`e l'insieme dei simboli che da $S$ sono generabili in al pi\`u $i$
-            passi.\footnote{Il simbolo iniziale $S$ appartiene a ogni $\Gamma^i$.} Ci si
-            ferma quando $\Gamma^{i+1} = \Gamma^i$; i simboli che non stanno nell'ultimo
-            insieme si eliminano, insieme alle produzioni che li contengono.
-    \end{enumerate}
+    terminali che usa $X$. L'eliminazione dei simboli inutili avviene in due fasi.
+
+    \medskip
+    \noindent\textsc{Fase 1}: eliminazione dei simboli non terminali che non portano a
+    sequenze di terminali. L'idea \`e partire dai simboli terminali e procedere
+    all'indietro nelle produzioni, cercando i simboli collegati. Si definisce l'operatore
+    \begin{equation*}
+        \Gamma(W) = \{A \in V \mid \exists \alpha \in (T \cup W)^*.\;
+        A \to \alpha \in P\},
+    \end{equation*}
+    dove $W \subseteq V$ contiene simboli di cui si sa gi\`a che portano a terminali: se
+    $\alpha \in (T \cup W)^*$, ogni simbolo di $\alpha$ \`e un terminale o una variabile
+    di $W$, quindi anche da $A$ si deriva una stringa di terminali. Iterativamente si
+    costruisce
+    \begin{equation*}
+        \Gamma^0(\emptyset) = \emptyset, \qquad
+        \Gamma^{i+1}(\emptyset) = \Gamma(\Gamma^i(\emptyset)),
+    \end{equation*}
+    dove $\Gamma^i$ \`e $\Gamma$ applicato $i$ volte.
+
+    \textit{Discesa}. Ogni chiamata toglie un'applicazione di $\Gamma$, fino al caso
+    base:
+    \begin{alignat*}{2}
+        &\Gamma^i(\emptyset) & \qquad & \Gamma^i(\emptyset) =
+            \Gamma(\Gamma^{i-1}(\emptyset)) \text{: si richiama }
+            \Gamma^{i-1}(\emptyset), \\
+        &\qquad \Gamma^{i-1}(\emptyset) & & \Gamma^{i-1}(\emptyset) =
+            \Gamma(\Gamma^{i-2}(\emptyset)) \text{: si richiama }
+            \Gamma^{i-2}(\emptyset), \\
+        &\qquad\qquad \vdots & & \\
+        &\qquad\qquad\qquad \Gamma^0(\emptyset) & & \text{caso base.}
+    \end{alignat*}
+
+    \textit{Risalita}. Ogni livello applica $\Gamma$ all'insieme restituito dal livello
+    sottostante. Il caso base restituisce
+    \begin{alignat*}{2}
+        \Gamma^0(\emptyset)
+            &= \emptyset, & &
+        \intertext{ed \`e l'unico punto in cui si usa $\emptyset$. Il primo livello
+            parte da $W = \emptyset$:}
+        \Gamma^1(\emptyset)
+            &= \Gamma(\emptyset)
+                = \{A \in V \mid \exists \alpha \in T^*.\; A \to \alpha \in P\}
+                & \qquad & \text{($(T \cup \emptyset)^* = T^*$)},
+        \intertext{cio\`e le variabili con una produzione fatta di soli terminali. Il
+            secondo livello parte dall'insieme appena restituito:}
+        \Gamma^2(\emptyset)
+            &= \Gamma(\Gamma^1(\emptyset))
+                = \{A \in V \mid \exists \alpha \in
+                (T \cup \Gamma^1(\emptyset))^*.\; A \to \alpha \in P\}
+                & & \text{($W = \Gamma^1(\emptyset)$)},
+    \end{alignat*}
+    e cos\`i via fino a $\Gamma^i(\emptyset)$, che \`e quindi l'insieme dei simboli non
+    terminali da cui si deriva una stringa di terminali con un albero di derivazione di
+    altezza al pi\`u $i$.
+
+    Ci si ferma quando $\Gamma^{i+1}(\emptyset) = \Gamma^i(\emptyset)$, il che accade
+    entro $|V|$ passi; le variabili che non stanno nell'ultimo insieme si eliminano,
+    insieme alle produzioni che le contengono.
+
+    \medskip
+    \noindent\textsc{Fase 2}: eliminazione di tutti i simboli mai raggiunti dal simbolo
+    iniziale. L'idea \`e costruire iterativamente l'insieme dei simboli raggiunti da
+    $S$. Iterativamente si costruisce
+    \begin{equation*}
+        \Gamma^0 = \{S\}, \qquad
+        \Gamma^{i+1} = \Gamma^i \cup \{X \in V \cup T \mid \exists A \in \Gamma^i.\;
+        A \to \alpha X \beta \in P\},
+    \end{equation*}
+    cio\`e l'insieme dei simboli che da $S$ sono generabili in al pi\`u $i$
+    passi.\footnote{Il simbolo iniziale $S$ appartiene a ogni $\Gamma^i$.} Ci si ferma
+    quando $\Gamma^{i+1} = \Gamma^i$; i simboli che non stanno nell'ultimo insieme si
+    eliminano, insieme alle produzioni che li contengono.
 
     \begin{esempio}
-        Si consideri la grammatica con $V = \{S, A, B\}$, $T = \{a, b\}$, simbolo
-        iniziale $S$ e produzioni
-        \begin{align*}
-            S &\to aS \mid b \mid aA, \\
-            A &\to aA, \\
-            B &\to b.
-        \end{align*}
-        I simboli $A$ e $B$ sono inutili, ciascuno per una delle due parti della
-        definizione.
-
-        Il simbolo $A$ \`e raggiungibile, poich\'e $S \Rightarrow aA$, ma non porta a
-        terminali: ogni produzione di $A$ rimette una $A$,
+        Si consideri la grammatica
         \begin{equation*}
-            A \Rightarrow aA \Rightarrow aaA \Rightarrow aaaA \Rightarrow \cdots,
+            \mathcal{G} = \langle \{A, B, C, D, E, S\}, \{0, 1, 2, 3\}, P, S \rangle
         \end{equation*}
-        e la stringa non diventa mai di soli terminali.
-
-        Il simbolo $B$ porta a terminali, poich\'e $B \Rightarrow b$, ma non \`e
-        raggiungibile: nessuna produzione ha $B$ nel lato destro, quindi nessuna
-        stringa derivata da $S$ contiene~$B$.
-
-        Gli altri simboli sono utili: $S \Rightarrow aS \Rightarrow ab$ \`e una
-        derivazione completa che coinvolge $S$, $a$ e $b$. Eliminando $A$ e $B$ insieme
-        alle produzioni che li contengono, cio\`e $S \to aA$, $A \to aA$ e $B \to b$,
-        resta
-        \begin{equation*}
-            S \to aS \mid b,
-        \end{equation*}
-        che genera lo stesso linguaggio $\{a^n b \mid n \geq 0\}$: le derivazioni che
-        passano per $A$ non terminano mai, e $B$ non viene mai usato.
-    \end{esempio}
-
-    \begin{esempio}
-        Si consideri la grammatica con $V = \{S, A, B, C, D, E\}$, $T = \{0, 1, 2\}$,
-        simbolo iniziale $S$ e produzioni
+        con produzioni
         \begin{align*}
-            S &\to AB \mid 0D, \\
-            A &\to 0A \mid 1, \\
-            B &\to A0 \mid 1C, \\
-            C &\to BC, \\
-            D &\to 0D, \\
-            E &\to 2.
+            S &\to \varepsilon \mid A \mid B \mid D, \\
+            A &\to 0 \mid 0A0 \mid B \mid E, \\
+            B &\to 1 \mid 1B1 \mid A \mid \varepsilon, \\
+            C &\to A \mid B \mid 2, \\
+            D &\to \varepsilon \mid D, \\
+            E &\to \varepsilon.
         \end{align*}
 
-        \textsc{Fase 1}. Si parte da $\Gamma^0(\emptyset) = \emptyset$. Al primo passo
-        $W = \emptyset$ e $(T \cup W)^* = T^*$: entrano le variabili con una produzione
-        fatta di soli terminali, cio\`e $A$ (per $A \to 1$) ed $E$ (per $E \to 2$). Ai
-        passi successivi entra ogni variabile con una produzione il cui lato destro
-        contiene solo terminali e variabili gi\`a trovate. La Tabella~\ref{tab:fase1}
-        riassume i passi.
-
-        \begin{table}[H]
-            \centering
-            \begin{tabular}{clll}
-                \toprule
-                \textsc{Passo} $i$ & $W = \Gamma^{i-1}(\emptyset)$
-                    & \textsc{Nuove variabili} & $\Gamma^i(\emptyset)$ \\
-                \midrule
-                $1$ & $\emptyset$ & $A$ (per $A \to 1$), $E$ (per $E \to 2$)
-                    & $\{A, E\}$ \\
-                $2$ & $\{A, E\}$ & $B$ (per $B \to A0$) & $\{A, B, E\}$ \\
-                $3$ & $\{A, B, E\}$ & $S$ (per $S \to AB$) & $\{A, B, E, S\}$ \\
-                $4$ & $\{A, B, E, S\}$ & nessuna & $\{A, B, E, S\}$ \\
-                \bottomrule
-            \end{tabular}
-            \caption{I passi della fase 1: a ogni passo entrano le variabili con una
-                produzione il cui lato destro sta in $(T \cup W)^*$.}
-            \label{tab:fase1}
-        \end{table}
-
-        Al passo 2 la variabile $S$ non entra ancora: in $AB$ la variabile $A$ \`e in
-        $W$, ma $B$ no, e servono tutti i simboli del lato destro. Poich\'e
-        $\Gamma^4(\emptyset) = \Gamma^3(\emptyset)$ ci si ferma: $C$ e $D$ non portano mai a
-        terminali, perch\'e ogni loro produzione rimette la stessa variabile,
-        \begin{equation*}
-            C \Rightarrow BC \Rightarrow A0C \Rightarrow \cdots, \qquad
-            D \Rightarrow 0D \Rightarrow 00D \Rightarrow \cdots.
-        \end{equation*}
-        Si eliminano insieme alle produzioni che le contengono, cio\`e $S \to 0D$,
-        $B \to 1C$, $C \to BC$ e $D \to 0D$, e resta
-        \begin{equation*}
-            S \to AB, \qquad A \to 0A \mid 1, \qquad B \to A0, \qquad E \to 2.
-        \end{equation*}
-
-        \textsc{Fase 2}. Si parte da $\Gamma^0 = \{S\}$ e a ogni passo si aggiungono i
-        simboli che compaiono nei lati destri delle produzioni dei simboli gi\`a
-        raggiunti:
+        \textsc{Fase 1}. Si parte dai simboli terminali e si procede all'indietro nelle
+        produzioni:
+        \begin{alignat*}{2}
+            \Gamma^0(\emptyset) &= \emptyset, & & \\
+            \Gamma^1(\emptyset) &= \{A, B, C\}
+                & \qquad & \text{(da $A \to 0$, $B \to 1$, $C \to 2$)}, \\
+            \Gamma^2(\emptyset) &= \{A, B, C, S\}
+                & & \text{(da $S \to A \mid B$)}, \\
+            \Gamma^3(\emptyset) &= \{A, B, C, S\} = \Gamma^2(\emptyset)
+                & & \text{(punto fisso)}.
+        \end{alignat*}
+        L'insieme $\Gamma^3(\emptyset)$ contiene tutti i non terminali che raggiungono
+        terminali; $D$ ed $E$ non ci stanno e si eliminano:
         \begin{align*}
-            \Gamma^0 &= \{S\}, \\
-            \Gamma^1 &= \{S, A, B\}
-                && \text{(da $S \to AB$)}, \\
-            \Gamma^2 &= \{S, A, B, 0, 1\}
-                && \text{(da $A \to 0A \mid 1$ e $B \to A0$)}, \\
-            \Gamma^3 &= \Gamma^2.
+            \mathcal{G}' &= \langle V', T, P', S \rangle, \\
+            V' &= V \cap \Gamma^3(\emptyset) = \{A, B, C, S\}, \\
+            P' &= P \setminus \{S \to D,\; D \to \varepsilon \mid D,\;
+                E \to \varepsilon,\; A \to E\}.
         \end{align*}
-        I simboli $E$ e $2$ non vengono mai raggiunti, quindi si elimina la produzione
-        $E \to 2$. La grammatica finale
-        \begin{equation*}
-            S \to AB, \qquad A \to 0A \mid 1, \qquad B \to A0
-        \end{equation*}
-        ha solo simboli utili, per esempio
-        $S \Rightarrow AB \Rightarrow 1B \Rightarrow 1A0 \Rightarrow 110$, e genera lo
-        stesso linguaggio: $A$ genera le stringhe $0^n 1$, $B$ le stringhe $0^m 1 0$ e
-        $S$ le stringhe $0^n 1 0^m 1 0$.
+
+        \textsc{Fase 2}. Le produzioni di $\mathcal{G}'$ sono
+        \begin{align*}
+            S &\to \varepsilon \mid A \mid B, \\
+            A &\to B \mid 0A0 \mid 0, \\
+            B &\to A \mid 1B1 \mid 1 \mid \varepsilon, \\
+            C &\to A \mid B \mid 2.
+        \end{align*}
+        Si parte da $S$ e si aggiungono i simboli raggiunti:
+        \begin{alignat*}{2}
+            \Gamma^0 &= \{S\}, & & \\
+            \Gamma^1 &= \{A, B\} \cup \{S\} = \{A, B, S\}
+                & \qquad & \text{(da $S \to A \mid B$)}, \\
+            \Gamma^2 &= \{A, B, S, 0, 1\}
+                & & \text{(da $A \to 0A0 \mid 0$ e $B \to 1B1 \mid 1$)}, \\
+            \Gamma^3 &= \Gamma^2
+                & & \text{(punto fisso)}.
+        \end{alignat*}
+        Si elimina $C$ con le sue produzioni e si eliminano i terminali $2$ e $3$:
+        \begin{align*}
+            \mathcal{G}'' &= \langle V'', T'', P'', S \rangle, \\
+            V'' &= V' \cap \Gamma^3 = \{A, B, S\}, \\
+            T'' &= T \cap \Gamma^3 = \{0, 1\},
+        \end{align*}
+        cio\`e $\mathcal{G}'' = \langle \{A, B, S\}, \{0, 1\}, P'', S \rangle$, con
+        produzioni $P''$
+        \begin{align*}
+            S &\to A \mid B \mid \varepsilon, \\
+            A &\to B \mid 0A0 \mid 0, \\
+            B &\to A \mid 1B1 \mid 1 \mid \varepsilon.
+        \end{align*}
     \end{esempio}
 
     \section{Eliminazione delle \texorpdfstring{$\varepsilon$}{epsilon}-produzioni}
     Si eliminano le produzioni della forma $X \to \varepsilon$ con $X \in V \setminus \{S\}$.
+
+    \begin{definition}[Simbolo annullabile]
+        Un simbolo non terminale $A \in V$ \`e \emph{annullabile} se da $A$ si pu\`o
+        derivare la stringa vuota, cio\`e
+        \begin{equation*}
+            A \overset{\mathcal{G}}{\Rightarrow}_* \varepsilon.
+        \end{equation*}
+    \end{definition}
+    Un simbolo pu\`o essere annullabile in due modi:
+    \begin{itemize}
+        \item \textsc{Direttamente}: c'\`e una produzione $A \to \varepsilon$;
+        \item \textsc{Indirettamente}: c'\`e una produzione $A \to \alpha$ e tutti i
+            simboli di $\alpha$ sono annullabili, per esempio $A \to B$ con
+            $B \to \varepsilon$, oppure $A \to BC$ con $B$ e $C$ entrambi annullabili.
+    \end{itemize}
+
+    I simboli annullabili non sono gi\`a stati tolti con l'eliminazione dei simboli
+    inutili (Sezione~\ref{sec:simboli-inutili}): nella Fase 1 spariscono solo le
+    variabili che portano \emph{soltanto} a $\varepsilon$, oppure a niente. Una variabile
+    che porta a $\varepsilon$ ma anche a stringhe di terminali \`e utile, quindi resta.
+
+    \medskip
+    \noindent\textsc{Passo 1}: calcolo dei simboli annullabili. Si definisce l'operatore
+    \begin{equation*}
+        \Gamma(W) = \{A \in V \mid \exists A \to \alpha \in P,\;
+        \text{``$\alpha$ privata delle variabili in $W$ \`e $\varepsilon$''}\},
+    \end{equation*}
+    dove $W$ contiene le variabili di cui si sa gi\`a che sono annullabili. Da $\alpha$
+    si cancellano le variabili di $W$, che possono diventare $\varepsilon$: se non resta
+    niente, ogni simbolo di $\alpha$ era una variabile annullabile, quindi anche $A$ lo
+    \`e. Se $\alpha$ contiene un terminale, o una variabile che non sta in $W$, qualcosa
+    resta.
+
     Iterativamente si costruisce $\Gamma^i$, l'insieme dei simboli non terminali che
-    generano $\varepsilon$.
+    generano $\varepsilon$, cio\`e dei simboli annullabili:
+    \begin{itemize}
+        \item $\Gamma^0 = \emptyset$ \`e il caso base;
+        \item $\Gamma^1$ contiene le variabili $X$ con una produzione $X \to \varepsilon$;
+        \item $\Gamma^{i+1}$: per ogni produzione $X \to \alpha$ si sostituiscono con
+            $\varepsilon$ le variabili del lato destro $\alpha$ che stanno in
+            $\Gamma^i$. Se resta $\varepsilon$, il lato sinistro $X$ entra in
+            $\Gamma^{i+1}$; altrimenti non succede niente;
+        \item ci si ferma quando $\Gamma^{i+1} = \Gamma^i$.
+    \end{itemize}
+
+    \medskip
+    \noindent\textsc{Passo 2}: modifica della grammatica. Raggiunto il punto fisso, per
+    ogni produzione si applicano tutte le sostituzioni possibili delle variabili
+    annullabili con $\varepsilon$. Se una produzione ha $k$ occorrenze di variabili
+    annullabili, ogni occorrenza \`e un bit ($0$ la si tiene, $1$ la si toglie) e le
+    combinazioni sono $2^k$, come nell'aritmetica binaria. Per esempio, con $A$ e $B$
+    annullabili, $S \to AbB$ ha $k = 2$:
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccl}
+            \toprule
+            $A$ & $B$ & \textsc{Risultato} \\
+            \midrule
+            $0$ & $0$ & $S \to AbB$ (l'originale) \\
+            $0$ & $1$ & $S \to Ab$ \\
+            $1$ & $0$ & $S \to bB$ \\
+            $1$ & $1$ & $S \to b$ \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+    \noindent Si aggiungono le produzioni diverse dalle originali, con tre accorgimenti:
+    \begin{itemize}
+        \item non si aggiunge nessuna $X \to \varepsilon$: da $B \to AA$, la
+            combinazione $11$ darebbe $B \to \varepsilon$;
+        \item le combinazioni uguali contano una volta sola: da $B \to AA$, le
+            combinazioni $01$ e $10$ danno entrambe $B \to A$;
+        \item alla fine si eliminano le $\varepsilon$-produzioni originali; le altre
+            produzioni originali restano.
+    \end{itemize}
+
+    L'unica eccezione \`e $S \to \varepsilon$: si ha
+    $\varepsilon \in \mathcal{L}(\mathcal{G})$ se e solo se $S$ \`e annullabile, cio\`e
+    se $S$ sta nel punto fisso, e in quel caso togliere $S \to \varepsilon$ cambierebbe
+    il linguaggio. Se $S$ \`e annullabile senza una produzione $S \to \varepsilon$
+    scritta, per esempio con $S \to AB$ e $A$, $B$ annullabili, la produzione
+    $S \to \varepsilon$ va aggiunta: \`e l'unica eccezione alla regola di non aggiungere
+    $X \to \varepsilon$.
+
+    \begin{esempio}
+        Si riprende la grammatica $\mathcal{G}''$ dell'esempio precedente, con
+        produzioni
+        \begin{align*}
+            S &\to A \mid B \mid \varepsilon, \\
+            A &\to B \mid 0A0 \mid 0, \\
+            B &\to A \mid 1B1 \mid 1 \mid \varepsilon.
+        \end{align*}
+        I simboli annullabili sono tre:
+        \begin{itemize}
+            \item $B$, per $B \to \varepsilon$;
+            \item $A$, in modo indiretto: $A \Rightarrow B \Rightarrow \varepsilon$. Non
+                ha una produzione $A \to \varepsilon$, quindi non si vede guardando solo le
+                sue produzioni;
+            \item $S$, per $S \to \varepsilon$.
+        \end{itemize}
+
+        \textsc{Passo 1}. Con la costruzione iterativa:
+        \begin{alignat*}{2}
+            \Gamma^0 &= \emptyset & \qquad & \text{(caso base)}, \\
+            \Gamma^1 &= \{S, B\} & & \text{($S \to \varepsilon$, $B \to \varepsilon$)}, \\
+            \Gamma^2 &= \{S, B, A\} & & \text{($A \to B$, con $B \in \Gamma^1$)}, \\
+            \Gamma^3 &= \Gamma^2 & & \text{(punto fisso)}.
+        \end{alignat*}
+
+        \textsc{Passo 2}. Si aggiungono $A \to 00$, da $A \to 0A0$, e $B \to 11$, da
+        $B \to 1B1$; si elimina $B \to \varepsilon$. Da $S \to A$ e $S \to B$ si
+        otterrebbe $S \to \varepsilon$, che c'\`e gi\`a, quindi non si aggiunge. Il
+        risultato \`e
+        \begin{align*}
+            S &\to A \mid B \mid \varepsilon, \\
+            A &\to B \mid 0A0 \mid 00 \mid 0, \\
+            B &\to A \mid 1B1 \mid 11 \mid 1,
+        \end{align*}
+        cio\`e
+        \begin{align*}
+            P''' &= \bigl(P'' \setminus \{B \to \varepsilon\}\bigr)
+                \cup \{A \to 00,\; B \to 11\}, \\
+            \mathcal{G}''' &= \langle \{A, B, S\}, \{0, 1\}, P''', S \rangle.
+        \end{align*}
+    \end{esempio}
+
+    \section{Eliminazione delle produzioni unitarie}
+    Si eliminano le produzioni unitarie, cio\`e le produzioni della forma $A \to B$ con
+    $A, B \in V$. Una produzione unitaria $X \to Y$ si elimina sostituendo $Y$ con le
+    produzioni di $Y$: se $Y \to \beta$, allora $X \Rightarrow Y \Rightarrow \beta$,
+    quindi si aggiunge $X \to \beta$.
+
+    \begin{esempio}
+        Si riprende la grammatica $\mathcal{G}'''$ dell'esempio precedente, con
+        produzioni
+        \begin{align*}
+            S &\to \varepsilon \mid A \mid B, \\
+            A &\to 0 \mid 00 \mid 0A0 \mid B, \\
+            B &\to 1 \mid 11 \mid 1B1 \mid A.
+        \end{align*}
+        Le produzioni unitarie sono $S \to A$, $S \to B$, $A \to B$ e $B \to A$.
+
+        \textsc{Passo 1}: si elimina $S \to A$. Poich\'e
+        $S \Rightarrow A \Rightarrow 0$, $S \Rightarrow A \Rightarrow 00$ e cos\`i via, in
+        $S$ si sostituisce $A$ con le produzioni di $A$, cio\`e $0 \mid 00 \mid 0A0 \mid B$:
+        \begin{align*}
+            S &\to \varepsilon \mid 0 \mid 00 \mid 0A0 \mid B, \\
+            A &\to 0 \mid 00 \mid 0A0 \mid B, \\
+            B &\to 1 \mid 11 \mid 1B1 \mid A.
+        \end{align*}
+
+        \textsc{Passo 2}: si elimina $S \to B$, sostituendo $B$ con
+        $1 \mid 11 \mid 1B1$ (le produzioni di $A$ sono gi\`a in $S$, quindi da
+        $B \to A$ non si inserisce $S \to A$):
+        \begin{equation*}
+            S \to \varepsilon \mid 0 \mid 00 \mid 0A0 \mid 1 \mid 11 \mid 1B1.
+        \end{equation*}
+
+        \textsc{Passo 3}: si elimina $A \to B$, sostituendo $B$ con
+        $1 \mid 11 \mid 1B1$ (da $B \to A$ si otterrebbe $A \to A$, che non si
+        inserisce):
+        \begin{equation*}
+            A \to 0 \mid 00 \mid 0A0 \mid 1 \mid 11 \mid 1B1.
+        \end{equation*}
+
+        \textsc{Passo 4}: si elimina $B \to A$, sostituendo $A$ con le sue produzioni
+        (analogamente ad $A \to A$, non si inserisce $B \to B$). Il risultato \`e
+        \begin{align*}
+            S &\to \varepsilon \mid 0 \mid 00 \mid 0A0 \mid 1 \mid 11 \mid 1B1, \\
+            A &\to 0 \mid 00 \mid 0A0 \mid 1 \mid 11 \mid 1B1, \\
+            B &\to 1 \mid 11 \mid 1B1 \mid 0 \mid 00 \mid 0A0.
+        \end{align*}
+        Le tre variabili hanno le stesse produzioni, a parte $S \to \varepsilon$, quindi
+        la grammatica si pu\`o scrivere con il solo $S$:
+        \begin{equation*}
+            S \to \varepsilon \mid 0 \mid 00 \mid 0S0 \mid 1 \mid 11 \mid 1S1.
+        \end{equation*}
+    \end{esempio}
+
+    \section{Forma normale di Chomsky}
+    Una grammatica CF $\mathcal{G} = \langle V, T, P, S \rangle$ \`e in forma normale di
+    Chomsky (Sezione~\ref{sec:forme-normali}) se ogni produzione \`e del tipo
+    \begin{equation*}
+        A \to BC \qquad \text{oppure} \qquad A \to a,
+    \end{equation*}
+    con $A, B, C \in V$ e $a \in T$.
+
+    \begin{theorem}
+        Ogni grammatica CF senza simboli inutili, $\varepsilon$-produzioni e produzioni
+        unitarie pu\`o essere trasformata in forma normale di Chomsky.
+    \end{theorem}
+
+    \begin{esempio}
+        Si riprende la grammatica dell'esempio precedente:
+        \begin{equation*}
+            S \to \varepsilon \mid 0 \mid 1 \mid 00 \mid 0S0 \mid 11 \mid 1S1.
+        \end{equation*}
+        Le produzioni $S \to \varepsilon$ e $S \to 0 \mid 1$, del tipo $A \to a$, vanno
+        bene; $S \to 00 \mid 0S0 \mid 11 \mid 1S1$ no.
+
+        \textsc{Passo 1}: si prende un nuovo simbolo $X_1$, con $V' = V \cup \{X_1\}$, e la
+        produzione $X_1 \to 0$:
+        \begin{equation*}
+            S \to X_1 X_1 \mid X_1 S X_1 \mid 11 \mid 1S1.
+        \end{equation*}
+        La produzione $S \to X_1 X_1$ va bene; $S \to X_1 S X_1 \mid 11 \mid 1S1$ no.
+
+        \textsc{Passo 2}: si prende un nuovo simbolo $X_2$, con $V'' = V' \cup \{X_2\}$, e
+        la produzione $X_2 \to X_1 S$:
+        \begin{equation*}
+            S \to X_1 X_1 \mid X_2 X_1 \mid 11 \mid 1S1.
+        \end{equation*}
+        Le produzioni $S \to X_1 X_1 \mid X_2 X_1$ vanno bene; $S \to 11 \mid 1S1$ no.
+
+        \textsc{Passo 3}: si prende un nuovo simbolo $X_3$, con la produzione $X_3 \to 1$:
+        \begin{equation*}
+            S \to X_1 X_1 \mid X_2 X_1 \mid X_3 X_3 \mid X_3 S X_3.
+        \end{equation*}
+        Solo $S \to X_3 S X_3$ non va bene.
+
+        \textsc{Passo 4}: si prende un nuovo simbolo $X_4$, con la produzione
+        $X_4 \to X_3 S$:
+        \begin{equation*}
+            S \to X_1 X_1 \mid X_2 X_1 \mid X_3 X_3 \mid X_4 X_3.
+        \end{equation*}
+        Ora tutte le produzioni vanno bene. La grammatica in forma normale di Chomsky \`e
+        $\langle \{S, X_1, X_2, X_3, X_4\}, \{0, 1\}, P, S \rangle$, con produzioni $P$
+        \begin{align*}
+            S &\to \varepsilon \mid 0 \mid 1 \mid X_1 X_1 \mid X_2 X_1 \mid X_3 X_3
+                \mid X_4 X_3, \\
+            X_1 &\to 0, \\
+            X_2 &\to X_1 S, \\
+            X_3 &\to 1, \\
+            X_4 &\to X_3 S.
+        \end{align*}
+    \end{esempio}
 
     %TEORICA%
     \chapter{Esercizi}
