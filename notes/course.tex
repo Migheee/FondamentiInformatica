@@ -4966,15 +4966,15 @@ shapes.geometric}
             \draw[thick, dashed, fill=black!4] (6.8, -3.2) rectangle (12.4, 0.9);
             \node[etichetta, anchor=north west] at (6.9, 0.85)
                 {suddivisioni $z = uvwxy$};
-            \fill[black, fill opacity=0.1] (10.9, -0.75) circle (1.25);
+            \fill[black, fill opacity=0.1] (10.9, -0.95) circle (1.25);
             \fill[black, fill opacity=0.1] (9.4, -1.75) circle (1.2);
-            \draw[thick] (10.9, -0.75) circle (1.25);
+            \draw[thick] (10.9, -0.95) circle (1.25);
             \draw[thick, densely dotted] (9.4, -1.75) circle (1.2);
-            \node[etichetta] at (11.35, -0.2) {$|vx| > 0$};
-            \node[etichetta] at (9.3, -2.45) {$|vwx| \leq k$};
-            \node[punto, minimum size=5pt] (s) at (10.1, -1.3) {};
+            \node[etichetta] at (11.15, -0.45) {$|vx| > 0$};
+            \node[etichetta] at (9.4, -2.45) {$|vwx| \leq k$};
+            \node[punto, minimum size=5pt] (s) at (10.15, -1.45) {};
             \draw[thick] (s) circle (0.17);
-            \node[etichetta] at (10.1, -0.9) {$\exists$};
+            \node[etichetta] at (10.15, -1.05) {$\exists$};
 
             % Frecce: dalla stringa alle sue suddivisioni, dalla suddivisione buona
             % alla tesi
@@ -5282,17 +5282,17 @@ shapes.geometric}
             \draw[thick, dashed, fill=black!4] (6.8, -3.2) rectangle (12.4, 0.9);
             \node[etichetta, anchor=north west] at (6.9, 0.85)
                 {suddivisioni $z = uvwxy$};
-            \fill[black, fill opacity=0.1] (10.9, -0.75) circle (1.25);
+            \fill[black, fill opacity=0.1] (10.9, -0.95) circle (1.25);
             \fill[black, fill opacity=0.1] (9.4, -1.75) circle (1.2);
-            \draw[thick] (10.9, -0.75) circle (1.25);
+            \draw[thick] (10.9, -0.95) circle (1.25);
             \draw[thick, densely dotted] (9.4, -1.75) circle (1.2);
-            \node[etichetta] at (11.35, -0.2) {$|vx| > 0$};
-            \node[etichetta] at (9.3, -2.45) {$|vwx| \leq k$};
+            \node[etichetta] at (11.15, -0.45) {$|vx| > 0$};
+            \node[etichetta] at (9.4, -2.45) {$|vwx| \leq k$};
 
             % Tutti i punti dell'intersezione
             \foreach \x/\y in {9.95/-1.25, 10.25/-1.3, 10.05/-1.6, 10.35/-1.6}
                 \node[punto] at (\x, \y) {};
-            \node[etichetta] at (10.1, -0.95) {$\forall$};
+            \node[etichetta] at (10.1, -1) {$\forall$};
             \coordinate (s) at (9.85, -1.45);
 
             % Frecce: dalla stringa alle sue suddivisioni, dalle suddivisioni alla tesi
@@ -5395,6 +5395,271 @@ shapes.geometric}
         quindi la negazione della condizione necessaria \`e verificata: $\mathcal{L}$
         non \`e CF.
     \end{esempio}
+
+    \section{Propriet\`a dei linguaggi CF}
+    \label{sec:proprieta-cf}
+    Come i linguaggi regolari (Teorema~\ref{thm:chiusura}), anche i linguaggi CF godono
+    di propriet\`a di chiusura: sono chiusi rispetto all'unione, alla concatenazione e
+    alla chiusura di Kleene.
+
+    \begin{theorem}[Chiusura dei linguaggi CF]
+        \label{thm:chiusura-cf}
+        Siano $\mathcal{L}_1$ e $\mathcal{L}_2$ linguaggi CF. Allora
+        \begin{equation*}
+            \mathcal{L}_1 \cup \mathcal{L}_2, \qquad
+            \mathcal{L}_1 \cdot \mathcal{L}_2, \qquad
+            \mathcal{L}_1^*
+        \end{equation*}
+        sono CF.
+    \end{theorem}
+    Le propriet\`a di chiusura servono anche nella direzione opposta: se un linguaggio
+    si scrive come unione, concatenazione o chiusura di Kleene di linguaggi pi\`u
+    semplici, basta dimostrare che questi sono CF, studiandoli
+    separatamente. Pu\`o essere utile
+    ricordare che i linguaggi regolari sono anche CF.
+
+    \begin{proof}[Dimostrazione del Teorema~\ref{thm:chiusura-cf}]
+        Si d\`a solo un abbozzo della dimostrazione.\footnote{La dimostrazione non \`e
+        completa: si costruisce la grammatica, senza dimostrare formalmente che genera il
+        linguaggio voluto.} Poich\'e $\mathcal{L}_1$ e $\mathcal{L}_2$ sono CF, per
+        definizione esistono due grammatiche CF
+        \begin{equation*}
+            \mathcal{G}_1 = \langle V_1, T_1, P_1, S_1 \rangle, \qquad
+            \mathcal{G}_2 = \langle V_2, T_2, P_2, S_2 \rangle
+        \end{equation*}
+        tali che $\mathcal{L}_1 = \mathcal{L}(\mathcal{G}_1)$ e
+        $\mathcal{L}_2 = \mathcal{L}(\mathcal{G}_2)$. Si suppone
+        $V_1 \cap V_2 = \emptyset$: le due grammatiche non hanno variabili in
+        comune. Non \`e una restrizione,
+        perch\'e basta rinominare le variabili di $\mathcal{G}_2$, e rinominarle non cambia
+        il linguaggio generato. Serve perch\'e altrimenti, unendo le produzioni, una
+        variabile comune avrebbe sia le produzioni di $\mathcal{G}_1$ sia quelle di
+        $\mathcal{G}_2$, e una derivazione partita in $\mathcal{G}_1$ potrebbe proseguire
+        con le produzioni di $\mathcal{G}_2$.
+
+        \textsc{Unione}. Sia $S$ un simbolo nuovo, che non compare in nessuna delle due
+        grammatiche. Si costruisce
+        \begin{equation*}
+            \mathcal{G}_\cup = \langle V_1 \cup V_2 \cup \{S\},\; T_1 \cup T_2,\; P_\cup,\;
+            S \rangle,
+            \qquad
+            P_\cup = \{S \to S_1 \mid S_2\} \cup P_1 \cup P_2.
+        \end{equation*}
+        Il primo passo di ogni derivazione sceglie tra $S_1$ e $S_2$; poich\'e le
+        variabili sono disgiunte, da $S_1$ si usano poi solo le produzioni di $P_1$ e da
+        $S_2$ solo quelle di $P_2$. Quindi
+        $\mathcal{L}(\mathcal{G}_\cup) = \mathcal{L}_1 \cup \mathcal{L}_2$.
+
+        \textsc{Concatenazione}. Con $S$ simbolo nuovo come prima, si costruisce
+        \begin{equation*}
+            \mathcal{G}_\cdot = \langle V_1 \cup V_2 \cup \{S\},\; T_1 \cup T_2,\;
+            P_\cdot,\; S \rangle,
+            \qquad
+            P_\cdot = P_1 \cup P_2 \cup \{S \to S_1 S_2\}.
+        \end{equation*}
+        Ogni derivazione inizia con $S \Rightarrow S_1 S_2$: da $S_1$ si deriva, con le
+        sole produzioni di $P_1$, una stringa di $\mathcal{L}_1$, e da $S_2$, con quelle di
+        $P_2$, una stringa di $\mathcal{L}_2$. Quindi
+        $\mathcal{L}(\mathcal{G}_\cdot) = \mathcal{L}_1 \cdot \mathcal{L}_2$.
+
+        \textsc{Chiusura di Kleene}. Con $S$ simbolo nuovo, si costruisce
+        \begin{equation*}
+            \mathcal{G}_* = \langle V_1 \cup \{S\},\; T_1,\; P_*,\; S \rangle,
+            \qquad
+            P_* = P_1 \cup \{S \to \varepsilon \mid S_1 S\}.
+        \end{equation*}
+        Con $S \to S_1 S$ il simbolo $S$ si richiama da solo, mettendo ogni volta un $S_1$
+        davanti a s\'e; con $S \to \varepsilon$ la catena si chiude. Usando $n$ volte la
+        prima produzione e poi la seconda,
+        \begin{equation*}
+            S \Rightarrow S_1 S \Rightarrow S_1 S_1 S \Rightarrow \cdots \Rightarrow
+            S_1^n S \Rightarrow S_1^n,
+        \end{equation*}
+        e ogni $S_1$ deriva una stringa di $\mathcal{L}_1$, quindi si ottengono le
+        stringhe di $\mathcal{L}_1^n$. Con $n = 0$ si usa subito $S \to \varepsilon$ e si
+        ottiene $\varepsilon$, che appartiene sempre a $\mathcal{L}_1^*$ come unico
+        elemento di $\mathcal{L}_1^0$. Poich\'e $n$ \`e arbitrario,
+        $\mathcal{L}(\mathcal{G}_*) = \bigcup_{n \geq 0} \mathcal{L}_1^n
+        = \mathcal{L}_1^*$.
+    \end{proof}
+
+    Come per i linguaggi regolari, la chiusura rispetto all'unione vale solo per un
+    numero \emph{finito} di linguaggi: anche se ogni $\mathcal{L}_i$ \`e CF, l'unione di
+    infiniti linguaggi CF pu\`o non esserlo, e va studiata caso per caso. In simboli,
+    \begin{equation*}
+        \bigl(\forall i \in \mathbb{N}.\; \mathcal{L}_i \text{ CF}\bigr)
+        \centernot\implies \bigcup_{i \in \mathbb{N}} \mathcal{L}_i \text{ CF}.
+    \end{equation*}
+
+    \begin{theorem}[Non chiusura rispetto all'intersezione]
+        \label{thm:cf-intersezione}
+        I linguaggi CF \emph{non} sono chiusi rispetto all'intersezione: esistono due
+        linguaggi CF $\mathcal{L}_1$ e $\mathcal{L}_2$ tali che
+        $\mathcal{L}_1 \cap \mathcal{L}_2$ non \`e CF.
+    \end{theorem}
+
+    \begin{proof}[Dimostrazione del Teorema~\ref{thm:cf-intersezione}]
+        Si fornisce un caso in cui $\mathcal{L}_1$ e $\mathcal{L}_2$ sono CF, ma
+        $\mathcal{L}_1 \cap \mathcal{L}_2$ non lo \`e.
+
+        \textsc{Il linguaggio $\mathcal{L}_1$}. Si consideri
+        \begin{equation*}
+            \mathcal{L}_1 = \{a^i b^i c^j \mid i, j \in \mathbb{N}\}
+        \end{equation*}
+        che ha tante $a$ quante $b$, mentre il numero di $c$ \`e libero. \`E generato dalla
+        grammatica $\mathcal{G}_1$ con produzioni
+        \begin{equation*}
+            S \to RC, \qquad
+            R \to aRb \mid \varepsilon, \qquad
+            C \to cC \mid \varepsilon,
+        \end{equation*}
+        dove $R$ genera $a^i b^i$ e $C$ genera $c^j$, per esempio
+        \begin{equation*}
+            S \Rightarrow RC \Rightarrow aRbC \Rightarrow aaRbbC \Rightarrow aabbC
+            \Rightarrow aabbcC \Rightarrow aabbccC \Rightarrow aabbcc.
+        \end{equation*}
+        Si ha $\mathcal{L}(\mathcal{G}_1) = \mathcal{L}_1$, come si dimostra con il metodo
+        della Sezione~\ref{sec:dimostrare-cf}, quindi $\mathcal{L}_1$ \`e CF.
+
+        \textsc{Il linguaggio $\mathcal{L}_2$}. Si consideri
+        \begin{equation*}
+            \mathcal{L}_2 = \{a^j b^i c^i \mid i, j \in \mathbb{N}\}
+        \end{equation*}
+        che ha tante $b$ quante $c$, mentre il numero di $a$ \`e libero. \`E generato dalla
+        grammatica $\mathcal{G}_2$ con produzioni
+        \begin{equation*}
+            S \to AR, \qquad
+            A \to aA \mid \varepsilon, \qquad
+            R \to bRc \mid \varepsilon,
+        \end{equation*}
+        dove $A$ genera $a^j$ e $R$ genera $b^i c^i$, per esempio
+        \begin{equation*}
+            S \Rightarrow AR \Rightarrow aAR \Rightarrow aaAR \Rightarrow aaaAR
+            \Rightarrow aaaR \Rightarrow aaabRc \Rightarrow aaabbRcc \Rightarrow aaabbcc.
+        \end{equation*}
+        Si ha $\mathcal{L}(\mathcal{G}_2) = \mathcal{L}_2$, quindi anche
+        $\mathcal{L}_2$ \`e CF.
+
+        \textsc{L'intersezione}. Entrambi i linguaggi contengono solo stringhe della
+        forma $a^m b^n c^l$, quindi anche $\mathcal{L}_1 \cap \mathcal{L}_2$. Una tale
+        stringa appartiene all'intersezione se e solo se appartiene a entrambi i
+        linguaggi:
+        \begin{equation*}
+            a^m b^n c^l \in \mathcal{L}_1 \cap \mathcal{L}_2
+            \iff \underbrace{m = n}_{\mathcal{L}_1} \;\land\;
+            \underbrace{n = l}_{\mathcal{L}_2}
+            \iff m = n = l,
+        \end{equation*}
+        dove l'ultimo passo segue per transitivit\`a. Quindi
+        \begin{equation*}
+            \mathcal{L}_1 \cap \mathcal{L}_2 = \{a^n b^n c^n \mid n \in \mathbb{N}\},
+        \end{equation*}
+        che non \`e CF, come visto con il pumping lemma nella
+        Sezione~\ref{sec:pumping-cf}. Due linguaggi CF hanno quindi un'intersezione che
+        non \`e CF.
+    \end{proof}
+
+    \section{Propriet\`a di decisione}
+    \label{sec:decisione-cf}
+    Come per i linguaggi regolari (Teorema~\ref{thm:decidibilita}), alcuni problemi sui
+    linguaggi CF sono decidibili: per ciascuno esiste un algoritmo che termina sempre con
+    la risposta corretta.
+
+    \begin{theorem}[Problemi decidibili sui linguaggi CF]
+        \label{thm:decidibilita-cf}
+        Sia $\mathcal{G} = \langle V, T, P, S \rangle$ una grammatica CF. I seguenti
+        problemi sono decidibili:
+        \begin{enumerate}[label=\textup{(\alph*)}]
+            \item \textup{\textsc{Vacuit\`a}}: stabilire se
+                $\mathcal{L}(\mathcal{G}) = \emptyset$;
+            \item \textup{\textsc{Finitezza}}: stabilire se $\mathcal{L}(\mathcal{G})$ \`e
+                finito;
+            \item \textup{\textsc{Infinit\`a}}: stabilire se $\mathcal{L}(\mathcal{G})$
+                \`e infinito;
+            \item \textup{\textsc{Appartenenza}}: data $x \in T^*$, stabilire se
+                $x \in \mathcal{L}(\mathcal{G})$.
+        \end{enumerate}
+    \end{theorem}
+
+    \begin{proof}[Dimostrazione del Teorema~\ref{thm:decidibilita-cf}]
+        \textsc{Punto (a)}. Si usa l'operatore $\Gamma$ della Fase 1 dell'eliminazione dei
+        simboli inutili (Sezione~\ref{sec:simboli-inutili}), che in al pi\`u $|V|$ passi
+        calcola l'insieme $\Gamma^{|V|}(\emptyset)$ dei non terminali da cui si deriva una
+        stringa di soli terminali. Allora
+        \begin{equation*}
+            \mathcal{L}(\mathcal{G}) \neq \emptyset \iff S \in \Gamma^{|V|}(\emptyset).
+        \end{equation*}
+        Se $S$ sta nel punto fisso, da $S$ si deriva una stringa di terminali, che
+        appartiene a $\mathcal{L}(\mathcal{G})$; altrimenti ogni derivazione da $S$ lascia
+        sempre qualche non terminale, e $\mathcal{L}(\mathcal{G}) = \emptyset$. Qui
+        $\varepsilon$ conta come stringa di terminali, poich\'e
+        $\varepsilon \in (T \cup W)^*$: con la sola produzione $S \to \varepsilon$ si ha
+        $\mathcal{L}(\mathcal{G}) = \{\varepsilon\} \neq \emptyset$.
+
+        Per gli altri punti si porta $\mathcal{G}$ in forma normale di Chomsky
+        (Teorema~\ref{thm:chomsky}), con le semplificazioni della
+        Sezione~\ref{sec:semplificazioni}, che sono tutte algoritmiche. Sia $n = |V|$ il
+        numero di non terminali della grammatica ottenuta.
+
+        \textsc{Punto (d)}. Se $x = \varepsilon$, basta controllare se c'\`e la produzione
+        $S \to \varepsilon$. Se invece $|x| = m \geq 1$, ogni derivazione di $x$ ha
+        esattamente $2m - 1$ passi. Infatti una produzione $A \to BC$ trasforma un non
+        terminale in due, quindi allunga la stringa di $1$, mentre $A \to a$ trasforma un
+        non terminale in un terminale e non cambia la lunghezza. Partendo da $S$, lungo
+        $1$, per arrivare a $x$, lunga $m$:
+        \begin{itemize}
+            \item servono esattamente $m - 1$ applicazioni di $A \to BC$, le sole che
+                allungano la stringa;
+            \item servono esattamente $m$ applicazioni di $A \to a$, una per ogni
+                terminale di $x$.
+        \end{itemize}
+        Le derivazioni di $2m - 1$ passi sono in numero finito, perch\'e a ogni passo si
+        sceglie tra un numero finito di non terminali e di produzioni: si provano tutte e
+        si controlla se una di esse produce $x$.
+
+        \textsc{Punto (b)}. Sia $k = 2^n$ la costante del pumping lemma
+        (Teorema~\ref{thm:pumping-cf}). Vale
+        \begin{equation*}
+            \mathcal{L}(\mathcal{G}) \text{ infinito} \iff
+            \exists z \in \mathcal{L}(\mathcal{G}).\; k \leq |z| < 2k.
+        \end{equation*}
+        \begin{itemize}
+            \item[($\Leftarrow$)] Poich\'e $|z| \geq k$, $z$ si pu\`o pompare:
+                $uv^i w x^i y \in \mathcal{L}(\mathcal{G})$ per ogni $i \in \mathbb{N}$, e
+                poich\'e $|vx| > 0$ queste stringhe hanno lunghezze tutte diverse.
+                Quindi $\mathcal{L}(\mathcal{G})$ \`e infinito.
+            \item[($\Rightarrow$)] Se $\mathcal{L}(\mathcal{G})$ \`e infinito, contiene
+                stringhe lunghe almeno $k$, perch\'e quelle pi\`u corte sono in numero
+                finito. Sia $z$ la pi\`u corta tra queste. Se fosse $|z| \geq 2k$,
+                pompando con $i = 0$ si otterrebbe $uwy \in \mathcal{L}(\mathcal{G})$ con
+                \begin{equation*}
+                    |uwy| = |z| - |vx| \geq |z| - k \geq k,
+                \end{equation*}
+                poich\'e $|vx| \leq |vwx| \leq k$. Ma $|uwy| < |z|$, perch\'e $|vx| > 0$,
+                e questo contraddice la scelta di $z$ come la pi\`u corta: quindi
+                $|z| < 2k$.
+        \end{itemize}
+        Il limite superiore $2k$ serve a rendere la ricerca finita: l'algoritmo conosce
+        solo la grammatica, non la lunghezza massima delle stringhe di
+        $\mathcal{L}(\mathcal{G})$, e senza un limite, se $\mathcal{L}(\mathcal{G})$ fosse
+        finito, non saprebbe mai quando fermarsi. Il valore $2k$ viene dal pumping verso il
+        basso: con $i = 0$ si tolgono da $1$ a $k$ simboli, perch\'e $0 < |vx| \leq k$.
+        Una stringa lunga almeno $k$, accorciata cos\`i un gradino alla volta, non pu\`o
+        scavalcare la finestra delle lunghezze da $k$ a $2k - 1$, che contiene esattamente
+        $k$ valori, quanti ne toglie al massimo un gradino; una finestra pi\`u stretta,
+        invece, potrebbe essere scavalcata.
+
+        Le stringhe con $k \leq |z| < 2k$ sono in numero finito, e per ciascuna
+        l'appartenenza a $\mathcal{L}(\mathcal{G})$ si decide con il punto (d). Quindi si
+        pu\`o stabilire se $\mathcal{L}(\mathcal{G})$ \`e infinito, e di conseguenza se
+        \`e finito.
+
+        \textsc{Punto (c)}. \`E il complemento del punto (b): se si sa decidere se
+        $\mathcal{L}(\mathcal{G})$ \`e finito, basta dare la risposta opposta.
+    \end{proof}
+    Come per i linguaggi regolari, in tutti i casi il problema si riduce a controllare un
+    numero finito di casi: i non terminali della grammatica, le derivazioni di lunghezza
+    fissata, le stringhe di lunghezza limitata.
 
     %TEORICA%
     \chapter{Esercizi}
