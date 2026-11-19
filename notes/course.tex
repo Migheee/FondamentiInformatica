@@ -5709,8 +5709,9 @@ shapes.geometric}
             \item $\mathcal{F} \subseteq \mathcal{Q}$ \`e l'insieme degli stati finali.
         \end{itemize}
     \end{definition}
-    La definizione presuppone che $\mathcal{M}$ sia non deterministico. A differenza
-    degli NFA, la funzione di transizione dipende anche dal simbolo in cima alla pila:
+    La definizione presuppone che $\mathcal{M}$ sia non deterministico, a causa di come
+    \`e definita la funzione di transizione. A differenza degli NFA, questa dipende anche
+    dal simbolo in cima alla pila:
     \begin{equation*}
         \delta \colon \mathcal{Q} \times
         \underbrace{(\Sigma \cup \{\varepsilon\})}_{\substack{\text{simbolo}\\
@@ -5725,7 +5726,8 @@ shapes.geometric}
             \text{inserire (\texttt{push})}}}
         \bigr).
     \end{equation*}
-    Una transizione \`e quindi una coppia
+    Quindi $\delta(q, a, Z)$ \`e un insieme di coppie, e una transizione \`e una di
+    queste coppie:
     \begin{equation*}
         (p, \gamma) \in \delta(q, a, Z),
         \qquad p, q \in \mathcal{Q},\; a \in \Sigma \cup \{\varepsilon\},\;
@@ -5848,13 +5850,13 @@ shapes.geometric}
         \end{equation*}
         dove $x^R$ \`e il \emph{reverse} di $x$, cio\`e $x$ letta al contrario (con
         $x = ab$, $x^R = ba$ e $abcba \in \mathcal{L}$). Sono palindrome con un
-        separatore: $c$ indica esattamente la met\`a della stringa. Lo riconosce per pila
-        vuota, con $\mathcal{F} = \emptyset$, l'automa
+        separatore: $c$ indica esattamente la met\`a della stringa. L'automa
         \begin{equation*}
             \mathcal{M} = \langle \{q_0, q_1\}, \{a, b, c\}, \{Z, A, B\}, \delta, q_0, Z,
-            \emptyset \rangle
+            \emptyset \rangle,
         \end{equation*}
-        con la funzione di transizione della Tabella~\ref{tab:pila-palindrome}.
+        con la funzione di transizione della Tabella~\ref{tab:pila-palindrome}, lo
+        riconosce per pila vuota, con $\mathcal{F} = \emptyset$.
 
         \begin{table}[H]
             \centering
@@ -5953,13 +5955,13 @@ shapes.geometric}
         \begin{equation*}
             \mathcal{L} = \{x x^R \mid x \in \{a, b\}^*\},
         \end{equation*}
-        cio\`e le palindrome di lunghezza pari, questa volta senza separatore. Lo
-        riconosce per pila vuota l'automa
+        cio\`e le palindrome di lunghezza pari, questa volta senza separatore. L'automa
         \begin{equation*}
             \mathcal{M} = \langle \{q_0, q_1\}, \{a, b\}, \{Z, A, B\}, \delta, q_0, Z,
-            \emptyset \rangle
+            \emptyset \rangle,
         \end{equation*}
-        con la funzione di transizione della Tabella~\ref{tab:pila-palindrome-pari}.
+        con la funzione di transizione della Tabella~\ref{tab:pila-palindrome-pari}, lo
+        riconosce per pila vuota.
 
         \begin{table}[H]
             \centering
@@ -6967,4 +6969,95 @@ shapes.geometric}
     se $x \in \mathcal{L}$ lo stato raggiunto \`e $q_0$ o $q_1$, entrambi finali, mentre se
     $x \notin \mathcal{L}$ \`e $q_2 \notin \mathcal{F}$: $\mathcal{L}(\mathcal{M}) =
     \mathcal{L}$.
+    \section{Linguaggi CF e automi a pila}
+    Gli esercizi seguenti riguardano i linguaggi CF: si costruiscono automi a pila che li
+    riconoscono e grammatiche che li generano.
+
+    \esercizio
+    \textit{Si consideri il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{w \in \{a, b\}^* \mid |w|_a = |w|_b\},
+    \end{equation*}
+    dove $|w|_a$ e $|w|_b$ sono il numero di $a$ e di $b$ in $w$. Si costruiscano un
+    automa a pila che riconosce $\mathcal{L}$ e una grammatica CF che lo genera.}
+
+    \textsc{Automa a pila}. Basta un solo stato $q$: la pila tiene
+    l'\emph{eccedenza}, cio\`e di quanto le $a$ lette finora superano le $b$ o
+    viceversa. L'automa
+    \begin{equation*}
+        \mathcal{M} = \langle \{q\}, \{a, b\}, \{Z, A, B\}, \delta, q, Z, \emptyset
+        \rangle,
+    \end{equation*}
+    con la funzione di transizione della Tabella~\ref{tab:es-pila-ab}, riconosce
+    $\mathcal{L}$ per pila vuota. La pila contiene solo $A$ oppure solo $B$, mai
+    entrambe:
+    \begin{itemize}
+        \item con $Z$ in cima le $a$ e le $b$ lette sono in parit\`a, e il primo simbolo
+            letto mette sopra $A$ o $B$;
+        \item con $A$ in cima si \`e avanti di qualche $a$: un'altra $a$ aggiunge una $A$,
+            una $b$ ne toglie una;
+        \item con $B$ in cima vale il contrario.
+    \end{itemize}
+    A fine stringa la cima deve essere di nuovo $Z$, e la mossa
+    $(q, \varepsilon) \in \delta(q, \varepsilon, Z)$ la toglie senza leggere, svuotando
+    la pila. Questa mossa \`e non deterministica: l'automa pu\`o usarla anche a met\`a
+    stringa, ogni volta che torna in parit\`a, ma allora la pila si svuota e la sequenza
+    si blocca senza aver letto tutto l'input, quindi non conta.
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{cccc}
+            \toprule
+            $q$ & $\varepsilon$ & $a$ & $b$ \\
+            \midrule
+            $Z$ & $(q, \varepsilon)$ & $(q, AZ)$ & $(q, BZ)$ \\
+            $A$ & & $(q, AA)$ & $(q, \varepsilon)$ \\
+            $B$ & & $(q, \varepsilon)$ & $(q, BB)$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{La funzione di transizione dell'automa per le stringhe con tante $a$
+            quante $b$: le righe sono la cima della pila, le colonne il simbolo letto.}
+        \label{tab:es-pila-ab}
+    \end{table}
+
+    Per esempio, su $abba$ la pila diventa $Z$, $AZ$, $Z$, $BZ$, $Z$: dopo $ab$ si torna
+    in parit\`a, $b$ porta avanti di una $b$ e $a$ riporta in parit\`a. Alla fine la
+    mossa su $\varepsilon$ toglie $Z$, la pila \`e vuota e $abba$ \`e accettata.
+
+    \textsc{Grammatica}. Un primo tentativo \`e la grammatica
+    \begin{equation*}
+        S \to SaB \mid SbA \mid \varepsilon, \qquad A \to a, \qquad B \to b,
+    \end{equation*}
+    che per\`o sa solo \emph{concatenare}: ogni applicazione di $S \to SaB$ o $S \to SbA$
+    aggiunge un blocco $ab$ o $ba$, e i blocchi stanno uno dopo l'altro. Genera quindi
+    $(ab + ba)^*$, che \`e contenuto in $\mathcal{L}$ ma non lo esaurisce: per esempio
+    $aabb \in \mathcal{L}$ non si ottiene, perch\'e spezzata in blocchi da due d\`a $aa$
+    e $bb$. Per $aabb$, o per $aaaabbbb$, le $a$ e le $b$ vanno \emph{annidate}: la prima
+    $a$ si accoppia con l'ultima $b$, la seconda con la penultima, e cos\`i via.
+
+    La grammatica corretta \`e
+    \begin{equation*}
+        S \to aSbS \mid bSaS \mid \varepsilon.
+    \end{equation*}
+    Se la stringa inizia con $a$, quella $a$ ha una $b$ ``gemella'' nel primo punto
+    in cui si torna in parit\`a; allo stesso modo se inizia con $b$. Le due $S$ della
+    produzione $S \to aSbS$ hanno ruoli diversi:
+    \begin{itemize}
+        \item la $S$ tra $a$ e $b$ \emph{annida}: genera la stringa bilanciata dentro la
+            coppia;
+        \item la $S$ dopo $b$ \emph{concatena}: genera la stringa bilanciata che viene
+            dopo la coppia, come faceva il primo tentativo.
+    \end{itemize}
+    Per esempio,
+    \begin{align*}
+        S &\Rightarrow aSbS \Rightarrow a\,aSbS\,bS
+            \overset{\mathcal{G}}{\Rightarrow}_* aabb,
+            && \text{(annidamento)} \\
+        S &\Rightarrow aSbS \Rightarrow abS \Rightarrow ab\,bSaS
+            \overset{\mathcal{G}}{\Rightarrow}_* abba,
+            && \text{(concatenazione)}
+    \end{align*}
+    dove ogni volta le $S$ rimaste diventano $\varepsilon$. La seconda derivazione segue
+    l'automa: dopo $ab$ si torna in parit\`a, e il resto $ba$ \`e un'altra stringa
+    bilanciata, generata dalla seconda $S$.
 \end{document}
