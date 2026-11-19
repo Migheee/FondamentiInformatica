@@ -5714,16 +5714,11 @@ shapes.geometric}
     dal simbolo in cima alla pila:
     \begin{equation*}
         \delta \colon \mathcal{Q} \times
-        \underbrace{(\Sigma \cup \{\varepsilon\})}_{\substack{\text{simbolo}\\
-            \text{sul nastro}}}
-        \times
-        \underbrace{\mathcal{R}}_{\substack{\text{cima della}\\
-            \text{pila (\texttt{pop})}}}
+        \underbrace{(\Sigma \cup \{\varepsilon\})}_{\text{letto}} \times
+        \underbrace{\mathcal{R}}_{\texttt{pop}}
         \to \mathcal{P}\bigl(
-        \underbrace{\mathcal{Q}}_{\substack{\text{stato in}\\ \text{cui andare}}}
-        \times
-        \underbrace{\mathcal{R}^*}_{\substack{\text{simboli da}\\
-            \text{inserire (\texttt{push})}}}
+        \underbrace{\mathcal{Q}}_{\substack{\text{nuovo}\\ \text{stato}}} \times
+        \underbrace{\mathcal{R}^*}_{\texttt{push}}
         \bigr).
     \end{equation*}
     Quindi $\delta(q, a, Z)$ \`e un insieme di coppie, e una transizione \`e una di
@@ -6069,7 +6064,8 @@ shapes.geometric}
         \label{lem:pila-uno-stato}
         Per ogni automa a pila non deterministico $\mathcal{M}$ esiste un automa a pila
         non deterministico $\mathcal{M}'$ con un solo stato tale che
-        $\mathcal{L}(\mathcal{M}) = \mathcal{L}(\mathcal{M}')$.
+        $\mathcal{L}(\mathcal{M}) = \mathcal{L}(\mathcal{M}')$.\footnote{La
+        dimostrazione non \`e stata vista a lezione.}
     \end{lemma}
     Il lemma vale con il riconoscimento per pila vuota. Con un solo stato, infatti, il
     riconoscimento per stato finale degenera: se l'unico stato \`e finale si accetta ogni
@@ -6078,7 +6074,9 @@ shapes.geometric}
     \begin{theorem}[Dagli automi a pila ai linguaggi CF]
         \label{thm:pila-cf}
         Sia $\mathcal{M}$ un automa a pila non deterministico con un solo stato. Se
-        $\mathcal{L} = \mathcal{L}(\mathcal{M})$, allora $\mathcal{L}$ \`e CF.
+        $\mathcal{L} = \mathcal{L}(\mathcal{M})$, allora $\mathcal{L}$ \`e
+        CF.\footnote{Come per il Lemma~\ref{lem:pila-uno-stato}, la dimostrazione non
+        \`e stata vista a lezione.}
     \end{theorem}
     Insieme al Lemma~\ref{lem:pila-uno-stato}, che permette di ridurre ogni automa a
     pila non deterministico a uno con un solo stato, il teorema dice che ogni linguaggio
@@ -6088,7 +6086,7 @@ shapes.geometric}
     normale di Greibach (Sezione~\ref{sec:forme-normali}): ogni produzione \`e della
     forma
     \begin{equation*}
-        A \to \underbrace{a}_{\text{letto}} \underbrace{\lambda}_{\text{pila}},
+        A \to \underbrace{a}_{\text{letto}} \underbrace{\lambda}_{\texttt{push}},
         \qquad a \in T,\; \lambda \in V^*.
     \end{equation*}
     Data una grammatica $\mathcal{G} = \langle V, T, P, S \rangle$ in questa forma, si
