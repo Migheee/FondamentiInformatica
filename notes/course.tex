@@ -144,7 +144,9 @@ shapes.geometric}
     \if@nobreak\else
         \ifdim\pagegoal<\maxdimen
             \ifdim\dimexpr\pagegoal-\pagetotal\relax<#1\relax
-                \newpage
+                \ifdim\pagetotal>\pagegoal\else
+                    \newpage
+                \fi
             \fi
         \fi
     \fi}
@@ -3135,6 +3137,7 @@ shapes.geometric}
     \end{proof}
 
     \section{Pumping lemma per i linguaggi regolari}
+    \label{sec:pumping}
     Fornisce una condizione necessaria alla regolarit\`a, ovvero una condizione sufficiente
     alla non \textbf{non} regolarit\`a.
     \begin{theorem}[Pumping lemma]
@@ -4421,11 +4424,12 @@ shapes.geometric}
         Una grammatica CF $\mathcal{G} = \langle V, T, P, S \rangle$ \`e in \emph{forma
         normale di Greibach} se ogni sua produzione \`e del tipo
         \begin{equation*}
-            A \to a\gamma,
+            A \to a\lambda,
         \end{equation*}
-        con $A \in V$, $a \in T$ e $\gamma \in (V \cup T)^*$.
+        con $A \in V$, $a \in T$ e $\lambda \in V^*$.
     \end{definition}
-    Il lato destro di ogni produzione inizia quindi con un terminale.
+    Il lato destro di ogni produzione inizia quindi con un terminale, seguito da soli
+    non terminali, eventualmente nessuno.
 
     \subsection{Semplificazioni}
     \label{sec:semplificazioni}
@@ -5660,6 +5664,641 @@ shapes.geometric}
     Come per i linguaggi regolari, in tutti i casi il problema si riduce a controllare un
     numero finito di casi: i non terminali della grammatica, le derivazioni di lunghezza
     fissata, le stringhe di lunghezza limitata.
+
+    \section{Automi a pila}
+    \label{sec:automi-pila}
+    I linguaggi CF sono stati caratterizzati mediante le grammatiche, che
+    \emph{generano} le stringhe del linguaggio. Si pu\`o essere interessati anche al
+    problema opposto, cio\`e \emph{riconoscere} se una stringa appartiene al linguaggio,
+    come fanno gli automi a stati finiti per i linguaggi regolari. Per mantenere la
+    coerenza con quanto visto per i linguaggi regolari, si introduce quindi un nuovo tipo
+    di automa, l'\emph{automa a pila}.
+
+    Negli automi a stati finiti l'unica forma di memoria \`e lo stato in cui si trova
+    l'automa, e gli stati sono in numero finito. Questa memoria non basta a riconoscere
+    tutti i linguaggi CF. Si consideri di nuovo il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{a^n b^n \mid n \in \mathbb{N}\},
+    \end{equation*}
+    che \`e CF ma, come visto con il pumping lemma (Sezione~\ref{sec:pumping}), non \`e
+    regolare. Una stringa appartiene a $\mathcal{L}$ se il numero di $b$ lette \`e uguale
+    al numero di $a$, ma il numero di $a$ non \`e noto a priori e pu\`o essere
+    arbitrariamente grande. Per riconoscere $\mathcal{L}$ l'automa dovrebbe ricordare
+    quante $a$ ha letto, e con un numero finito di stati non \`e possibile: servirebbe uno
+    stato diverso per ogni possibile valore di $n$.
+
+    Serve quindi una memoria aggiuntiva, non limitata: la \emph{pila}. Per $a^n b^n$, per
+    esempio, basta inserire un simbolo nella pila per ogni $a$ letta e toglierne uno per
+    ogni $b$: il numero di $b$ \`e uguale al numero di $a$ se, alla fine, la pila \`e
+    vuota.
+
+    \begin{definition}[Automa a pila]
+        Un \emph{automa a pila} $\mathcal{M}$ \`e una settupla
+        \begin{equation*}
+            \mathcal{M} = \langle \mathcal{Q}, \Sigma, \mathcal{R}, \delta, q_0, z_0,
+            \mathcal{F} \rangle,
+        \end{equation*}
+        dove:
+        \begin{itemize}
+            \item $\mathcal{Q}$ \`e l'insieme finito degli stati;
+            \item $\Sigma$ \`e l'alfabeto finito dei simboli in input;
+            \item $\mathcal{R}$ \`e l'alfabeto finito della pila;
+            \item $\delta$ \`e la funzione di transizione;
+            \item $q_0 \in \mathcal{Q}$ \`e lo stato iniziale;
+            \item $z_0 \in \mathcal{R}$ \`e il simbolo iniziale della pila;
+            \item $\mathcal{F} \subseteq \mathcal{Q}$ \`e l'insieme degli stati finali.
+        \end{itemize}
+    \end{definition}
+    La definizione presuppone che $\mathcal{M}$ sia non deterministico. A differenza
+    degli NFA, la funzione di transizione dipende anche dal simbolo in cima alla pila:
+    \begin{equation*}
+        \delta \colon \mathcal{Q} \times
+        \underbrace{(\Sigma \cup \{\varepsilon\})}_{\substack{\text{simbolo}\\
+            \text{sul nastro}}}
+        \times
+        \underbrace{\mathcal{R}}_{\substack{\text{cima della}\\
+            \text{pila (\texttt{pop})}}}
+        \to \mathcal{P}\bigl(
+        \underbrace{\mathcal{Q}}_{\substack{\text{stato in}\\ \text{cui andare}}}
+        \times
+        \underbrace{\mathcal{R}^*}_{\substack{\text{simboli da}\\
+            \text{inserire (\texttt{push})}}}
+        \bigr).
+    \end{equation*}
+    Una transizione \`e quindi una coppia
+    \begin{equation*}
+        (p, \gamma) \in \delta(q, a, Z),
+        \qquad p, q \in \mathcal{Q},\; a \in \Sigma \cup \{\varepsilon\},\;
+        Z \in \mathcal{R},\; \gamma \in \mathcal{R}^*,
+    \end{equation*}
+    e significa che l'automa, nello stato $q$, leggendo $a$ sul nastro e togliendo $Z$
+    dalla cima della pila, pu\`o passare nello stato $p$ e mettere al posto di $Z$ la
+    stringa $\gamma$. Con $a = \varepsilon$ l'automa cambia stato e pila senza leggere
+    nessun simbolo dal nastro.
+
+    \begin{definition}[Descrizione istantanea]
+        Una \emph{descrizione istantanea} di un automa a pila \`e una tripla
+        \begin{equation*}
+            \langle q, x, \gamma \rangle,
+            \qquad q \in \mathcal{Q},\; x \in \Sigma^*,\; \gamma \in \mathcal{R}^*,
+        \end{equation*}
+        dove $q$ \`e lo stato corrente, $x$ sono i simboli ancora da leggere sul nastro e
+        $\gamma$ sono i simboli nella pila.
+    \end{definition}
+    Una descrizione istantanea fotografa quindi l'intera configurazione dell'automa in un
+    certo momento: in che stato si trova, cosa resta da leggere e cosa c'\`e nella pila.
+
+    La pila si scrive come una stringa con la cima a sinistra: in $Z\psi$ il simbolo
+    $Z$ \`e in cima e $\psi \in \mathcal{R}^*$ \`e il resto della pila, sotto di
+    lui. Se $(p, \gamma) \in \delta(q, a, Z)$, l'automa passa
+    dalla descrizione istantanea $\langle q, aw, Z\psi \rangle$ a
+    $\langle p, w, \gamma\psi \rangle$:
+    \begin{equation*}
+        \langle q, aw, Z\psi \rangle \longrightarrow \langle p, w, \gamma\psi \rangle.
+    \end{equation*}
+    Sul nastro viene letto $a$ e resta $w$; nella pila $Z$ viene tolto e sostituito da
+    $\gamma$, mentre il resto $\psi$ non cambia, come mostra la
+    Figura~\ref{fig:mossa-pila}. Il primo simbolo di $\gamma$ diventa quindi la nuova
+    cima della pila. Se $a = \varepsilon$ il nastro non cambia:
+    $\langle q, w, Z\psi \rangle \longrightarrow \langle p, w, \gamma\psi \rangle$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            cella/.style={draw, thick, minimum height=0.55cm, inner sep=0pt},
+            letto/.style={cella, dashed, text=evidenza},
+            nuovo/.style={cella, fill=tenue},
+            etichetta/.style={font=\small}
+        ]
+            % Prima della mossa
+            \node[etichetta] at (1.7, 1.4) {$\langle q, aw, Z\psi \rangle$};
+            \node[cella, minimum width=0.6cm, anchor=west] at (0, 0) {$a$};
+            \node[cella, minimum width=1.4cm, anchor=west] at (0.6, 0) {$w$};
+            \node[etichetta] at (1.0, -0.65) {nastro};
+            \node[cella, minimum width=0.8cm, anchor=north] at (3.0, 0.6) {$Z$};
+            \node[cella, minimum width=0.8cm, minimum height=1.1cm, anchor=north]
+                at (3.0, 0.05) {$\psi$};
+            \node[etichetta, anchor=west] at (3.45, 0.325) {cima};
+            \node[etichetta] at (3.0, -1.35) {pila};
+
+            % La mossa
+            \draw[-{Stealth}, thick] (4.5, 0) -- (7.4, 0)
+                node[midway, below=2pt, etichetta] {$(p, \gamma) \in \delta(q, a, Z)$};
+
+            % Dopo la mossa
+            \node[etichetta] at (9.6, 1.4) {$\langle p, w, \gamma\psi \rangle$};
+            \node[letto, minimum width=0.6cm, anchor=west] at (7.9, 0) {$a$};
+            \node[cella, minimum width=1.4cm, anchor=west] at (8.5, 0) {$w$};
+            \node[etichetta] at (8.9, -0.65) {nastro};
+            \node[nuovo, minimum width=0.8cm, minimum height=0.8cm, anchor=north]
+                at (10.9, 0.85) {$\gamma$};
+            \node[cella, minimum width=0.8cm, minimum height=1.1cm, anchor=north]
+                at (10.9, 0.05) {$\psi$};
+            \node[etichetta, anchor=west] at (11.35, 0.45) {cima};
+            \node[etichetta] at (10.9, -1.35) {pila};
+        \end{tikzpicture}
+        \caption{Una mossa dell'automa a pila: $a$, tratteggiata, \`e stata letta e sul
+            nastro resta $w$; in cima alla pila $Z$ \`e sostituito da $\gamma$, in grigio,
+            mentre il resto $\psi$ non cambia.}
+        \label{fig:mossa-pila}
+    \end{figure}
+
+    Si indica con $\longrightarrow^*$ la chiusura riflessiva e transitiva di
+    $\longrightarrow$, come $\overset{\mathcal{G}}{\Rightarrow}_*$ per le derivazioni:
+    si scrive $D \longrightarrow^* D'$ se dalla descrizione istantanea $D$ si arriva a
+    $D'$ con zero o pi\`u mosse.
+
+    \begin{definition}[Riconoscimento per stato finale]
+        Il linguaggio riconosciuto \emph{per stato finale} da un automa a pila
+        $\mathcal{M}$ \`e
+        \begin{equation*}
+            \mathcal{L}_F(\mathcal{M}) = \{x \in \Sigma^* \mid
+            \langle q_0, x, z_0 \rangle \longrightarrow^* \langle q, \varepsilon, \gamma
+            \rangle,\; q \in \mathcal{F},\; \gamma \in \mathcal{R}^*\}.
+        \end{equation*}
+    \end{definition}
+    Una stringa $x$ \`e quindi accettata se, partendo dallo stato iniziale con $x$ sul
+    nastro e $z_0$ nella pila, esiste una sequenza di mosse che legge tutta $x$, cio\`e
+    lascia $\varepsilon$ sul nastro, e termina in uno stato finale. Il contenuto $\gamma$
+    della pila alla fine non conta. Poich\'e $\mathcal{M}$ \`e non deterministico, basta
+    che \emph{esista} una sequenza di mosse con questa propriet\`a.
+
+    \begin{definition}[Riconoscimento per pila vuota]
+        Il linguaggio riconosciuto \emph{per pila vuota} da un automa a pila
+        $\mathcal{M}$ \`e
+        \begin{equation*}
+            \mathcal{L}_P(\mathcal{M}) = \{x \in \Sigma^* \mid
+            \langle q_0, x, z_0 \rangle \longrightarrow^* \langle q, \varepsilon,
+            \varepsilon \rangle,\; q \in \mathcal{Q}\}.
+        \end{equation*}
+    \end{definition}
+    Qui una stringa $x$ \`e accettata se esiste una sequenza di mosse che legge tutta $x$
+    e svuota la pila: lo stato $q$ in cui si arriva pu\`o essere uno qualsiasi, anche non
+    finale. I due criteri sono alternativi: per un automa si sceglie uno dei due, e le
+    stringhe accettate sono quelle riconosciute per stato finale oppure quelle
+    riconosciute per pila vuota.
+
+    Quando il riconoscimento avviene per pila vuota gli stati finali non servono, quindi
+    l'insieme $\mathcal{F}$ pu\`o anche essere $\emptyset$.
+
+    \begin{esempio}
+        Si consideri il linguaggio
+        \begin{equation*}
+            \mathcal{L} = \{x c x^R \mid x \in \{a, b\}^*\},
+        \end{equation*}
+        dove $x^R$ \`e il \emph{reverse} di $x$, cio\`e $x$ letta al contrario (con
+        $x = ab$, $x^R = ba$ e $abcba \in \mathcal{L}$). Sono palindrome con un
+        separatore: $c$ indica esattamente la met\`a della stringa. Lo riconosce per pila
+        vuota, con $\mathcal{F} = \emptyset$, l'automa
+        \begin{equation*}
+            \mathcal{M} = \langle \{q_0, q_1\}, \{a, b, c\}, \{Z, A, B\}, \delta, q_0, Z,
+            \emptyset \rangle
+        \end{equation*}
+        con la funzione di transizione della Tabella~\ref{tab:pila-palindrome}.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{ccccc}
+                \toprule
+                $q_0$ & $\varepsilon$ & $a$ & $b$ & $c$ \\
+                \midrule
+                $Z$ & & $(q_0, ZA)$ & $(q_0, ZB)$ & $(q_1, \varepsilon)$ \\
+                $A$ & & & & \\
+                $B$ & & & & \\
+                \bottomrule
+            \end{tabular}
+            \qquad
+            \begin{tabular}{ccccc}
+                \toprule
+                $q_1$ & $\varepsilon$ & $a$ & $b$ & $c$ \\
+                \midrule
+                $Z$ & & $(q_1, Z)$ & $(q_1, Z)$ & \\
+                $A$ & & $(q_1, \varepsilon)$ & $(q_1, Z)$ & $(q_1, Z)$ \\
+                $B$ & & $(q_1, Z)$ & $(q_1, \varepsilon)$ & $(q_1, Z)$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{La funzione di transizione dell'automa per $\{x c x^R\}$, a sinistra
+                nello stato $q_0$ e a destra nello stato $q_1$. Le righe sono il simbolo
+                in cima alla pila, le colonne il simbolo letto sul nastro; le caselle vuote
+                indicano che non ci sono transizioni.}
+            \label{tab:pila-palindrome}
+        \end{table}
+
+        L'automa lavora in due fasi:
+        \begin{itemize}
+            \item \textsc{Stato $q_0$}, memorizza $x$: con $(q_0, ZA) \in
+                \delta(q_0, a, Z)$ inserisce $A$ subito \emph{sotto} $Z$, con $b$
+                inserisce $B$. La cima resta sempre $Z$, quindi basta la riga $Z$; sotto
+                si accumula $x$ al contrario. Leggendo $c$, a met\`a stringa, toglie $Z$ e
+                passa in $q_1$.
+            \item \textsc{Stato $q_1$}, confronta $x^R$ con la pila: se il simbolo letto
+                corrisponde alla cima ($a$ con $A$, $b$ con $B$) la toglie, con
+                $(q_1, \varepsilon)$; altrimenti mette $Z$ al posto della cima, con
+                $(q_1, Z)$. In $q_1$ la $Z$ non viene pi\`u tolta, quindi la pila non si
+                svuota e la stringa \`e rifiutata.
+        \end{itemize}
+        Esecuzione su $abcba$ (Figura~\ref{fig:pila-abcba}):
+        \begin{itemize}
+            \item in $q_0$, con $a$ e poi con $b$, la $Z$ in cima diventa $A$, poi $B$, e
+                ogni volta una nuova $Z$ va sopra;
+            \item con $c$ si toglie $Z$ e si passa in $q_1$;
+            \item in $q_1$, $b$ toglie $B$ e $a$ toglie $A$;
+            \item alla fine il nastro \`e letto tutto, resta $\varepsilon$, e la pila \`e
+                vuota: $abcba$ \`e accettata.
+        \end{itemize}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                cella/.style={draw, thick, minimum width=0.6cm, minimum height=0.6cm,
+                    inner sep=0pt},
+                etichetta/.style={font=\small}
+            ]
+                % Nastro, con lo stato in cui viene letto ogni simbolo
+                \foreach \s/\q [count=\i from 0] in {a/q_0, b/q_0, c/q_0, b/q_1, a/q_1} {
+                    \node[cella] at ({0.6*\i}, 0) {$\s$};
+                    \draw[thin] ({0.6*\i - 0.15}, -0.15) -- ({0.6*\i + 0.15}, 0.15);
+                    \draw[-{Stealth}] ({0.6*\i}, -1.0) -- ({0.6*\i}, -0.4);
+                    \node[etichetta] at ({0.6*\i}, -1.25) {$\q$};
+                }
+                \node at (3.0, 0) {$\varepsilon$};
+                \draw[-{Stealth}] (3.0, -1.0) -- (3.0, -0.4);
+                \node[etichetta] at (3.0, -1.25) {$q_1$};
+                \node[etichetta] at (1.5, 0.65) {nastro};
+
+                % Pila: ogni cella con i simboli che vi si sono succeduti
+                \draw[thick] (5.6, 2.0) -- (5.6, -0.6) -- (7.4, -0.6) -- (7.4, 2.0);
+                \draw[thin] (5.6, 0.2) -- (7.4, 0.2) (5.6, 1.0) -- (7.4, 1.0);
+                \node at (6.2, -0.2) {$Z$};
+                \node at (6.8, -0.2) {$A$};
+                \node at (6.2, 0.6) {$Z$};
+                \node at (6.8, 0.6) {$B$};
+                \node at (6.5, 1.4) {$Z$};
+                \foreach \x/\y in {6.2/-0.2, 6.8/-0.2, 6.2/0.6, 6.8/0.6, 6.5/1.4}
+                    \draw[thin] ({\x - 0.17}, {\y - 0.17}) -- ({\x + 0.17}, {\y + 0.17});
+                \draw[-{Stealth}] (4.7, 1.4) -- (5.45, 1.4)
+                    node[midway, above, etichetta] {cima};
+                \node[etichetta] at (6.5, -0.95) {pila};
+            \end{tikzpicture}
+            \caption{Esecuzione dell'automa su $abcba$. Sotto ogni simbolo del nastro c'\`e
+                lo stato in cui l'automa lo legge; nella pila ogni cella mostra i simboli
+                che vi si sono succeduti, barrati quando vengono sostituiti o tolti. Alla
+                fine il nastro \`e letto tutto e la pila \`e vuota.}
+            \label{fig:pila-abcba}
+        \end{figure}
+    \end{esempio}
+
+    \begin{esempio}
+        Si consideri ora il linguaggio
+        \begin{equation*}
+            \mathcal{L} = \{x x^R \mid x \in \{a, b\}^*\},
+        \end{equation*}
+        cio\`e le palindrome di lunghezza pari, questa volta senza separatore. Lo
+        riconosce per pila vuota l'automa
+        \begin{equation*}
+            \mathcal{M} = \langle \{q_0, q_1\}, \{a, b\}, \{Z, A, B\}, \delta, q_0, Z,
+            \emptyset \rangle
+        \end{equation*}
+        con la funzione di transizione della Tabella~\ref{tab:pila-palindrome-pari}.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}[t]{cccc}
+                \toprule
+                $q_0$ & $\varepsilon$ & $a$ & $b$ \\
+                \midrule
+                $Z$ & & $(q_0, AZ)$ & $(q_0, BZ)$ \\
+                $A$ & & \begin{tabular}[t]{@{}c@{}}$(q_0, AA)$\\
+                    $(q_1, \varepsilon)$\end{tabular} & $(q_0, BA)$ \\
+                $B$ & & $(q_0, AB)$ & \begin{tabular}[t]{@{}c@{}}$(q_0, BB)$\\
+                    $(q_1, \varepsilon)$\end{tabular} \\
+                \bottomrule
+            \end{tabular}
+            \qquad
+            \begin{tabular}[t]{cccc}
+                \toprule
+                $q_1$ & $\varepsilon$ & $a$ & $b$ \\
+                \midrule
+                $Z$ & $(q_1, \varepsilon)$ & & \\
+                $A$ & & $(q_1, \varepsilon)$ & \\
+                $B$ & & & $(q_1, \varepsilon)$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{La funzione di transizione dell'automa per $\{x x^R\}$. Nelle due
+                caselle di $q_0$ con due coppie l'automa sceglie in modo non
+                deterministico se continuare a memorizzare o passare a confrontare.}
+            \label{tab:pila-palindrome-pari}
+        \end{table}
+
+        Rispetto all'esempio precedente:
+        \begin{itemize}
+            \item \textsc{Pila}: la $Z$ resta in fondo. Con $(q_0, AZ) \in
+                \delta(q_0, a, Z)$, e allo stesso modo con $AA$, $BA$, $AB$ e $BB$, il
+                nuovo simbolo va \emph{sopra}: in cima c'\`e sempre l'ultimo simbolo letto.
+            \item \textsc{Centro}: senza separatore \`e sempre tra due simboli uguali
+                consecutivi, l'ultimo di $x$ e il primo di $x^R$. Leggendo un simbolo
+                uguale alla cima l'automa non sa se \`e al centro o ancora nella prima
+                met\`a, e sfrutta il non determinismo: nelle caselle $(A, a)$ e $(B, b)$
+                di $q_0$ ci sono due possibilit\`a,
+                \begin{itemize}
+                    \item $(q_0, AA)$ o $(q_0, BB)$: non \`e il centro, continua a
+                        memorizzare;
+                    \item $(q_1, \varepsilon)$: \`e il centro, toglie la cima e passa a
+                        confrontare.
+                \end{itemize}
+            \item \textsc{Stato $q_1$}: ogni simbolo letto toglie la cima uguale, sulla
+                diagonale della tabella. Quando ricompare $Z$, la prima met\`a \`e stata
+                confrontata tutta e $(q_1, \varepsilon) \in \delta(q_1, \varepsilon, Z)$
+                toglie $Z$ senza leggere niente, svuotando la pila.
+        \end{itemize}
+        Basta che \emph{una} delle sequenze di mosse possibili legga tutta la stringa e
+        svuoti la pila (Figura~\ref{fig:pila-abbbba}).
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                cella/.style={draw, thick, minimum width=0.7cm, minimum height=0.45cm,
+                    inner sep=0pt},
+                etichetta/.style={font=\footnotesize, align=center}
+            ]
+                % Ogni ramo: titolo, pila (dal fondo alla cima), esito
+                \foreach \x/\titolo/\pila/\esito in {
+                        0/{centro dopo $ab$}/{Z, A}/{in $q_1$ resta $bba$:\\ $b$ con $A$
+                            in cima,\\ nessuna mossa},
+                        3.2/{centro dopo $abb$}/{Z, A, B}/{in $q_1$ resta $ba$:\\ si
+                            tolgono $B$, $A$, $Z$:\\ pila vuota, accettata},
+                        6.4/{centro dopo $abbb$}/{Z, A, B, B}/{in $q_1$ resta $a$:\\ $a$
+                            con $B$ in cima,\\ nessuna mossa},
+                        9.6/{nessun centro}/{Z, A, B, B, B}/{resta in $q_0$:\\ la pila
+                            cresce\\ e non si svuota}} {
+                    \node[etichetta] at (\x, 2.9) {\titolo};
+                    \foreach \s [count=\i from 0] in \pila
+                        \node[cella] at (\x, {0.45*\i}) {$\s$};
+                    \node[etichetta] at (\x, -0.85) {\esito};
+                }
+                \node at (9.6, 2.35) {$\vdots$};
+            \end{tikzpicture}
+            \caption{Le sequenze di mosse su $abbbba$, con la pila subito dopo la scelta
+                del centro (per l'ultima, dopo aver letto $abbb$): solo con il centro
+                giusto la pila si svuota e la stringa \`e accettata.}
+            \label{fig:pila-abbbba}
+        \end{figure}
+    \end{esempio}
+
+    Rispetto ai linguaggi regolari c'\`e una differenza fondamentale: per gli automi a
+    pila la versione deterministica e quella non deterministica \emph{non} sono
+    equivalenti, mentre per gli automi a stati finiti DFA e NFA lo sono
+    (Teorema~\ref{thm:rabin-scott}). Gli automi a pila deterministici riconoscono una
+    classe di linguaggi strettamente pi\`u piccola:
+    \begin{equation*}
+        \underbrace{\mathcal{L}(\text{APila Det})}_{\text{parser}}
+        \subsetneq
+        \underbrace{\mathcal{L}(\text{APila ND})}_{\text{CF}}.
+    \end{equation*}
+    Gli automi a pila non deterministici riconoscono esattamente i linguaggi CF, mentre
+    quelli deterministici riconoscono i linguaggi su cui si costruiscono i \emph{parser},
+    per esempio quelli dei linguaggi di programmazione. Negli esempi precedenti, con il
+    separatore $c$ basta un automa deterministico, mentre senza separatore l'automa
+    deve indovinare il centro, e si pu\`o dimostrare che nessun automa deterministico
+    riconosce $\{x x^R\}$. Aggiungere a un automa una memoria come la pila ne aumenta
+    comunque notevolmente il potere espressivo.
+
+    \begin{lemma}[Automa a pila con un solo stato]
+        \label{lem:pila-uno-stato}
+        Per ogni automa a pila non deterministico $\mathcal{M}$ esiste un automa a pila
+        non deterministico $\mathcal{M}'$ con un solo stato tale che
+        $\mathcal{L}(\mathcal{M}) = \mathcal{L}(\mathcal{M}')$.
+    \end{lemma}
+    Il lemma vale con il riconoscimento per pila vuota. Con un solo stato, infatti, il
+    riconoscimento per stato finale degenera: se l'unico stato \`e finale si accetta ogni
+    stringa che l'automa riesce a leggere tutta, altrimenti non se ne accetta nessuna.
+
+    \begin{theorem}[Dagli automi a pila ai linguaggi CF]
+        \label{thm:pila-cf}
+        Sia $\mathcal{M}$ un automa a pila non deterministico con un solo stato. Se
+        $\mathcal{L} = \mathcal{L}(\mathcal{M})$, allora $\mathcal{L}$ \`e CF.
+    \end{theorem}
+    Insieme al Lemma~\ref{lem:pila-uno-stato}, che permette di ridurre ogni automa a
+    pila non deterministico a uno con un solo stato, il teorema dice che ogni linguaggio
+    riconosciuto da un automa a pila non deterministico \`e CF.
+
+    Per passare, nella direzione opposta, dai linguaggi CF agli automi si usa la forma
+    normale di Greibach (Sezione~\ref{sec:forme-normali}): ogni produzione \`e della
+    forma
+    \begin{equation*}
+        A \to \underbrace{a}_{\text{letto}} \underbrace{\lambda}_{\text{pila}},
+        \qquad a \in T,\; \lambda \in V^*.
+    \end{equation*}
+    Data una grammatica $\mathcal{G} = \langle V, T, P, S \rangle$ in questa forma, si
+    costruisce l'automa a pila con un solo stato
+    \begin{equation*}
+        \mathcal{Q} = \{q\}, \qquad \Sigma = T, \qquad \mathcal{R} = V, \qquad
+        z_0 = S, \qquad \mathcal{F} = \emptyset,
+    \end{equation*}
+    che riconosce per pila vuota, con la funzione di transizione definita da
+    \begin{equation*}
+        (q, \lambda) \in \delta(q, a, A) \quad \text{se} \quad A \to a\lambda \in P.
+    \end{equation*}
+    Ogni produzione $A \to a\lambda$ diventa una mossa, che:
+    \begin{itemize}
+        \item controlla che in cima alla pila ci sia $A$, la variabile da espandere;
+        \item consuma dal nastro il terminale $a$, che deve essere il prossimo simbolo
+            dell'input;
+        \item toglie $A$ dalla pila e inserisce $\lambda$, con il primo simbolo in cima.
+    \end{itemize}
+    La pila parte dal simbolo iniziale $S$ e la stringa \`e accettata quando il nastro \`e
+    finito e la pila \`e vuota, cio\`e quando non restano variabili da espandere. Poich\'e
+    si espande sempre la variabile in cima, cio\`e la pi\`u a sinistra, l'automa segue
+    una derivazione sinistra, e in ogni momento
+    \begin{equation*}
+        (\text{simboli letti}) \cdot (\text{contenuto della pila})
+        = \text{stringa della derivazione}.
+    \end{equation*}
+    Per questo serve la forma di Greibach: il primo simbolo terminale fa s\`i che ogni
+    mossa legga esattamente un simbolo del nastro, e $\lambda \in V^*$ fa s\`i che nella
+    pila finiscano solo variabili, cio\`e simboli di $\mathcal{R} = V$.
+
+    \begin{esempio}
+        La grammatica in forma di Greibach
+        \begin{equation*}
+            S \to aSB \mid aB, \qquad B \to b
+        \end{equation*}
+        genera $\{a^n b^n \mid n \geq 1\}$. L'automa costruito ha $\mathcal{Q} = \{q\}$,
+        $\Sigma = \{a, b\}$, $\mathcal{R} = \{S, B\}$, $z_0 = S$, e una mossa per ogni
+        produzione:
+        \begin{alignat*}{2}
+            (q, SB) &\in \delta(q, a, S) & \qquad & \text{(da $S \to aSB$)}, \\
+            (q, B) &\in \delta(q, a, S) & & \text{(da $S \to aB$)}, \\
+            (q, \varepsilon) &\in \delta(q, b, B) & & \text{(da $B \to b$)}.
+        \end{alignat*}
+        La Tabella~\ref{tab:greibach-aabb} mostra l'esecuzione su $aabb$ accanto alla
+        derivazione sinistra corrispondente. Al secondo passo la produzione $S \to aB$
+        sostituisce solo la $S$ di $aSB$, cio\`e $a \cdot aB \cdot B = aaBB$: nella pila
+        la $S$ in cima diventa $B$, mentre la $B$ sotto non viene toccata.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{llll}
+                \toprule
+                \textsc{Derivazione} & \textsc{Letto} & \textsc{Pila}
+                    & \textsc{Produzione} \\
+                \midrule
+                $S$ & $\varepsilon$ & $S$ & \\
+                $\Rightarrow aSB$ & $a$ & $SB$ & $S \to aSB$ \\
+                $\Rightarrow aaBB$ & $aa$ & $BB$ & $S \to aB$ \\
+                $\Rightarrow aabB$ & $aab$ & $B$ & $B \to b$ \\
+                $\Rightarrow aabb$ & $aabb$ & $\varepsilon$ & $B \to b$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{L'automa costruito dalla grammatica, su $aabb$: in ogni riga i
+                simboli letti seguiti dal contenuto della pila danno la stringa della
+                derivazione.}
+            \label{tab:greibach-aabb}
+        \end{table}
+
+        Al primo passo, con $S$ in cima e $a$ sul nastro, ci sono due mosse possibili,
+        $S \to aSB$ e $S \to aB$, e l'automa sfrutta il non determinismo. Scegliendo
+        subito $S \to aB$ la pila diventerebbe $B$ e, leggendo la seconda $a$ con $B$ in
+        cima, non ci sarebbe nessuna mossa: basta che una delle sequenze di scelte
+        svuoti la pila.
+    \end{esempio}
+
+    \section{Grammatiche regolari}
+    \label{sec:grammatiche-regolari}
+    Si \`e visto che i linguaggi regolari sono descritti dagli automi a stati finiti e i
+    linguaggi CF dalle grammatiche e dagli automi a pila:
+    \begin{align*}
+        \mathrm{LR} &: \quad \text{DFA} = \text{NFA} = \varepsilon\text{-NFA}, \\
+        \text{CF} &: \quad \text{grammatiche CF} = \text{automi a pila ND}.
+    \end{align*}
+    Ci si chiede se esistano grammatiche anche per i linguaggi regolari.
+
+    Terminali e non terminali, infatti, non sono una propriet\`a del linguaggio, ma dello
+    strumento che lo descrive. Un linguaggio \`e solo un insieme di stringhe, e lo si
+    pu\`o descrivere in modi diversi: con un automa, fatto di stati e transizioni, con
+    un'espressione regolare, fatta di simboli e operatori, o con una grammatica, fatta di
+    terminali, non terminali e produzioni.
+
+    \begin{definition}[Grammatica regolare]
+        Una grammatica $\mathcal{G} = \langle V, T, P, S \rangle$ \`e \emph{regolare}, o
+        \emph{lineare destra}, se ogni sua produzione \`e della forma
+        \begin{equation*}
+            A \to wB \qquad \text{oppure} \qquad A \to w,
+            \qquad w \in T^*,\; B \in V.
+        \end{equation*}
+    \end{definition}
+    A destra c'\`e quindi al pi\`u un non terminale, e sta in fondo.
+
+    Le grammatiche lineari destre \emph{in forma normale di Greibach} sono quelle che
+    rispettano entrambe le forme, cio\`e l'intersezione delle due classi di grammatiche.
+    Ognuna mette un vincolo:
+    \begin{itemize}
+        \item \textsc{Lineare destra}: al pi\`u un non terminale, e in fondo;
+        \item \textsc{Greibach}: un terminale in testa, seguito da soli non terminali.
+    \end{itemize}
+    Insieme, dopo il terminale iniziale resta al pi\`u un non terminale, e le produzioni
+    diventano
+    \begin{equation*}
+        A \to aB \qquad \text{oppure} \qquad A \to a,
+        \qquad a \in T,\; B \in V.
+    \end{equation*}
+
+    \begin{esempio}
+        L'intersezione si vede confrontando le due forme pezzo per pezzo, separando nel
+        lato destro la parte terminale da quella non terminale, come nella
+        Tabella~\ref{tab:lineare-greibach}.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{llll}
+                \toprule
+                \textsc{Forma} & \textsc{Produzione} & \textsc{Parte terminale}
+                    & \textsc{Parte non terminale} \\
+                \midrule
+                Lineare destra & $A \to wB$ & $w \in T^*$ & $B \in V$ \\
+                Greibach & $A \to a\lambda$ & $a \in T$ & $\lambda \in V^*$ \\
+                \midrule
+                Intersezione & $A \to aB$ & $a \in T^* \cap T = T$
+                    & $B \in V^* \cap V = V$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{Le due forme confrontate pezzo per pezzo: l'intersezione lascia un
+                solo terminale e un solo non terminale.}
+            \label{tab:lineare-greibach}
+        \end{table}
+
+        Poich\'e $T \subseteq T^*$ e $V \subseteq V^*$, le intersezioni sono $T^* \cap T =
+        T$ e $V^* \cap V = V$: resta un solo terminale, seguito da un solo non terminale.
+        Il caso senza non terminale, $A \to w$ per le lineari destre e
+        $\lambda = \varepsilon$ per Greibach, d\`a allo stesso modo $A \to a$. Per
+        esempio, la grammatica $S \to aB \mid c$, $B \to bS$, che genera $(ab)^* c$, ha
+        solo produzioni di queste due forme.
+    \end{esempio}
+
+    Le grammatiche lineari destre in forma di Greibach generano esattamente i linguaggi
+    regolari, a meno della stringa vuota. Una grammatica di questo tipo \`e infatti un
+    automa a stati finiti scritto in un altro modo:
+    \begin{itemize}
+        \item i non terminali sono gli stati, e $S$ \`e lo stato iniziale;
+        \item $A \to aB$ \`e la transizione $\delta(A, a) = B$: si legge $a$ e si passa da
+            $A$ a $B$;
+        \item $A \to a$ \`e l'ultima transizione: si legge $a$ e si finisce in uno stato
+            finale.
+    \end{itemize}
+    In ogni momento la derivazione ha la forma \emph{terminali gi\`a prodotti} seguiti da
+    \emph{un solo non terminale}, cio\`e \emph{input letto} e \emph{stato corrente}. Non
+    serve una pila, perch\'e a destra c'\`e al pi\`u un non terminale da ricordare: lo
+    stato basta.
+
+    \begin{esempio}
+        Il linguaggio $a^* b$ \`e riconosciuto dall'automa della
+        Figura~\ref{fig:grammatica-regolare}, con lo stato iniziale $S$ che ha un ciclo su
+        $a$ e, con $b$, va nello stato finale $q_f$. Riscrivendo ogni transizione come
+        produzione si ottiene la grammatica
+        \begin{equation*}
+            S \to aS \mid b,
+        \end{equation*}
+        dove $S \to aS$ corrisponde al ciclo su $a$ e $S \to b$ alla transizione con $b$
+        verso lo stato finale. I terminali $a$ e $b$ sono l'alfabeto e il non terminale
+        $S$ \`e lo stato iniziale. Per esempio, la derivazione
+        $S \Rightarrow aS \Rightarrow aaS \Rightarrow aab$ corrisponde a leggere $a$, $a$
+        e $b$ passando per $S$, $S$, $S$ e finendo in $q_f$.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[automa]
+                \node[state, initial] (S) {$S$};
+                \node[state, accepting, right=of S] (qf) {$q_f$};
+                \path (S) edge[loop above] node {$a$} ()
+                    (S) edge node {$b$} (qf);
+            \end{tikzpicture}
+            \caption{L'automa per $a^* b$: il ciclo su $a$ corrisponde alla produzione
+                $S \to aS$, la transizione con $b$ verso lo stato finale a $S \to b$.}
+            \label{fig:grammatica-regolare}
+        \end{figure}
+    \end{esempio}
+
+    Ragionando sugli insiemi di grammatiche si ottiene il legame tra regolari e CF.
+    L'intersezione di due insiemi \`e contenuta in ciascuno dei due,
+    $A \cap B \subseteq B$, quindi
+    \begin{equation*}
+        \underbrace{\text{lineari destre} \cap \text{Greibach}}_{\text{generano LR}}
+        \;\subseteq\;
+        \underbrace{\text{Greibach}}_{\text{generano CF}}.
+    \end{equation*}
+    Se ogni grammatica di una classe appartiene anche a un'altra, ogni linguaggio
+    generato dalla prima \`e generato anche dalla seconda. Le grammatiche lineari destre
+    in forma di Greibach generano i linguaggi regolari, e quelle in forma di Greibach
+    generano i linguaggi CF, $\varepsilon$ a parte; quindi
+    \begin{equation*}
+        \mathrm{LR} \subseteq \text{CF}.
+    \end{equation*}
+    Usando invece l'inclusione nelle lineari destre si otterrebbe solo
+    $\mathrm{LR} \subseteq \mathrm{LR}$, che non dice niente di nuovo. L'inclusione
+    $\mathrm{LR} \subsetneq \text{CF}$ \`e stretta: $\{a^n b^n \mid n \in \mathbb{N}\}$
+    ha una grammatica in forma di Greibach, $S \to aSB \mid aB$ e $B \to b$, ma non
+    \`e regolare, quindi non ha una grammatica lineare destra: per generarlo serve un non
+    terminale \emph{in mezzo}, come in $S \to aSB$.
 
     %TEORICA%
     \chapter{Esercizi}
