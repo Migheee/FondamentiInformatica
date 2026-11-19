@@ -6215,24 +6215,41 @@ shapes.geometric}
                 \textsc{Forma} & \textsc{Produzione} & \textsc{Parte terminale}
                     & \textsc{Parte non terminale} \\
                 \midrule
-                Lineare destra & $A \to wB$ & $w \in T^*$ & $B \in V$ \\
-                Greibach & $A \to a\lambda$ & $a \in T$ & $\lambda \in V^*$ \\
+                Lineare destra & $A \to wB \mid w$ & $w \in T^*$ & $B \in V$ o nessuno \\
+                Greibach & $A \to a\lambda$ & $a \in T$
+                    & $\lambda \in V^*$ (anche $\varepsilon$) \\
                 \midrule
-                Intersezione & $A \to aB$ & $a \in T^* \cap T = T$
-                    & $B \in V^* \cap V = V$ \\
+                Intersezione & $A \to aB \mid a$ & $a \in T^* \cap T = T$
+                    & $B \in V^* \cap V = V$ o nessuno \\
                 \bottomrule
             \end{tabular}
             \caption{Le due forme confrontate pezzo per pezzo: l'intersezione lascia un
-                solo terminale e un solo non terminale.}
+                solo terminale e al pi\`u un non terminale.}
             \label{tab:lineare-greibach}
         \end{table}
 
-        Poich\'e $T \subseteq T^*$ e $V \subseteq V^*$, le intersezioni sono $T^* \cap T =
-        T$ e $V^* \cap V = V$: resta un solo terminale, seguito da un solo non terminale.
-        Il caso senza non terminale, $A \to w$ per le lineari destre e
-        $\lambda = \varepsilon$ per Greibach, d\`a allo stesso modo $A \to a$. Per
-        esempio, la grammatica $S \to aB \mid c$, $B \to bS$, che genera $(ab)^* c$, ha
-        solo produzioni di queste due forme.
+        \textsc{Parte terminale}. Nelle lineari destre $w \in T^*$, quindi pu\`o essere
+        anche $\varepsilon$; in Greibach il primo simbolo deve stare in $T$, e
+        $\varepsilon \notin T$, perch\'e $\varepsilon$ \`e una stringa e non un simbolo.
+        Nell'intersezione $T^* \cap T = T$ la stringa vuota sparisce, insieme alle stringhe
+        di pi\`u simboli: resta esattamente un terminale.
+
+        \textsc{Parte non terminale}. Una produzione $A \to a$ si pu\`o leggere come
+        $A \to a\varepsilon$, con $\varepsilon$ la stringa vuota di non terminali. Nelle
+        lineari destre la parte non terminale \`e quindi un non terminale $B$ oppure
+        $\varepsilon$, cio\`e sta in $V \cup \{\varepsilon\}$; in Greibach sta in $V^*$.
+        Poich\'e $V \subseteq V^*$ e $\varepsilon \in V^*$,
+        \begin{equation*}
+            (V \cup \{\varepsilon\}) \cap V^* = V \cup \{\varepsilon\}:
+        \end{equation*}
+        \begin{itemize}
+            \item con un non terminale, $V \cap V^* = V$, e si ha $A \to aB$;
+            \item senza non terminali, $\{\varepsilon\} \cap V^* = \{\varepsilon\}$, e si
+                ha $A \to a$.
+        \end{itemize}
+        Ogni produzione dell'intersezione ha quindi esattamente un terminale: ogni passo
+        di derivazione aggiunge un simbolo, e la grammatica non pu\`o generare
+        $\varepsilon$.
     \end{esempio}
 
     Le grammatiche lineari destre in forma di Greibach generano esattamente i linguaggi
@@ -6240,15 +6257,24 @@ shapes.geometric}
     automa a stati finiti scritto in un altro modo:
     \begin{itemize}
         \item i non terminali sono gli stati, e $S$ \`e lo stato iniziale;
-        \item $A \to aB$ \`e la transizione $\delta(A, a) = B$: si legge $a$ e si passa da
-            $A$ a $B$;
-        \item $A \to a$ \`e l'ultima transizione: si legge $a$ e si finisce in uno stato
-            finale.
+        \item $A \to aB$ \`e la transizione $\delta(A, a) = B$: dallo stato corrente $A$,
+            leggendo $a \in \Sigma$, si passa allo stato $B$;
+        \item $A \to a$ dice che, leggendo $a$ dallo stato $A$, si arriva in uno stato
+            finale e ci si pu\`o fermare.
     \end{itemize}
-    In ogni momento la derivazione ha la forma \emph{terminali gi\`a prodotti} seguiti da
-    \emph{un solo non terminale}, cio\`e \emph{input letto} e \emph{stato corrente}. Non
-    serve una pila, perch\'e a destra c'\`e al pi\`u un non terminale da ricordare: lo
-    stato basta.
+    Concatenando le produzioni, la derivazione accumula a sinistra i simboli letti e
+    tiene a destra un solo non terminale, lo stato corrente:
+    \begin{equation*}
+        S \overset{\mathcal{G}}{\Rightarrow}_* wB \iff \hat{\delta}(S, w) = B,
+    \end{equation*}
+    come si dimostra per induzione su $|w|$; per esempio,
+    $S \Rightarrow aA \Rightarrow abC \Rightarrow abbD$ corrisponde a
+    $\hat{\delta}(S, abb) = D$. L'ultima produzione $A \to a$ legge l'ultimo simbolo e
+    chiude in uno stato finale, quindi
+    \begin{equation*}
+        S \overset{\mathcal{G}}{\Rightarrow}_* w \iff \hat{\delta}(S, w) \in \mathcal{F},
+        \qquad w \in T^*.
+    \end{equation*}
 
     \begin{esempio}
         Il linguaggio $a^* b$ \`e riconosciuto dall'automa della
@@ -6287,18 +6313,14 @@ shapes.geometric}
         \underbrace{\text{Greibach}}_{\text{generano CF}}.
     \end{equation*}
     Se ogni grammatica di una classe appartiene anche a un'altra, ogni linguaggio
-    generato dalla prima \`e generato anche dalla seconda. Le grammatiche lineari destre
+    generato dalla prima \`e generato anche dalla seconda, e quindi i linguaggi generati
+    dalla prima sono contenuti in quelli generati dalla seconda. Le grammatiche lineari
+    destre
     in forma di Greibach generano i linguaggi regolari, e quelle in forma di Greibach
     generano i linguaggi CF, $\varepsilon$ a parte; quindi
     \begin{equation*}
         \mathrm{LR} \subseteq \text{CF}.
     \end{equation*}
-    Usando invece l'inclusione nelle lineari destre si otterrebbe solo
-    $\mathrm{LR} \subseteq \mathrm{LR}$, che non dice niente di nuovo. L'inclusione
-    $\mathrm{LR} \subsetneq \text{CF}$ \`e stretta: $\{a^n b^n \mid n \in \mathbb{N}\}$
-    ha una grammatica in forma di Greibach, $S \to aSB \mid aB$ e $B \to b$, ma non
-    \`e regolare, quindi non ha una grammatica lineare destra: per generarlo serve un non
-    terminale \emph{in mezzo}, come in $S \to aSB$.
 
     %TEORICA%
     \chapter{Esercizi}
