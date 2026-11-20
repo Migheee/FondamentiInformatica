@@ -6967,6 +6967,361 @@ shapes.geometric}
     se $x \in \mathcal{L}$ lo stato raggiunto \`e $q_0$ o $q_1$, entrambi finali, mentre se
     $x \notin \mathcal{L}$ \`e $q_2 \notin \mathcal{F}$: $\mathcal{L}(\mathcal{M}) =
     \mathcal{L}$.
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid x^\# \bmod 5 = 0\}
+    \end{equation*}
+    \`e regolare, dove $x^\#$ \`e il numero rappresentato da $x$ in base $2$, con
+    $\varepsilon^\# = 0$.}
+
+    \textsc{Svolgimento}. Il linguaggio contiene i numeri binari divisibili per $5$. Basta
+    ricordare il resto della divisione per $5$ del numero letto finora: leggendo un
+    simbolo $a$, il numero raddoppia e si aggiunge $a$,
+    \begin{equation*}
+        (xa)^\# = 2 \cdot x^\# + a,
+    \end{equation*}
+    quindi da un resto $r$ si passa al resto $(2r + a) \bmod 5$. Il DFA
+    \begin{equation*}
+        \mathcal{M} = \langle \{q_0, q_1, q_2, q_3, q_4\}, \{0, 1\}, \delta, q_0, \{q_0\}
+        \rangle
+    \end{equation*}
+    della Figura~\ref{fig:es-mod5} ha uno stato per ogni resto: $q_r$ indica che il
+    numero letto finora ha resto $r$, e $\delta(q_r, a) = q_{(2r + a) \bmod 5}$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial, accepting] (q0) at (0, 0) {$q_0$};
+            \node[state] (q1) at (2.8, 0) {$q_1$};
+            \node[state] (q2) at (5.6, 0) {$q_2$};
+            \node[state] (q3) at (2.8, -2.8) {$q_3$};
+            \node[state] (q4) at (5.6, -2.8) {$q_4$};
+            \path (q0) edge[loop below] node {$0$} ()
+                (q0) edge node {$1$} (q1)
+                (q1) edge node {$0$} (q2)
+                (q1) edge[bend right=20, swap] node {$1$} (q3)
+                (q3) edge[bend right=20, swap] node {$0$} (q1)
+                (q2) edge[bend right=35, swap] node {$1$} (q0)
+                (q2) edge node {$0$} (q4)
+                (q4) edge node {$0$} (q3)
+                (q3) edge node[pos=0.7, swap] {$1$} (q2)
+                (q4) edge[loop right] node {$1$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[anchor=west] at (7.4, -1.4) {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_0$ & $q_1$ \\
+                    $q_1$ & $q_2$ & $q_3$ \\
+                    $q_2$ & $q_4$ & $q_0$ \\
+                    $q_3$ & $q_1$ & $q_2$ \\
+                    $q_4$ & $q_3$ & $q_4$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce i numeri binari divisibili per $5$ e la sua matrice di
+            transizione: lo stato $q_r$ ricorda il resto $r$ della divisione per $5$.}
+        \label{fig:es-mod5}
+    \end{figure}
+
+    Bisogna dimostrare che $\mathcal{L}(\mathcal{M}) = \mathcal{L}$. Si scorpora la
+    condizione $x \notin \mathcal{L}$ secondo il resto, ottenendo una propriet\`a con un
+    caso per ogni stato:
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(1)} \\
+            x \notin \mathcal{L} \land x^\# \bmod 5 = 1 \implies \hat{\delta}(q_0, x) = q_1,
+                & \text{(2)} \\
+            x \notin \mathcal{L} \land x^\# \bmod 5 = 2 \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(3)} \\
+            x \notin \mathcal{L} \land x^\# \bmod 5 = 3 \implies \hat{\delta}(q_0, x) = q_3,
+                & \text{(4)} \\
+            x \notin \mathcal{L} \land x^\# \bmod 5 = 4 \implies \hat{\delta}(q_0, x) = q_4.
+                & \text{(5)}
+        \end{cases}
+    \end{equation*}
+    Le cinque condizioni coprono tutte le stringhe e si escludono a vicenda, perch\'e il
+    resto della divisione per $5$ \`e uno e uno solo tra $0$, $1$, $2$, $3$ e $4$.
+
+    Lo stato $q_4$ si raggiunge per la prima volta con $100$, quindi per $|x| \leq 3$ ogni
+    stato \`e raggiunto da almeno una stringa, e si sceglie questa come base. Le $15$
+    stringhe si raggruppano secondo il resto:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            & x \in \{\varepsilon, 0, 00, 000, 101\} & \quad & x^\# \bmod 5 = 0,\;
+                x \in \mathcal{L} & \quad & \hat{\delta}(q_0, x) = q_0
+                \quad \text{(caso 1 di $\Psi$)} \\
+            & x \in \{1, 01, 001, 110\} & & x^\# \bmod 5 = 1,\; x \notin \mathcal{L}
+                & & \hat{\delta}(q_0, x) = q_1 \quad \text{(caso 2 di $\Psi$)} \\
+            & x \in \{10, 010, 111\} & & x^\# \bmod 5 = 2,\; x \notin \mathcal{L}
+                & & \hat{\delta}(q_0, x) = q_2 \quad \text{(caso 3 di $\Psi$)} \\
+            & x \in \{11, 011\} & & x^\# \bmod 5 = 3,\; x \notin \mathcal{L}
+                & & \hat{\delta}(q_0, x) = q_3 \quad \text{(caso 4 di $\Psi$)} \\
+            & x = 100 & & x^\# \bmod 5 = 4,\; x \notin \mathcal{L}
+                & & \hat{\delta}(q_0, x) = q_4 \quad \text{(caso 5 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 3$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'0$ oppure $x = x'1$, con $|x'| = n$: per ipotesi induttiva vale $\Psi(x')$, e
+    $x'$ soddisfa esattamente una delle cinque condizioni. Poich\'e
+    $(x'a)^\# = 2 \cdot x'^\# + a$, il resto di $x$ si ricava da quello di $x'$.
+    \begin{enumerate}
+        \item $x' \in \mathcal{L}$, cio\`e $x'^\# \bmod 5 = 0$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $2 \cdot 0 = 0$, quindi $x \in \mathcal{L}$ (caso 1
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1$: resto $2 \cdot 0 + 1 = 1$, quindi $x \notin \mathcal{L}$
+                    (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_1.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x'^\# \bmod 5 = 1$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $2 \cdot 1 = 2$, quindi $x \notin \mathcal{L}$ (caso
+                    3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_2.
+                    \end{equation*}
+                \item $x = x'1$: resto $2 \cdot 1 + 1 = 3$, quindi $x \notin \mathcal{L}$
+                    (caso 4 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_3.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x'^\# \bmod 5 = 2$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_2$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $2 \cdot 2 = 4$, quindi $x \notin \mathcal{L}$ (caso
+                    5 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_2, 0) = q_4.
+                    \end{equation*}
+                \item $x = x'1$: resto $(2 \cdot 2 + 1) \bmod 5 = 0$, quindi
+                    $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_2, 1) = q_0.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x'^\# \bmod 5 = 3$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_3$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $(2 \cdot 3) \bmod 5 = 1$, quindi
+                    $x \notin \mathcal{L}$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_3, 0) = q_1.
+                    \end{equation*}
+                \item $x = x'1$: resto $(2 \cdot 3 + 1) \bmod 5 = 2$, quindi
+                    $x \notin \mathcal{L}$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_3, 1) = q_2.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x'^\# \bmod 5 = 4$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_4$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $(2 \cdot 4) \bmod 5 = 3$, quindi
+                    $x \notin \mathcal{L}$ (caso 4 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_4, 0) = q_3.
+                    \end{equation*}
+                \item $x = x'1$: resto $(2 \cdot 4 + 1) \bmod 5 = 4$, quindi
+                    $x \notin \mathcal{L}$ (caso 5 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_4, 1) = q_4.
+                    \end{equation*}
+            \end{enumerate}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$. Quindi se
+    $x \in \mathcal{L}$ lo stato raggiunto \`e $q_0$, l'unico finale, mentre se
+    $x \notin \mathcal{L}$ \`e uno tra $q_1$, $q_2$, $q_3$ e $q_4$, nessuno dei quali \`e
+    finale: $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
+    \esercizio
+    \textit{Si consideri, al variare di $i \in \mathbb{N}$, la famiglia di linguaggi su
+    $\Sigma = \{0, 1\}$
+    \begin{equation*}
+        Z(i) = \{x \in \Sigma^* \mid \text{il simbolo $i$-esimo di $x$ a partire da
+        sinistra \`e uno $0$}\}.
+    \end{equation*}
+    Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \bigcup_{i \text{ dispari}} Z(i)
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Qui $i$ \`e un parametro: per ogni $i$ fissato, $Z(i)$ \`e un
+    linguaggio regolare, riconosciuto da un DFA che conta i primi $i - 1$ simboli e
+    controlla l'$i$-esimo. L'unione per\`o \`e infinita, e la chiusura rispetto
+    all'unione vale solo per un numero finito di linguaggi: $\mathcal{L}$ va quindi
+    studiato direttamente. Una stringa sta in un'unione se sta in almeno uno degli
+    insiemi, quindi
+    \begin{equation*}
+        x \in \mathcal{L} \iff \exists i.\; 1 \leq i \leq |x| \land i \bmod 2 = 1 \land
+        x[i] = 0,
+    \end{equation*}
+    cio\`e $x$ ha almeno uno $0$ in una posizione dispari. Negando, $\neg\exists$ diventa
+    $\forall \neg$ e la congiunzione diventa un'implicazione:
+    \begin{equation*}
+        x \notin \mathcal{L} \iff \forall i.\; (1 \leq i \leq |x| \land i \bmod 2 = 1)
+        \implies x[i] = 1,
+    \end{equation*}
+    cio\`e tutte le posizioni dispari di $x$ contengono $1$; in particolare
+    $\varepsilon \notin \mathcal{L}$.
+
+    Per riconoscere $\mathcal{L}$ non serve ricordare quale posizione si sta leggendo, ma
+    solo se \`e pari o dispari. Il DFA
+    $\mathcal{M} = \langle \{q_0, q_1, q_2\}, \{0, 1\}, \delta, q_0, \{q_2\} \rangle$
+    della Figura~\ref{fig:es-dispari} ha tre stati: in $q_0$ il prossimo simbolo \`e in
+    posizione dispari, in $q_1$ in posizione pari, e $q_2$ indica che lo $0$ in posizione
+    dispari \`e gi\`a stato trovato.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial] (q0) at (0, 0) {$q_0$};
+            \node[state] (q1) at (3, 0) {$q_1$};
+            \node[state, accepting] (q2) at (0, -2.6) {$q_2$};
+            \path (q0) edge[bend left=20] node {$1$} (q1)
+                (q1) edge[bend left=20] node {$0, 1$} (q0)
+                (q0) edge node[swap] {$0$} (q2)
+                (q2) edge[loop right] node {$0, 1$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[anchor=west] at (5, -1.3) {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_2$ & $q_1$ \\
+                    $q_1$ & $q_0$ & $q_0$ \\
+                    $q_2$ & $q_2$ & $q_2$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce le stringhe con almeno uno $0$ in posizione dispari e
+            la sua matrice di transizione.}
+        \label{fig:es-dispari}
+    \end{figure}
+
+    Bisogna dimostrare che $\mathcal{L}(\mathcal{M}) = \mathcal{L}$. Si scorpora la
+    condizione $x \notin \mathcal{L}$ secondo la parit\`a di $|x|$, che dice se il
+    prossimo simbolo \`e in posizione dispari o pari:
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L} \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(1)} \\
+            x \notin \mathcal{L} \land |x| \bmod 2 = 0 \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(2)} \\
+            x \notin \mathcal{L} \land |x| \bmod 2 = 1 \implies \hat{\delta}(q_0, x) = q_1.
+                & \text{(3)}
+        \end{cases}
+    \end{equation*}
+    Le tre condizioni coprono tutte le stringhe e si escludono a vicenda.
+
+    Per $|x| \leq 1$ ogni stato \`e raggiunto da almeno una stringa, quindi si sceglie
+    questa come base:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            |x| = 0 \quad & x = \varepsilon \notin \mathcal{L},\; |x| \bmod 2 = 0 & \qquad
+                & \hat{\delta}(q_0, \varepsilon) = q_0
+                &\quad \text{(caso 2 di $\Psi$)} \\
+            |x| = 1 \quad & x = 0 \in \mathcal{L} &
+                & \hat{\delta}(q_0, 0) = q_2
+                &\quad \text{(caso 1 di $\Psi$)} \\
+            & x = 1 \notin \mathcal{L},\; |x| \bmod 2 = 1 &
+                & \hat{\delta}(q_0, 1) = q_1
+                &\quad \text{(caso 3 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 1$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'a$ con $|x'| = n$ e $a \in \{0, 1\}$: per ipotesi induttiva vale $\Psi(x')$, e
+    $x'$ soddisfa esattamente una delle tre condizioni. Il simbolo $a$ finisce nella
+    posizione $|x| = |x'| + 1$.
+    \begin{enumerate}
+        \item $x' \in \mathcal{L}$: per ipotesi induttiva $\hat{\delta}(q_0, x') = q_2$.
+            Lo $0$ in posizione dispari di $x'$ resta anche in $x$, qualunque sia $a$,
+            quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+            \begin{equation*}
+                \hat{\delta}(q_0, x'a)
+                \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), a)
+                \overset{\text{Hp}}{=} \delta(q_2, a) = q_2.
+            \end{equation*}
+        \item $x' \notin \mathcal{L}$ e $|x'| \bmod 2 = 0$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$. Il simbolo $a$ finisce in una posizione
+            dispari.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: $x[|x|] = 0$ in posizione dispari, quindi
+                    $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_2.
+                    \end{equation*}
+                \item $x = x'1$: anche la nuova posizione dispari contiene $1$, quindi
+                    $x \notin \mathcal{L}$, con $|x| \bmod 2 = 1$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_1.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $|x'| \bmod 2 = 1$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$. Il simbolo $a$ finisce in una posizione pari,
+            quindi non conta: qualunque sia $a$, $x \notin \mathcal{L}$, con
+            $|x| \bmod 2 = 0$ (caso 2 di $\Psi$):
+            \begin{equation*}
+                \hat{\delta}(q_0, x'a)
+                \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), a)
+                \overset{\text{Hp}}{=} \delta(q_1, a) = q_0.
+            \end{equation*}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$. Quindi se
+    $x \in \mathcal{L}$ lo stato raggiunto \`e $q_2$, l'unico finale, mentre se
+    $x \notin \mathcal{L}$ \`e $q_0$ o $q_1$, nessuno dei quali \`e finale:
+    $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
     \section{Linguaggi CF e automi a pila}
     Gli esercizi seguenti riguardano i linguaggi CF: si costruiscono automi a pila che li
     riconoscono e grammatiche che li generano.
