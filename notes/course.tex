@@ -182,7 +182,7 @@ shapes.geometric}
 \newcounter{escount}[section]
 \newcommand{\esercizio}{
     \spaziominimo{8\baselineskip}% Evita il titolo isolato a fondo pagina
-    \stepcounter{escount}% Incrementa il contatore di 1
+    \refstepcounter{escount}% Incrementa il contatore di 1, e lo rende citabile con \label
     \subsection*{Esercizio \arabic{escount}}% Genera il titolo non numerato nativamente
 }
 
@@ -1203,6 +1203,18 @@ shapes.geometric}
             $a_j \cdots a_n$ della stringa $x = a_1 a_2 \cdots a_n$.}
         \label{fig:sottostringhe}
     \end{figure}
+
+    \textsc{Notazione}. Sia $\Sigma = \{0, 1\}$ e sia $x \in \Sigma^*$. Si usano le
+    notazioni seguenti:
+    \begin{itemize}
+        \item $|x|_1$ \`e il numero di $1$ contenuti in $x$; allo stesso modo $|x|_0$ \`e
+            il numero di $0$ e, in generale, $|x|_a$ \`e il numero di occorrenze del
+            simbolo $a$;
+        \item $x[i]$, con $1 \leq i \leq |x|$, \`e il simbolo in posizione $i$, contando
+            da sinistra a partire da $1$;
+        \item $|x|$ \`e la lunghezza di $x$.
+    \end{itemize}
+    Per esempio, con $x = 0110$ si ha $|x|_1 = 2$, $x[1] = 0$, $x[2] = 1$ e $|x| = 4$.
 
     \section{Linguaggi}
     \begin{definition}[Linguaggio]
@@ -6325,6 +6337,7 @@ shapes.geometric}
     %TEORICA%
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
+    \label{sec:es-dfa}
     Gli esercizi seguenti dimostrano che un linguaggio \`e regolare costruendo un DFA che
     lo riconosce, con il metodo della Sezione~\ref{sec:dimostrare-regolare}.
 
@@ -7321,6 +7334,441 @@ shapes.geometric}
     $x \in \mathcal{L}$ lo stato raggiunto \`e $q_2$, l'unico finale, mentre se
     $x \notin \mathcal{L}$ \`e $q_0$ o $q_1$, nessuno dei quali \`e finale:
     $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
+    \esercizio
+    \label{es:zeri-dispari}
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid |x|_0 \bmod 2 = 1\},
+    \end{equation*}
+    formato dalle stringhe con un numero dispari di $0$, \`e regolare.}
+
+    \textsc{Svolgimento}. Basta ricordare la parit\`a degli $0$ letti finora. Lo
+    riconosce il DFA
+    $\mathcal{M} = \langle \{q_0, q_1\}, \{0, 1\}, \delta, q_0, \{q_1\} \rangle$
+    della Figura~\ref{fig:es-zeri-dispari}: in $q_0$ gli $0$ letti sono in numero pari, in
+    $q_1$ in numero dispari. Leggendo $0$ si cambia stato, leggendo $1$ si resta dove si
+    \`e.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial] (q0) at (0, 0) {$q_0$};
+            \node[state, accepting] (q1) at (3, 0) {$q_1$};
+            \path (q0) edge[bend left=25] node {$0$} (q1)
+                (q1) edge[bend left=25] node {$0$} (q0)
+                (q0) edge[loop below] node {$1$} ()
+                (q1) edge[loop below] node {$1$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[anchor=west] at (5, 0) {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_1$ & $q_0$ \\
+                    $q_1$ & $q_0$ & $q_1$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce le stringhe con un numero dispari di $0$ e la sua
+            matrice di transizione.}
+        \label{fig:es-zeri-dispari}
+    \end{figure}
+
+    Bisogna dimostrare che $\mathcal{L}(\mathcal{M}) = \mathcal{L}$. Si dimostra la
+    propriet\`a pi\`u forte
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L}\ (|x|_0 \bmod 2 = 1) \implies \hat{\delta}(q_0, x) = q_1,
+                & \text{(1)} \\
+            x \notin \mathcal{L}\ (|x|_0 \bmod 2 = 0) \implies \hat{\delta}(q_0, x) = q_0.
+                & \text{(2)}
+        \end{cases}
+    \end{equation*}
+
+    Per $|x| \leq 1$ entrambi gli stati sono raggiunti da almeno una stringa, quindi si
+    sceglie questa come base:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            |x| = 0 \quad & x = \varepsilon \notin \mathcal{L},\; |x|_0 \bmod 2 = 0 &
+                \qquad & \hat{\delta}(q_0, \varepsilon) = q_0
+                &\quad \text{(caso 2 di $\Psi$)} \\
+            |x| = 1 \quad & x = 0 \in \mathcal{L},\; |x|_0 \bmod 2 = 1 &
+                & \hat{\delta}(q_0, 0) = q_1
+                &\quad \text{(caso 1 di $\Psi$)} \\
+            & x = 1 \notin \mathcal{L},\; |x|_0 \bmod 2 = 0 &
+                & \hat{\delta}(q_0, 1) = q_0
+                &\quad \text{(caso 2 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 1$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'a$ con $|x'| = n$ e $a \in \{0, 1\}$: per ipotesi induttiva vale $\Psi(x')$.
+    Poich\'e
+    \begin{equation*}
+        |x'0|_0 = |x'|_0 + 1, \qquad |x'1|_0 = |x'|_0,
+    \end{equation*}
+    leggendo $0$ la parit\`a degli $0$ cambia, mentre leggendo $1$ resta la stessa.
+    \begin{enumerate}
+        \item $x' \in \mathcal{L}$: per ipotesi induttiva $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: $x'$ ha un numero dispari di $0$ e aggiungendone uno
+                    diventa pari, quindi $x \notin \mathcal{L}$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1$: il numero di $0$ non cambia e resta dispari, quindi
+                    $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_1.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$: per ipotesi induttiva $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: $x'$ ha un numero pari di $0$ e aggiungendone uno
+                    diventa dispari, quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_1.
+                    \end{equation*}
+                \item $x = x'1$: il numero di $0$ non cambia e resta pari, quindi
+                    $x \notin \mathcal{L}$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_0.
+                    \end{equation*}
+            \end{enumerate}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$. Quindi se
+    $x \in \mathcal{L}$ lo stato raggiunto \`e $q_1$, l'unico finale, mentre se
+    $x \notin \mathcal{L}$ \`e $q_0$, che non \`e finale:
+    $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
+    \section{Propriet\`a di chiusura dei linguaggi regolari}
+    Gli esercizi seguenti dimostrano che un linguaggio \`e regolare usando le propriet\`a
+    di chiusura (Teorema~\ref{thm:chiusura}); quando serve anche un automa, lo si
+    costruisce a partire da quelli dei linguaggi di partenza.
+
+    \esercizio
+    \textit{Sia $m \in \mathbb{N}$ fissato. Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L}_m = \{0^m 1 0^{m+n} \mid n > m\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Qui $m$ \`e un parametro fissato a priori, mentre $n$ varia.
+    Poich\'e $n > m$, si ha $n \geq m + 1$, quindi l'esponente del secondo blocco \`e
+    \begin{equation*}
+        m + n \geq m + (m + 1) = 2m + 1,
+    \end{equation*}
+    e ogni valore da $2m + 1$ in su si ottiene, scegliendo $n = m + 1, m + 2, \dots$ Dopo
+    l'$1$ ci sono quindi almeno $2m + 1$ zeri: i primi $2m + 1$ sono obbligatori, gli
+    altri liberi. Allora
+    \begin{equation*}
+        \mathcal{L}_m = \{0^m 1 0^{2m+1}\} \cdot 0^*.
+    \end{equation*}
+    Le due inclusioni si verificano direttamente:
+    \begin{itemize}
+        \item[($\subseteq$)] una stringa $0^m 1 0^{m+n}$ con $n > m$ si scrive come
+            $0^m 1 0^{2m+1} \cdot 0^{n-m-1}$, con $n - m - 1 \geq 0$;
+        \item[($\supseteq$)] una stringa $0^m 1 0^{2m+1} \cdot 0^j$ \`e
+            $0^m 1 0^{m+n}$ con $n = m + 1 + j > m$.
+    \end{itemize}
+    Il linguaggio $\{0^m 1 0^{2m+1}\}$ contiene una sola stringa, perch\'e $m$ \`e
+    fissato: \`e quindi finito, e ogni linguaggio finito \`e regolare. Anche $0^*$ \`e
+    regolare, e per il punto~(a) del Teorema~\ref{thm:chiusura} lo \`e anche la loro
+    concatenazione: $\mathcal{L}_m$ \`e regolare.
+
+    Per esempio, con $m = 3$ serve $n \geq 4$, quindi dopo l'$1$ ci sono almeno $7$ zeri:
+    \begin{equation*}
+        \mathcal{L}_3 = \{0001 0^7\} \cdot 0^*,
+    \end{equation*}
+    descritto dall'espressione regolare $00010000000\,0^*$.
+
+    Il ragionamento usa che $m$ \`e fissato. Se $m$ variasse, cio\`e per l'unione
+    $\bigcup_{m \in \mathbb{N}} \mathcal{L}_m$, il primo fattore
+    $\{0^m 1 0^{2m+1} \mid m \in \mathbb{N}\}$ sarebbe infinito e non regolare, e la
+    scomposizione non permetterebbe di concludere nulla: l'unione va studiata a parte, per
+    esempio con il pumping lemma.
+
+    \esercizio
+    \textit{Sia $\Sigma = \{0, 1\}$. Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \Sigma^* \mid \exists v \in \Sigma^*.\; \exists a \in \Sigma.\;
+        x = v0a\}
+    \end{equation*}
+    \`e regolare e si costruisca un DFA che lo riconosce.}
+
+    \textsc{Svolgimento}. $\mathcal{L}$ contiene le stringhe il cui penultimo simbolo \`e
+    $0$, come $00$, $01$, $000$, $001$, $100$ e $101$. Si pu\`o scrivere come
+    concatenazione:
+    \begin{equation*}
+        \mathcal{L} = \Sigma^* \cdot \{00, 01\}.
+    \end{equation*}
+    $\Sigma^*$ \`e regolare e $\{00, 01\}$ \`e finito, quindi regolare: per il punto~(a)
+    del Teorema~\ref{thm:chiusura} anche $\mathcal{L}$ \`e regolare.
+
+    Per costruire l'automa si parte da quelli dei due fattori, nella
+    Figura~\ref{fig:es-penultimo-fattori}: $\mathcal{M}_1$ riconosce $\Sigma^*$ con il solo
+    stato $p_0$, iniziale e finale, mentre $\mathcal{M}_2$ riconosce $\{00, 01\}$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial, accepting] (p0) at (0, 0) {$p_0$};
+            \path (p0) edge[loop above] node {$0, 1$} ();
+
+            \node[state, initial] (q0) at (4, 0) {$q_0$};
+            \node[state] (q1) at (6.5, 0) {$q_1$};
+            \node[state, accepting] (q2) at (9, 0) {$q_2$};
+            \path (q0) edge node {$0$} (q1)
+                (q1) edge node {$0, 1$} (q2);
+
+            \node at (0, -1.1) {$\mathcal{M}_1$};
+            \node at (6.5, -1.1) {$\mathcal{M}_2$};
+        \end{tikzpicture}
+        \caption{Gli automi $\mathcal{M}_1$ per $\Sigma^*$ e $\mathcal{M}_2$ per
+            $\{00, 01\}$.}
+        \label{fig:es-penultimo-fattori}
+    \end{figure}
+
+    Collegare i due automi con un arco che legge un simbolo non funziona: la parte in
+    $\Sigma^*$ dovrebbe contenere almeno un simbolo, e le stringhe di lunghezza minima,
+    come $00 = \varepsilon \cdot 00$ e $01 = \varepsilon \cdot 01$, non verrebbero
+    riconosciute. Il passaggio da $\mathcal{M}_1$ a $\mathcal{M}_2$ non deve consumare
+    simboli: serve una $\varepsilon$-transizione dallo stato finale di $\mathcal{M}_1$
+    allo stato iniziale di $\mathcal{M}_2$, come nella costruzione della concatenazione
+    (Figura~\ref{fig:re-concatenazione}). Si ottiene l'$\varepsilon$-NFA della
+    Figura~\ref{fig:es-penultimo-enfa}, con stato iniziale $p_0$ e unico stato finale
+    $q_2$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial] (p0) at (0, 0) {$p_0$};
+            \node[state] (q0) at (2.5, 0) {$q_0$};
+            \node[state] (q1) at (5, 0) {$q_1$};
+            \node[state, accepting] (q2) at (7.5, 0) {$q_2$};
+            \path (p0) edge[loop above] node {$0, 1$} ()
+                (p0) edge node {$\varepsilon$} (q0)
+                (q0) edge node {$0$} (q1)
+                (q1) edge node {$0, 1$} (q2);
+        \end{tikzpicture}
+        \caption{L'$\varepsilon$-NFA per $\Sigma^* \cdot \{00, 01\}$.}
+        \label{fig:es-penultimo-enfa}
+    \end{figure}
+
+    \textsc{Passo 1: da $\varepsilon$-NFA a NFA}. Si applica il punto~(a) del
+    Teorema~\ref{thm:equiv-nfa-enfa}: gli stati e lo stato iniziale restano gli stessi.
+    L'unica $\varepsilon$-transizione esce da $p_0$, quindi
+    \begin{equation*}
+        \eclosure(p_0) = \{p_0, q_0\},
+    \end{equation*}
+    mentre la $\varepsilon$-closure di ogni altro stato contiene solo lo stato stesso.
+    \begin{itemize}
+        \item \emph{Stati finali}. $\eclosure(p_0) \cap \mathcal{F} = \{p_0, q_0\} \cap
+            \{q_2\} = \emptyset$, quindi $p_0$ non diventa finale e
+            $\mathcal{F}' = \mathcal{F} = \{q_2\}$.
+        \item \emph{Transizioni}. Con
+            $\delta'(q, a) = \bigcup_{p \in \eclosure(q)} \eclosure(\delta(p, a))$, da
+            $p_0$ si parte sia da $p_0$ sia da $q_0$:
+            \begin{align*}
+                \delta'(p_0, 0) &= \eclosure(\delta(p_0, 0)) \cup \eclosure(\delta(q_0, 0))
+                    \\
+                &= \eclosure(\{p_0\}) \cup \eclosure(\{q_1\})
+                    = \{p_0, q_0\} \cup \{q_1\} = \{p_0, q_0, q_1\}, \\
+                \delta'(p_0, 1) &= \eclosure(\delta(p_0, 1)) \cup \eclosure(\delta(q_0, 1))
+                    \\
+                &= \eclosure(\{p_0\}) \cup \eclosure(\emptyset)
+                    = \{p_0, q_0\} \cup \emptyset = \{p_0, q_0\}.
+            \end{align*}
+            Gli altri stati non hanno $\varepsilon$-transizioni, quindi per loro $\delta'$
+            coincide con $\delta$.
+    \end{itemize}
+    Si ottiene l'NFA della Figura~\ref{fig:es-penultimo-nfa}.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial] (p0) at (0, 0) {$p_0$};
+            \node[state] (q0) at (3, 0) {$q_0$};
+            \node[state] (q1) at (0, -2.6) {$q_1$};
+            \node[state, accepting] (q2) at (3, -2.6) {$q_2$};
+            \path (p0) edge[loop above] node {$0, 1$} ()
+                (p0) edge node {$0, 1$} (q0)
+                (p0) edge node[swap] {$0$} (q1)
+                (q0) edge node {$0$} (q1)
+                (q1) edge node[swap] {$0, 1$} (q2);
+
+            % Matrice di transizione, a destra del diagramma
+            \node[anchor=west] at (5, -1.3) {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta'$ & $0$ & $1$ \\
+                    \midrule
+                    $p_0$ & $\{p_0, q_0, q_1\}$ & $\{p_0, q_0\}$ \\
+                    $q_0$ & $\{q_1\}$ & $\emptyset$ \\
+                    $q_1$ & $\{q_2\}$ & $\{q_2\}$ \\
+                    $q_2$ & $\emptyset$ & $\emptyset$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{L'NFA ottenuto eliminando la $\varepsilon$-transizione e la sua
+            matrice di transizione.}
+        \label{fig:es-penultimo-nfa}
+    \end{figure}
+
+    \textsc{Passo 2: da NFA a DFA}. Si applica la costruzione per sottoinsiemi del
+    punto~(b) del Teorema~\ref{thm:rabin-scott}: gli stati del DFA sono sottoinsiemi di
+    $\{p_0, q_0, q_1, q_2\}$, lo stato iniziale \`e $S_1 = \{p_0\}$ e la funzione di
+    transizione \`e
+    \begin{equation*}
+        \delta''(S, a) = \bigcup_{p \in S} \delta'(p, a).
+    \end{equation*}
+    Si calcolano le righe dei singoletti, che servono per le unioni, e poi quelle degli
+    insiemi che compaiono partendo da $S_1$. Ad esempio,
+    \begin{align*}
+        \delta''(\{p_0, q_0, q_1\}, 0)
+            &= \delta'(p_0, 0) \cup \delta'(q_0, 0) \cup \delta'(q_1, 0) \\
+            &= \{p_0, q_0, q_1\} \cup \{q_1\} \cup \{q_2\} = \{p_0, q_0, q_1, q_2\}.
+    \end{align*}
+    Gli stati finali sono gli insiemi che contengono $q_2$. Si ottiene la
+    Tabella~\ref{tab:es-penultimo-dfa}.
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccccc}
+            \toprule
+            \textsc{Stato} & \textsc{Sottoinsieme} & $0$ & $1$ & \textsc{Finale} \\
+            \midrule
+            $S_1$ & $\{p_0\}$ & $S_6$ & $S_5$ & \\
+            $S_2$ & $\{q_0\}$ & $S_3$ & $P$ & \\
+            $S_3$ & $\{q_1\}$ & $S_4$ & $S_4$ & \\
+            $S_4$ & $\{q_2\}$ & $P$ & $P$ & $\checkmark$ \\
+            $S_5$ & $\{p_0, q_0\}$ & $S_6$ & $S_5$ & \\
+            $S_6$ & $\{p_0, q_0, q_1\}$ & $S_7$ & $S_8$ & \\
+            $S_7$ & $\{p_0, q_0, q_1, q_2\}$ & $S_7$ & $S_8$ & $\checkmark$ \\
+            $S_8$ & $\{p_0, q_0, q_2\}$ & $S_6$ & $S_5$ & $\checkmark$ \\
+            $P$ & $\emptyset$ & $P$ & $P$ & \\
+            \bottomrule
+        \end{tabular}
+        \caption{Costruzione per sottoinsiemi del DFA equivalente all'NFA della
+            Figura~\ref{fig:es-penultimo-nfa}.}
+        \label{tab:es-penultimo-dfa}
+    \end{table}
+
+    Lo stato $P = \emptyset$ compare tre volte nella tabella, ma \`e un solo stato del
+    DFA: tutte le transizioni verso $\emptyset$ portano l\`i. Non \`e finale, perch\'e
+    non contiene $q_2$, ed \`e uno stato pozzo:
+    \begin{equation*}
+        \delta''(\emptyset, a) = \bigcup_{p \in \emptyset} \delta'(p, a) = \emptyset
+        \qquad \text{per ogni } a \in \Sigma.
+    \end{equation*}
+    In $\emptyset$ non c'\`e nessuno stato $p$, quindi $\delta'$ non viene mai applicata
+    e nell'unione non entra nulla. In termini di NFA, tutti i cammini sono morti: non
+    c'\`e nessuno stato attivo che possa leggere il simbolo successivo.
+
+    Partendo da $S_1$ si raggiungono solo $S_1$, $S_5$, $S_6$, $S_7$ e $S_8$: gli stati
+    $S_2$, $S_3$, $S_4$ e $P$ non sono raggiungibili, e gli altri sottoinsiemi di
+    $\mathcal{P}(\{p_0, q_0, q_1, q_2\})$, che ne ha $2^4 = 16$, non compaiono mai. In
+    particolare, negli stati raggiungibili gli insiemi vuoti delle righe di $q_0$ e di
+    $q_2$ finiscono sempre in un'unione con insiemi non vuoti, quindi nessuna transizione
+    raggiungibile porta a $\emptyset$. Eliminando gli stati non raggiungibili si ottiene il
+    DFA della Figura~\ref{fig:es-penultimo-dfa}, in cui ogni stato ricorda gli ultimi due
+    simboli letti: in $S_7$ sono $00$, in $S_8$ sono $01$, in $S_6$ l'ultimo \`e $0$ ma
+    il penultimo no, e in $S_5$ l'ultimo \`e $1$ e il penultimo non \`e $0$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial] (s1) at (0, 0) {$S_1$};
+            \node[state] (s5) at (3, 1.6) {$S_5$};
+            \node[state] (s6) at (3, -1.6) {$S_6$};
+            \node[state, accepting] (s8) at (6.4, 1.6) {$S_8$};
+            \node[state, accepting] (s7) at (6.4, -1.6) {$S_7$};
+            \path (s1) edge node {$1$} (s5)
+                (s1) edge node[swap] {$0$} (s6)
+                (s5) edge[loop above] node {$1$} ()
+                (s5) edge node[swap] {$0$} (s6)
+                (s6) edge node[swap] {$0$} (s7)
+                (s6) edge[bend left=18] node {$1$} (s8)
+                (s8) edge[bend left=18] node {$0$} (s6)
+                (s8) edge node[swap] {$1$} (s5)
+                (s7) edge[loop right] node {$0$} ()
+                (s7) edge node[swap] {$1$} (s8);
+        \end{tikzpicture}
+        \caption{Il DFA che riconosce le stringhe con $0$ come penultimo simbolo,
+            ristretto agli stati raggiungibili da $S_1$.}
+        \label{fig:es-penultimo-dfa}
+    \end{figure}
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid |x|_0 \text{ \`e dispari oppure } |x|_1
+        \text{ \`e pari}\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. La condizione \`e una disgiunzione, quindi $\mathcal{L}$ \`e
+    l'unione di due linguaggi:
+    \begin{gather*}
+        \mathcal{L} = \mathcal{L}_1 \cup \mathcal{L}_2, \\
+        \mathcal{L}_1 = \{x \in \{0, 1\}^* \mid |x|_0 \bmod 2 = 1\}, \qquad
+        \mathcal{L}_2 = \{x \in \{0, 1\}^* \mid |x|_1 \bmod 2 = 0\}.
+    \end{gather*}
+    $\mathcal{L}_1$ \`e regolare: \`e il linguaggio dell'Esercizio~\ref{es:zeri-dispari}
+    della Sezione~\ref{sec:es-dfa}, riconosciuto dal DFA della
+    Figura~\ref{fig:es-zeri-dispari}.
+
+    Anche $\mathcal{L}_2$ \`e regolare: lo riconosce il DFA della
+    Figura~\ref{fig:es-uni-pari}, uguale a quello per $\mathcal{L}_1$ con i ruoli di $0$
+    e $1$ scambiati. Leggendo $1$ si cambia stato, perch\'e la parit\`a degli $1$ cambia,
+    mentre leggendo $0$ si resta dove si \`e. Lo stato finale \`e ora $q_0$, quello
+    iniziale: $\varepsilon \in \mathcal{L}_2$, perch\'e contiene zero $1$, e zero \`e
+    pari. La dimostrazione di correttezza \`e quella dell'Esercizio~\ref{es:zeri-dispari},
+    scambiando $0$ con $1$ e, nei casi di $\Psi$, $q_0$ con $q_1$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial, accepting] (q0) at (0, 0) {$q_0$};
+            \node[state] (q1) at (3, 0) {$q_1$};
+            \path (q0) edge[bend left=25] node {$1$} (q1)
+                (q1) edge[bend left=25] node {$1$} (q0)
+                (q0) edge[loop below] node {$0$} ()
+                (q1) edge[loop below] node {$0$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[anchor=west] at (5, 0) {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_0$ & $q_1$ \\
+                    $q_1$ & $q_1$ & $q_0$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce le stringhe con un numero pari di $1$ e la sua matrice
+            di transizione.}
+        \label{fig:es-uni-pari}
+    \end{figure}
+
+    Poich\'e $\mathcal{L}_1$ e $\mathcal{L}_2$ sono regolari, per il punto~(a) del
+    Teorema~\ref{thm:chiusura} lo \`e anche la loro unione $\mathcal{L}$.
 
     \section{Linguaggi CF e automi a pila}
     Gli esercizi seguenti riguardano i linguaggi CF: si costruiscono automi a pila che li
