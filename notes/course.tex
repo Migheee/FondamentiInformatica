@@ -95,6 +95,10 @@ shapes.geometric}
 \titlecontents{chapter}[1.5em]{\addvspace{1em}}
     {\contentslabel{1.5em}\scshape}{\hspace*{-1.5em}\scshape}
     {\hfill\bfseries\contentspage}
+% Spazio per numeri di pagina a tre cifre nell'indice
+\makeatletter
+\renewcommand{\@pnumwidth}{2em}
+\makeatother
 
 % Intestazione senza riga: sezione corrente a sinistra, pagina a destra
 \renewcommand{\chaptermark}[1]{\markboth{\thechapter\enspace #1}{\thechapter\enspace #1}}
@@ -6353,14 +6357,14 @@ shapes.geometric}
 
     \begin{figure}[H]
         \centering
-        % Un colore sobrio per ogni classe di linguaggi, scuro per restare leggibile in
-        % stampa; il verde della teoria della calcolabilita' come nel disegno della lezione
-        \definecolor{col-reg}{RGB}{46, 84, 130}
-        \definecolor{col-dcf}{RGB}{47, 111, 108}
-        \definecolor{col-cf}{RGB}{168, 108, 46}
-        \definecolor{col-cs}{RGB}{108, 76, 120}
-        \definecolor{col-calc}{RGB}{140, 58, 78}
-        \definecolor{col-teoria}{RGB}{72, 110, 64}
+        % Un colore per ogni classe di linguaggi; la teoria della calcolabilita' in nero,
+        % per non confonderla con nessuna classe
+        \colorlet{col-reg}{blue!80!black}
+        \colorlet{col-dcf}{green!50!black}
+        \colorlet{col-cf}{orange!90!black}
+        \colorlet{col-cs}{red!80!black}
+        \colorlet{col-calc}{brown!80!black}
+        \colorlet{col-teoria}{black}
         \begin{tikzpicture}[
             scale=0.85,
             classe/.style={thick},
@@ -6664,6 +6668,169 @@ shapes.geometric}
         \item \emph{proiezione}: $\lambda x.\, x$, che su una sola variabile \`e
             l'identit\`a.
     \end{itemize}
+    Nella formulazione generale le funzioni hanno $n$ input $x_1, \dots, x_n$:
+    \begin{itemize}
+        \item \emph{zero}: $\lambda x_1 \dots x_n.\, 0$;
+        \item \emph{successore}: ha un solo input, $\lambda x.\, x + 1$;
+        \item \emph{proiezione}: $\Pi_i = \lambda x_1 \dots x_n.\, x_i$, con
+            $1 \leq i \leq n$, che restituisce l'$i$-esimo input.
+    \end{itemize}
+
+    Tutte le funzioni primitive ricorsive si ottengono combinando le funzioni di base.
+    La prima combinazione \`e la composizione.
+
+    \begin{definition}[Composizione]
+        Siano $h \colon \mathbb{N}^k \to \mathbb{N}$ una funzione ricorsiva e
+        $g_i \colon \mathbb{N}^n \to \mathbb{N}$, con $i \in [1, k]$, una famiglia di
+        funzioni ricorsive. La funzione $f \colon \mathbb{N}^n \to \mathbb{N}$ \`e
+        \emph{definita per composizione} da $h$ e dalle $g_i$ se
+        \begin{equation*}
+            f(x_1, \dots, x_n) = h\bigl(g_1(x_1, \dots, x_n), \dots,
+            g_k(x_1, \dots, x_n)\bigr).
+        \end{equation*}
+    \end{definition}
+
+    Nel caso pi\`u semplice, con $g \colon \mathbb{N} \to \mathbb{N}$ e
+    $h \colon \mathbb{N} \to \mathbb{N}$, si ottiene la composizione usuale:
+    \begin{equation*}
+        f(x) = h(g(x)) = (h \circ g)(x),
+    \end{equation*}
+    in cui si applica prima $g$ e poi $h$.
+
+    \begin{definition}[Primitiva ricorsione]
+        Siano $g \colon \mathbb{N}^{n-1} \to \mathbb{N}$ e
+        $h \colon \mathbb{N}^{n+1} \to \mathbb{N}$. La funzione
+        $f \colon \mathbb{N}^n \to \mathbb{N}$ \`e \emph{definita per primitiva
+        ricorsione} da $g$ e $h$ se
+        \begin{equation*}
+            \begin{cases}
+                f(\overbrace{x_1, \dots, x_{n-1}, 0}^{n \text{ input}})
+                    = g(x_1, \dots, x_{n-1}), \\[4pt]
+                f(x_1, \dots, x_{n-1}, y + 1)
+                    = h(\underbrace{x_1, \dots, x_{n-1}, y,
+                    f(x_1, \dots, x_{n-1}, y)}_{n + 1 \text{ input}}).
+            \end{cases}
+        \end{equation*}
+    \end{definition}
+
+    Il primo caso fissa il valore per $y = 0$, il secondo calcola il valore per $y + 1$
+    a partire da quello per $y$.
+
+    La funzione $h$ riceve sempre tutti gli $n + 1$ argomenti, cio\`e
+    $x_1, \dots, x_{n-1}$, il contatore $y$ e il valore precedente
+    $f(x_1, \dots, x_{n-1}, y)$, ma non \`e obbligata a usarli tutti; lo stesso vale per
+    $g$ e per le funzioni della composizione. Per far dipendere una funzione solo da
+    alcuni argomenti la si compone con le proiezioni $\Pi_i$, che ne scelgono uno e
+    scartano gli altri.
+
+    \begin{esempio}
+        Alcune funzioni primitive ricorsive:
+        \begin{itemize}
+            \item \emph{zero}: $\lambda x.\, 0$;
+            \item \emph{costante} $c$, con $c \in \mathbb{N}$:
+                \begin{equation*}
+                    \lambda x.\, \underbrace{S(S(\dots S(0) \dots))}_{c \text{ volte}}.
+                \end{equation*}
+                Ad esempio $1 = \lambda x.\, S(0)$ e $2 = \lambda x.\, S(S(0))$. Si scrive
+                pi\`u brevemente $c = \lambda x.\, c$, che rappresenta
+                $\lambda x.\, S(\dots S(0) \dots)$ con $c$ applicazioni di $S$.
+        \end{itemize}
+        Il numero di $S$ \`e $c$, fissato quando si sceglie la funzione, e non dipende
+        dall'input $x$, che viene ignorato: con $x$ applicazioni di $S$ si otterrebbe
+        l'identit\`a $\lambda x.\, x$.
+    \end{esempio}
+
+    \begin{esempio}
+        Si definisce la somma ${+}(x, y)$ usando proiezione, composizione e primitiva
+        ricorsione:
+        \begin{equation*}
+            \begin{cases}
+                {+}(x, 0) = \Pi_1(x) = x, \\
+                {+}(x, y + 1) = S({+}(x, y)).
+            \end{cases}
+        \end{equation*}
+        \`E una definizione per primitiva ricorsione con $n = 2$, in cui $f = {+}$:
+        \begin{itemize}
+            \item $g \colon \mathbb{N} \to \mathbb{N}$ \`e la proiezione su una variabile,
+                $g = \Pi_1 = \lambda x.\, x$;
+            \item $h \colon \mathbb{N}^3 \to \mathbb{N}$ riceve $x$, $y$ e il valore
+                precedente $z = {+}(x, y)$, ma usa solo $z$: \`e la composizione del
+                successore con la proiezione sul terzo argomento,
+                \begin{equation*}
+                    h = \lambda x y z.\, S(\Pi_3(x, y, z)),
+                \end{equation*}
+                quindi
+                \begin{equation*}
+                    {+}(x, y + 1) = h(x, y, {+}(x, y))
+                    = S(\Pi_3(x, y, {+}(x, y)))
+                    = S({+}(x, y)).
+                \end{equation*}
+        \end{itemize}
+    \end{esempio}
+
+    \begin{esempio}
+        Si definisce la moltiplicazione ${*}(x, y)$ usando la somma e la costante $0$:
+        \begin{equation*}
+            \begin{cases}
+                {*}(x, 0) = 0, \\
+                {*}(x, y + 1) = {+}(x, {*}(x, y)).
+            \end{cases}
+        \end{equation*}
+        \`E una definizione per primitiva ricorsione con $n = 2$, in cui $f = {*}$:
+        \begin{itemize}
+            \item $g \colon \mathbb{N} \to \mathbb{N}$ \`e la funzione zero,
+                $g = \lambda x.\, 0$;
+            \item $h \colon \mathbb{N}^3 \to \mathbb{N}$ riceve $x$, $y$ e il valore
+                precedente $z = {*}(x, y)$, ma usa solo $x$ e $z$: \`e la composizione
+                della somma con le proiezioni sul primo e sul terzo argomento,
+                \begin{equation*}
+                    h = \lambda x y z.\, {+}(\Pi_1(x, y, z), \Pi_3(x, y, z)),
+                \end{equation*}
+                quindi
+                \begin{align*}
+                    {*}(x, y + 1) &= h(x, y, {*}(x, y)) \\
+                    &= {+}(\Pi_1(x, y, {*}(x, y)), \Pi_3(x, y, {*}(x, y)))
+                    = {+}(x, {*}(x, y)).
+                \end{align*}
+        \end{itemize}
+    \end{esempio}
+
+    \begin{esempio}
+        Una funzione primitiva ricorsiva si pu\`o costruire anche con una sequenza di
+        funzioni, ognuna delle quali \`e di base oppure si ottiene dalle precedenti con
+        composizione o primitiva ricorsione. Ad esempio:
+        \begin{equation*}
+            \begin{aligned}
+                f_0 &= \lambda x.\, x, \\
+                f_1 &= \lambda x.\, x + 1, \\
+                f_2 &= \lambda x_1 x_2 x_3.\, x_2, \\
+                f_3 &= f_1 \circ f_2, \\
+                f_4 &\colon
+                \begin{cases}
+                    f_4(0, x) = f_0(x), \\
+                    f_4(m + 1, x) = f_3(m, f_4(m, x), x).
+                \end{cases}
+            \end{aligned}
+        \end{equation*}
+        Ogni funzione usa solo quelle che la precedono:
+        \begin{itemize}
+            \item $f_0$, $f_1$ e $f_2$ sono funzioni di base: l'identit\`a, il successore
+                e la proiezione $\Pi_2$ su tre argomenti;
+            \item $f_3 = f_1 \circ f_2$ \`e una composizione:
+                $f_3(a, b, c) = f_1(f_2(a, b, c)) = b + 1$ prende il secondo argomento e
+                ci aggiunge $1$;
+            \item $f_4$ \`e definita per primitiva ricorsione con $g = f_0$ e
+                $h = f_3$, che quindi vanno costruite prima.
+        \end{itemize}
+        Rispetto alla definizione e alla somma ${+}(x, y)$ vista sopra, la ricorsione
+        \`e sul primo argomento $m$ e non sul secondo: $x$ resta fisso e il contatore
+        \`e $m$. Inoltre $h$ riceve il valore precedente al secondo posto. Nel passo ricorsivo $f_2$ sceglie
+        proprio il valore precedente e $f_1$ gli aggiunge $1$:
+        \begin{equation*}
+            f_4(m + 1, x) = f_3(m, f_4(m, x), x) = f_1(f_2(m, f_4(m, x), x))
+            = f_4(m, x) + 1.
+        \end{equation*}
+    \end{esempio}
 
     %TEORICA%
     \chapter{Esercizi}
