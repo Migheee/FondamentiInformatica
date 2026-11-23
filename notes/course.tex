@@ -856,6 +856,7 @@ shapes.geometric}
     dell'insieme delle funzioni con quella dell'insieme degli algoritmi.
 
     \section{Quante funzioni esistono?}
+    \label{sec:quante-funzioni}
     Una funzione $f \colon \mathbb{N} \to \mathbb{N}$ pu\`o essere vista come un \emph{insieme
     di coppie} in $\mathbb{N} \times \mathbb{N}$:
     \begin{equation*}
@@ -972,6 +973,7 @@ shapes.geometric}
     \end{equation*}
 
     \section{Il teorema di Cantor}
+    \label{sec:cantor}
     Resta da confrontare $|\mathbb{N}|$, la cardinalit\`a degli algoritmi, con
     $|\mathcal{P}(\mathbb{N})|$, la cardinalit\`a delle funzioni.
 
@@ -1255,6 +1257,7 @@ shapes.geometric}
     specifiche dei linguaggi e sono descritte nella Sezione~\ref{sec:operazioni-linguaggi}.
 
     \section{Funzioni come linguaggi}
+    \label{sec:funzioni-linguaggi}
     Una funzione $f \colon \mathbb{N} \to \mathbb{N}$ pu\`o essere vista come un linguaggio
     $\mathcal{L}_f$ su un alfabeto $\Sigma$ composto da un singolo simbolo.
 
@@ -6333,6 +6336,334 @@ shapes.geometric}
     \begin{equation*}
         \mathrm{LR} \subseteq \text{CF}.
     \end{equation*}
+
+    % Appendice tra il Capitolo 4 e il Capitolo 5: numerata con una lettera, senza far
+    % avanzare la numerazione dei capitoli
+    \begingroup
+    \renewcommand{\thechapter}{A}
+    \renewcommand{\theHchapter}{A}
+    \chapter{Gerarchia di Chomsky}
+    \label{app:gerarchia-chomsky}
+    Le classi di linguaggi viste finora sono contenute l'una nell'altra, e sono a loro
+    volta contenute in classi pi\`u ampie, che si studieranno in seguito. Questa catena di
+    inclusioni prende il nome di \emph{gerarchia di Chomsky}
+    (Figura~\ref{fig:gerarchia-chomsky}). A ogni classe corrisponde un modello di calcolo
+    che la riconosce, e i modelli si distinguono per la memoria che hanno a disposizione
+    (Tabella~\ref{tab:gerarchia-chomsky}).
+
+    \begin{figure}[H]
+        \centering
+        % Un colore sobrio per ogni classe di linguaggi, scuro per restare leggibile in
+        % stampa; il verde della teoria della calcolabilita' come nel disegno della lezione
+        \definecolor{col-reg}{RGB}{46, 84, 130}
+        \definecolor{col-dcf}{RGB}{47, 111, 108}
+        \definecolor{col-cf}{RGB}{168, 108, 46}
+        \definecolor{col-cs}{RGB}{108, 76, 120}
+        \definecolor{col-calc}{RGB}{140, 58, 78}
+        \definecolor{col-teoria}{RGB}{72, 110, 64}
+        \begin{tikzpicture}[
+            scale=0.85,
+            classe/.style={thick},
+            nome/.style={font=\footnotesize\scshape, align=center},
+            esempio/.style={font=\small}
+        ]
+            % Classi, dalla piu' esterna alla piu' interna
+            \draw[classe, col-calc] (0, -0.4) ellipse (7.6 and 4.1);
+            \draw[classe, col-cs] (-0.7, 0) ellipse (6.5 and 3.05);
+            \draw[classe, col-cf] (-1.6, 0.2) ellipse (4.8 and 2.25);
+            \draw[classe, col-dcf, dashed] (-2.2, 0.3) ellipse (3.5 and 1.7);
+            \draw[classe, col-reg] (-3.3, 0.4) ellipse (1.45 and 1.05);
+
+            % Nomi delle classi
+            \node[nome, col-reg] at (-3.3, 0.75) {Regolari};
+            \node[nome, col-dcf] at (-0.50, 0.95) {CF\\[-2pt] deterministici};
+            \node[nome, col-cf] at (1.85, 1.1) {CF};
+            \node[nome, col-cs] at (4.1, 1.0) {Context\\[-2pt] sensitive};
+            \node[nome, col-calc] at (0, -3.8) {Calcolabili};
+
+            % Linguaggi di esempio, nel colore della loro classe
+            \node[esempio, col-reg] at (-4.15, 0.05) {$\emptyset$};
+            \node[esempio, col-reg] at (-3.3, -0.15) {$\Sigma^*$};
+            \node[esempio, col-reg] at (-2.45, 0.05) {$a^*$};
+            \node[esempio, col-dcf] at (-0.55, -0.05) {$a^n b^n$};
+            \node[esempio, col-dcf] at (-0.55, -0.75) {$w c w^R$};
+            \node[esempio, col-cf] at (2.25, -0.1) {$w w^R$};
+            \node[esempio, col-cs] at (-1.0, -2.55) {$a^n b^n c^n$};
+            \node[esempio, col-calc] at (6.4, -1.25) {$a^{2^n}$};
+            \node[esempio, col-calc] at (6.4, -1.95) {$a^{n^2}$};
+
+            % La teoria della calcolabilita' parte dalle MdT e vale per tutte le classi
+            % interne: freccia sopra la scritta MdT fino al bordo dei context sensitive,
+            % poi tratteggio fino ai regolari
+            \node[font=\footnotesize\scshape, col-calc] at (6.8, 0.1) {MdT};
+            \draw[->, >={Stealth}, thick, col-teoria] (7.15, 0.45) -- (5.73, 0.45);
+            \draw[thick, dashed, col-teoria] (5.73, 0.45) -- (-1.85, 0.45);
+            \node[font=\footnotesize\itshape, align=center, col-teoria] at (4.3, -0.4)
+                {teoria della\\ calcolabilit\`a};
+        \end{tikzpicture}
+        \caption{La gerarchia di Chomsky, con alcuni linguaggi di esempio per ogni
+            classe. L'ovale tratteggiato indica i CF deterministici; la freccia che
+            parte dalle MdT indica che la teoria della calcolabilit\`a vale per tutte le
+            classi interne.}
+        \label{fig:gerarchia-chomsky}
+    \end{figure}
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{lll}
+            \toprule
+            \textsc{Classe} & \textsc{Modello} & \textsc{Memoria} \\
+            \midrule
+            Regolari & DFA, NFA & solo lo stato \\
+            CF deterministici & automa a pila deterministico & pila \\
+            CF & automa a pila non deterministico & pila \\
+            Context sensitive & automa lineare limitato & nastro limitato a $O(n)$ \\
+            Calcolabili & macchina di Turing & nastro illimitato \\
+            \bottomrule
+        \end{tabular}
+        \caption{Le classi della gerarchia di Chomsky, il modello di calcolo che le
+            riconosce e la sua memoria; $n$ \`e la lunghezza dell'input.}
+        \label{tab:gerarchia-chomsky}
+    \end{table}
+
+    Partendo dall'interno, i linguaggi regolari sono riconosciuti dagli automi a stati
+    finiti, deterministici o no (Teorema~\ref{thm:rabin-scott}), la cui unica memoria
+    \`e lo stato. Aggiungendo una pila, cio\`e un nastro su cui si legge e si scrive
+    solo dalla cima (LIFO), si ottengono gli automi a pila: quelli deterministici
+    riconoscono i CF deterministici, come $\{a^n b^n\}$ e $\{w c w^R\}$, quelli non
+    deterministici tutti i CF, come $\{w w^R\}$. Come visto nella
+    Sezione~\ref{sec:automi-pila}, per gli automi a pila le due versioni non sono
+    equivalenti.
+
+    I linguaggi \emph{context sensitive} sono riconosciuti dagli \emph{automi lineari
+    limitati} (\emph{linear bounded automata}). Un automa lineare limitato \`e non
+    deterministico e lavora su un nastro su cui pu\`o sia leggere sia scrivere,
+    muovendosi in entrambe le direzioni e ripassando sull'input quante volte vuole. Il
+    nastro \`e per\`o limitato alle celle occupate dall'input, quindi la memoria \`e
+    proporzionale alla lunghezza $n$ dell'input, $O(n)$: da qui il nome \emph{lineare}.
+
+    Ad esempio, $\{a^n b^n c^n\}$ non \`e CF (Sezione~\ref{sec:pumping-cf}): con la
+    pila, dopo aver confrontato le $a$ con le $b$, il conteggio \`e perso e non si
+    possono pi\`u controllare le $c$. Un automa lineare limitato invece pu\`o ripassare
+    sull'input:
+    \begin{enumerate}
+        \item segna la prima $a$ non ancora segnata, poi la prima $b$ e la prima $c$;
+        \item torna all'inizio e ripete;
+        \item accetta se alla fine tutti i simboli sono segnati e compaiono nell'ordine
+            giusto.
+    \end{enumerate}
+    I segni li scrive sulle celle dell'input, quindi non gli serve altra memoria.
+
+    Infine, le \emph{macchine di Turing} (MdT) lavorano su un nastro in lettura e
+    scrittura illimitato. Un linguaggio \`e \emph{calcolabile}, o \emph{riconoscibile},
+    se esiste una macchina di Turing che lo riconosce, come $\{a^{2^n}\}$ e
+    $\{a^{n^2}\}$.\footnote{Nella Figura~\ref{fig:gerarchia-chomsky} i due linguaggi
+    compaiono tra i calcolabili, come nel disegno della lezione, ma sono anche context
+    sensitive: un automa lineare limitato li riconosce.} Riassumendo:
+    \begin{equation*}
+        \text{regolari} \subsetneq \text{CF deterministici} \subsetneq \text{CF}
+        \subsetneq \text{context sensitive} \subsetneq \text{calcolabili}.
+    \end{equation*}
+    Le prime tre inclusioni sono strette, come mostrano i linguaggi di esempio:
+    $\{a^n b^n\}$ \`e CF deterministico ma non regolare, $\{w w^R\}$ \`e CF ma non
+    deterministico, e $\{a^n b^n c^n\}$ \`e context sensitive ma non CF.
+
+    Poich\'e le classi sono annidate, ogni linguaggio regolare, CF o context sensitive
+    \`e anche calcolabile: una macchina di Turing pu\`o simulare un DFA, un automa a pila
+    o un automa lineare limitato, perch\'e ha un nastro illimitato in lettura e
+    scrittura e pu\`o quindi fare tutto quello che fanno loro. I risultati della
+    \emph{teoria della calcolabilit\`a}, detta anche \emph{teoria della ricorsione}, che
+    studia ci\`o che le macchine di Turing possono calcolare, valgono quindi per tutte le
+    classi interne: \`e quello che indica la freccia che parte dalle MdT nella
+    Figura~\ref{fig:gerarchia-chomsky}.
+    \endgroup
+    \addtocounter{chapter}{-1}
+
+    \chapter{Teoria della calcolabilit\`a}
+    \label{chap:calcolabilita}
+    Nei capitoli precedenti si \`e studiato il \emph{riconoscimento di linguaggi}: dato
+    un linguaggio $\mathcal{L} \subseteq \Sigma^*$, stabilire se una stringa vi
+    appartiene. La teoria della calcolabilit\`a sposta l'attenzione dalle stringhe alle
+    funzioni.
+
+    Come visto nella Sezione~\ref{sec:funzioni-linguaggi}, una funzione
+    $f \colon \mathbb{N} \to \mathbb{N}$ si pu\`o rappresentare come un linguaggio su un
+    alfabeto con un solo simbolo $a$:
+    \begin{equation*}
+        \mathcal{L} \subseteq \Sigma^*
+        \quad\rightsquigarrow\quad
+        \{a^{f(n)} \mid n \in \mathbb{N}\}.
+    \end{equation*}
+    Si crea cos\`i una corrispondenza tra il riconoscimento di linguaggi e il calcolo di
+    funzioni:
+    \begin{equation*}
+        \text{riconoscimento di linguaggi}
+        \quad\longleftrightarrow\quad
+        \text{calcolo di funzioni}.
+    \end{equation*}
+    Grazie a questa corrispondenza si pu\`o parlare della \emph{calcolabilit\`a delle
+    funzioni}, piuttosto che del riconoscimento di stringhe.
+
+    \section{Quante funzioni sono calcolabili}
+    \label{sec:quante-calcolabili}
+    Le funzioni calcolabili sono solo una piccola parte di tutte le funzioni da
+    $\mathbb{N}$ in $\mathbb{N}$ (Figura~\ref{fig:funzioni-calcolabili}). Si indica con
+    $\omega = |\mathbb{N}|$ la cardinalit\`a dei numeri naturali, cio\`e del numerabile.
+    Come visto nella Sezione~\ref{sec:quante-funzioni}, le funzioni sono tante quanti i
+    sottoinsiemi di $\mathbb{N}$:
+    \begin{equation*}
+        |\{f \mid f \colon \mathbb{N} \to \mathbb{N}\}| = |\mathcal{P}(\mathbb{N})|
+        = 2^\omega,
+    \end{equation*}
+    che per il Teorema~\ref{thm:cantor} \`e strettamente maggiore di $\omega$: le
+    funzioni non sono numerabili.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            % Tutte le funzioni
+            \draw[thick] (0, 0) rectangle (9, 4);
+            \node[align=center] at (6.4, 2) {tutte le funzioni
+                $f \colon \mathbb{N} \to \mathbb{N}$\\[2pt]
+                {\color{evidenza}cardinalit\`a $2^\omega$}};
+
+            % Funzioni calcolabili
+            \draw[thick, fill=tenue] (0.6, 0.9) rectangle (3.6, 3.1);
+            \node[align=center] at (2.1, 2) {funzioni\\ calcolabili\\[2pt]
+                {\color{evidenza}cardinalit\`a $\omega$}};
+        \end{tikzpicture}
+        \caption{Le funzioni calcolabili sono un insieme numerabile, contenuto
+            nell'insieme non numerabile di tutte le funzioni da $\mathbb{N}$ in
+            $\mathbb{N}$.}
+        \label{fig:funzioni-calcolabili}
+    \end{figure}
+
+    Le funzioni calcolabili, invece, sono numerabili:
+    \begin{equation*}
+        |\{f \colon \mathbb{N} \to \mathbb{N} \mid f \text{ calcolabile}\}| = \omega.
+    \end{equation*}
+    Per dimostrarlo servono due disuguaglianze. Tra insiemi, $|A| \leq |B|$ significa
+    che esiste una funzione iniettiva da $A$ in $B$, cio\`e che a ogni elemento di $A$ si
+    pu\`o associare un elemento diverso di $B$.
+    \begin{itemize}[leftmargin=3em]
+        \item[($\leq$)] Una funzione calcolabile non coincide con un algoritmo, ma ne ha
+            almeno uno che la calcola, anzi infiniti, perch\'e lo stesso calcolo si pu\`o
+            scrivere in molti modi. A ogni funzione calcolabile si associa uno di questi
+            algoritmi, ad esempio il primo nell'ordine di $\Sigma^*$ visto nella
+            Sezione~\ref{sec:algoritmi}. Funzioni diverse ricevono algoritmi diversi,
+            perch\'e un algoritmo calcola una sola funzione: l'associazione \`e
+            iniettiva, quindi
+            \begin{equation*}
+                |\{f \text{ calcolabili}\}| \leq |\Sigma^*| = \omega.
+            \end{equation*}
+        \item[($\geq$)] A ogni $n \in \mathbb{N}$ si associa la funzione costante
+            $f_n(k) = n$:
+            \begin{equation*}
+                f_0 \colon 0, 0, 0, \dots \qquad
+                f_1 \colon 1, 1, 1, \dots \qquad
+                f_2 \colon 2, 2, 2, \dots
+            \end{equation*}
+            Ogni $f_n$ \`e calcolabile: l'algoritmo ignora l'input e restituisce $n$.
+            L'associazione \`e iniettiva: se $n \neq h$, gi\`a su $0$ si ha
+            $f_n(0) = n \neq h = f_h(0)$, quindi $f_n \neq f_h$. A ogni numero naturale
+            corrisponde quindi una funzione calcolabile diversa, e
+            \begin{equation*}
+                \omega \leq |\{f \text{ calcolabili}\}|.
+            \end{equation*}
+    \end{itemize}
+
+    Poich\'e le funzioni costanti non sono le uniche funzioni calcolabili, che
+    comprendono anche $f(k) = k$, $f(k) = 2k$, $f(k) = k^2$ e molte altre, dalla seconda
+    disuguaglianza si ottiene solo $\geq$ e non l'uguaglianza.
+
+    Mettendo insieme le due disuguaglianze si ottiene
+    \begin{equation*}
+        \omega \leq |\{f \text{ calcolabili}\}| \leq \omega
+        \implies
+        |\{f \text{ calcolabili}\}| = \omega.
+    \end{equation*}
+
+    \section{Funzioni calcolabili e tesi di Church}
+    \label{sec:tesi-church}
+    \begin{definition}[Funzione calcolabile]
+        Una funzione \`e \emph{calcolabile} se esiste un algoritmo che la calcola.
+    \end{definition}
+
+    La nozione di algoritmo usata in questa definizione \`e intuitiva. La tesi di Church
+    la collega a un modello di calcolo formale, la macchina di Turing.
+
+    \textsc{Tesi di Church}. Una funzione \`e intuitivamente calcolabile se esiste una
+    macchina di Turing che la calcola.
+
+    Si tratta di una tesi e non di un teorema: la nozione intuitiva di calcolabilit\`a
+    non \`e definita formalmente, quindi non si pu\`o dimostrare che coincida con quella
+    data dalle macchine di Turing.
+
+    \begin{esempio}
+        La stessa funzione si pu\`o descrivere in due modi diversi.
+        \begin{itemize}
+            \item \emph{Definizione dell'algoritmo}:
+                \begin{equation*}
+                    \begin{cases}
+                        f(0) = f(1) = 1, \\
+                        f(x + 2) = f(x + 1) + f(x).
+                    \end{cases}
+                \end{equation*}
+                Fornisce una procedura costruttiva per ottenere l'output: si parte da
+                $f(0)$ e $f(1)$ e si sommano ogni volta i due valori precedenti, fino ad
+                arrivare a $f(n)$. Ad esempio $f(2) = 2$, $f(3) = 3$, $f(4) = 5$.
+            \item \emph{Definizione della funzione}:
+                \begin{equation*}
+                    f(n) = \frac{1}{\sqrt{5}} \left( \left( \frac{1 + \sqrt{5}}{2}
+                    \right)^{n+1} - \left( \frac{1 - \sqrt{5}}{2} \right)^{n+1} \right).
+                \end{equation*}
+                Dice quale valore assume la funzione, ma non \`e scritta come una
+                sequenza di passi: contiene il numero irrazionale $\sqrt{5}$, anche se
+                il risultato \`e sempre un numero naturale.
+        \end{itemize}
+    \end{esempio}
+
+    Una funzione non calcolabile \`e, intuitivamente, una funzione i cui valori non
+    seguono alcuna regola, come
+    \begin{equation*}
+        f(0) = 1000, \quad f(1) = 2, \quad f(2) = 101, \quad f(3) = 5, \quad \dots
+    \end{equation*}
+    Un algoritmo \`e finito, mentre per calcolare una funzione di questo tipo dovrebbe
+    ricordare infiniti valori arbitrari. Funzioni cos\`i sono la maggior parte degli
+    elementi di $\mathcal{P}(\mathbb{N} \times \mathbb{N})$, come visto nella
+    Sezione~\ref{sec:quante-calcolabili}.
+
+    \section{Funzioni ricorsive}
+    \label{sec:funzioni-ricorsive}
+    Le \emph{funzioni ricorsive} danno una definizione ricorsiva del calcolo di una
+    funzione, a partire da funzioni elementari.
+
+    \subsection{\texorpdfstring{$\lambda$}{Lambda}-notazione}
+    Per scrivere queste funzioni si usa la \emph{$\lambda$-notazione}, che descrive una
+    funzione senza doverle dare un nome:
+    \begin{equation*}
+        f(x) = x + 1
+        \quad\rightsquigarrow\quad
+        \lambda x.\, x + 1.
+    \end{equation*}
+    In generale, una funzione di $n$ variabili si scrive
+    \begin{equation*}
+        \lambda \underbrace{x_1 \dots x_n}_{\text{variabili di input}} .\,
+        \underbrace{f(x_1, \dots, x_n)}_{\text{calcolo del risultato}}:
+    \end{equation*}
+    le variabili dopo $\lambda$ sono l'input, e l'espressione dopo il punto dice come
+    calcolare il risultato. Applicare la funzione a un valore significa sostituirlo alla
+    variabile: ad esempio $(\lambda x.\, x + 1)(3) = 3 + 1 = 4$.
+
+    \subsection{Funzioni primitive ricorsive}
+    Le \emph{funzioni primitive ricorsive} si costruiscono a partire da alcune
+    \emph{funzioni primitive ricorsive di base}:
+    \begin{itemize}
+        \item \emph{zero}: $\lambda x.\, 0$, che restituisce sempre $0$;
+        \item \emph{successore}: $S = \lambda x.\, x + 1$;
+        \item \emph{proiezione}: $\lambda x.\, x$, che su una sola variabile \`e
+            l'identit\`a.
+    \end{itemize}
 
     %TEORICA%
     \chapter{Esercizi}
