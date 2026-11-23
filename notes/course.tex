@@ -6832,6 +6832,184 @@ shapes.geometric}
         \end{equation*}
     \end{esempio}
 
+    \begin{esempio}
+        La somma ${+}(x, m)$ si ottiene anche con la sequenza
+        \begin{equation*}
+            \begin{aligned}
+                f_1 &= \lambda x.\, x + 1, \\
+                f_2 &= \lambda x.\, x, \\
+                f_3 &\colon
+                \begin{cases}
+                    f_3(x, 0) = f_2(x), \\
+                    f_3(x, m + 1) = f_1(f_3(x, m)).
+                \end{cases}
+            \end{aligned}
+        \end{equation*}
+        Qui $f_3$ \`e definita per primitiva ricorsione sul secondo argomento, con
+        $g = f_2$, l'identit\`a, e con il successore $f_1$ nel passo. Le proiezioni sono
+        sottintese: la $h$ del passo \`e formalmente
+        $\lambda x m z.\, f_1(\Pi_3(x, m, z))$, dove $z = f_3(x, m)$ \`e il valore
+        precedente.
+    \end{esempio}
+
+    \begin{esempio}
+        Sulla somma si costruisce la moltiplicazione ${*}(x, n)$:
+        \begin{equation*}
+            \begin{aligned}
+                f_0 &= \lambda x.\, 0, \\
+                f_1 &= \lambda x.\, x + 1, \\
+                f_2 &= \lambda x.\, x, \\
+                f_3 &= \lambda x y.\, {+}(x, y), \\
+                f_4 &\colon
+                \begin{cases}
+                    f_4(x, 0) = f_0(x), \\
+                    f_4(x, n + 1) = f_3(x, f_4(x, n)).
+                \end{cases}
+            \end{aligned}
+        \end{equation*}
+        $f_1$ e $f_2$ non compaiono nella definizione di $f_4$: servono a costruire
+        $f_3 = {+}$, come nella sequenza precedente. Anche qui le proiezioni sono
+        sottintese: la $h$ del passo \`e formalmente
+        $\lambda x n z.\, f_3(\Pi_1(x, n, z), \Pi_3(x, n, z))$, dove $z = f_4(x, n)$ \`e
+        il valore precedente.
+    \end{esempio}
+
+    \begin{definition}[Funzione totale e parziale]
+        Una funzione $f \colon \mathbb{N}^n \to \mathbb{N}$ \`e \emph{totale} se \`e
+        definita su tutti gli input, \emph{parziale} se su qualche input non \`e
+        definita.
+    \end{definition}
+
+    Dal punto di vista del calcolo, una funzione non definita su un input corrisponde a
+    un algoritmo che su quell'input non termina, ad esempio un programma con un ciclo
+    \texttt{while} la cui condizione non diventa mai falsa. Si dice che la funzione
+    \emph{diverge} su quell'input, e si scrive $f(x)\uparrow$; se invece l'algoritmo
+    termina e restituisce un valore, la funzione \emph{converge}, $f(x)\downarrow$.
+    Quindi $f$ \`e totale se $f(x)\downarrow$ per ogni $x$, e parziale se esiste un $x$
+    con $f(x)\uparrow$.
+
+    \emph{Le funzioni primitive ricorsive sono tutte totali, ma non catturano tutte le
+    funzioni totali calcolabili.} Sono totali perch\'e:
+    \begin{itemize}
+        \item le funzioni di base danno sempre un risultato;
+        \item la composizione di funzioni totali \`e totale;
+        \item la primitiva ricorsione termina sempre: per calcolare $f(x, y)$ si parte
+            da $y$ e si scende di $1$ a ogni passo fino a $0$, quindi i passi sono
+            esattamente $y$, un numero fissato fin dall'inizio.
+    \end{itemize}
+    \`E come un linguaggio di programmazione con soli cicli \texttt{for} di lunghezza
+    fissata, senza \texttt{while}: ogni programma termina. Esistono per\`o funzioni
+    totali e calcolabili che non sono primitive ricorsive, come la \emph{funzione di
+    Ackermann}:
+    \begin{equation*}
+        \begin{cases}
+            \mathrm{ack}(0, y) = y + 1, \\
+            \mathrm{ack}(x + 1, 0) = \mathrm{ack}(x, 1), \\
+            \mathrm{ack}(x + 1, y + 1)
+                = \underbrace{\mathrm{ack}}_{h = f}(x, \mathrm{ack}(x + 1, y)).
+        \end{cases}
+    \end{equation*}
+    Nell'ultimo caso la funzione esterna, che nella primitiva ricorsione sarebbe $h$, \`e
+    $\mathrm{ack}$ stessa: $h = f$. Nella primitiva ricorsione $h$ deve essere una
+    funzione gi\`a costruita, quindi questa definizione non rientra nello schema. Si
+    dimostra che $\mathrm{ack}$ \`e una funzione totale non descrivibile come sequenza di
+    funzioni primitive ricorsive.
+
+    Che le funzioni primitive ricorsive non catturino tutte le funzioni calcolabili si
+    vede anche per assurdo. Si suppone che ogni funzione calcolabile sia primitiva
+    ricorsiva. Le funzioni primitive ricorsive si possono elencare,
+    \begin{equation*}
+        \mathrm{PR} = \{f_0, f_1, \dots, f_n, \dots\},
+    \end{equation*}
+    perch\'e ognuna \`e descritta da una sequenza finita di funzioni, cio\`e da una
+    stringa, e le stringhe sono numerabili (Sezione~\ref{sec:quante-calcolabili}). Si
+    definisce
+    \begin{equation*}
+        h(x) = f_x(x) + 1.
+    \end{equation*}
+    $h$ \`e calcolabile: dato $x$, si prende la $x$-esima funzione dell'elenco, la si
+    calcola su $x$, il che termina perch\'e le primitive ricorsive sono totali, e si
+    applica il successore, $h(x) = S(f_x(x))$. Per l'ipotesi $h$ \`e allora primitiva
+    ricorsiva, quindi compare nell'elenco: esiste $n$ tale che $h = f_n$. Calcolando
+    $h$ in $n$ si ottiene
+    \begin{equation*}
+        f_n(n) = h(n) = f_n(n) + 1,
+    \end{equation*}
+    assurdo, perch\'e un numero naturale non \`e mai uguale al suo successore. Quindi
+    $h$ \`e calcolabile ma non primitiva ricorsiva.
+
+    Le funzioni primitive ricorsive non catturano quindi tutto ci\`o che \`e
+    calcolabile, perch\'e definiscono solo funzioni totali, e nemmeno tutte quelle: ne
+    restano fuori sia funzioni totali come $\mathrm{ack}$, sia funzioni parziali come
+    $\sqrt[n]{x}$ (Figura~\ref{fig:pr-parziali}).
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \draw[thick] (0, 0) ellipse (2.4 and 1.4);
+            \node at (1.55, 0.75) {PR};
+
+            % Context sensitive, dentro PR
+            \draw[thick] (-0.4, -0.1) ellipse (1.5 and 0.95);
+            \node[font=\small, align=center] at (-0.4, -0.1)
+                {Context\\ sensitive};
+            \fill (3.4, 0.5) circle (1.5pt) node[right] {$\mathrm{ack}$, totale};
+            \fill (3.4, -0.5) circle (1.5pt) node[right] {$\sqrt[n]{x}$, parziale};
+
+            % Tutte le funzioni calcolabili
+            \draw[thick] (1.9, 0) ellipse (4.9 and 2.1);
+            \node at (1.9, -1.6) {Calcolabili};
+        \end{tikzpicture}
+        \caption{L'insieme delle funzioni calcolabili: contiene l'insieme $\mathrm{PR}$
+            delle funzioni primitive ricorsive, che a sua volta contiene i context
+            sensitive, e anche funzioni che restano fuori da $\mathrm{PR}$, come
+            $\mathrm{ack}$ e $\sqrt[n]{x}$.}
+        \label{fig:pr-parziali}
+    \end{figure}
+
+    Qui il codominio \`e $\mathbb{N}$, quindi $\sqrt[n]{x}$ \`e definita solo quando $x$
+    \`e una potenza $n$-esima esatta. Ad esempio, con $n = 2$, $\sqrt{4} = 2$ e
+    $\sqrt{9} = 3$, mentre $\sqrt{2}$ non \`e definita, perch\'e il suo valore non \`e
+    in $\mathbb{N}$. Per calcolarla si provano $y = 0, 1, 2, \dots$ finch\'e $y^n = x$:
+    su $x = 2$ la ricerca non termina mai, e la funzione diverge, $\sqrt{2}\uparrow$.
+
+    Per catturare anche queste funzioni bisogna aggiungere alle primitive ricorsive la
+    possibilit\`a di cercare valori che potrebbero non esistere.
+
+    \subsection{Minimizzazione}
+    \label{sec:minimizzazione}
+    Lo strumento per cercare valori che potrebbero non esistere \`e la
+    \emph{minimizzazione}, detta anche \emph{ricerca lineare incerta}.
+
+    \begin{definition}[Minimizzazione]
+        Sia $f \colon \mathbb{N}^{n+1} \to \mathbb{N}$ una funzione ricorsiva totale. La
+        funzione $\varphi \colon \mathbb{N}^n \to \mathbb{N}$ \`e \emph{definita per
+        minimizzazione} se
+        \begin{equation*}
+            \varphi(x_1, \dots, x_n) = \mu z.\, (f(x_1, \dots, x_n, z) = 0) =
+            \begin{cases}
+                \min \{z \mid f(x_1, \dots, x_n, z) = 0\} & \text{se $z$ esiste}, \\
+                \uparrow & \text{altrimenti},
+            \end{cases}
+        \end{equation*}
+        dove $\mu z$ si legge \emph{il pi\`u piccolo $z$}.
+    \end{definition}
+
+    Per calcolare $\varphi$ si provano $z = 0, 1, 2, \dots$ finch\'e
+    $f(x_1, \dots, x_n, z) = 0$: se lo $z$ esiste la ricerca si ferma al pi\`u piccolo,
+    altrimenti va avanti per sempre e $\varphi(x_1, \dots, x_n)\uparrow$. Per questo la
+    ricerca \`e \emph{incerta}, e in generale $\varphi$ \`e parziale. La funzione $f$
+    deve invece essere totale, perch\'e ogni singolo controllo deve terminare.
+
+    \begin{esempio}
+        Sia $f(x, z) = 0$ se e solo se $z^2 = x$. Allora
+        \begin{equation*}
+            \sqrt{x} = \mu z.\, (f(x, z) = 0):
+        \end{equation*}
+        $\sqrt{9} = 3$, perch\'e $z = 3$ \`e il primo con $z^2 = 9$, mentre
+        $\sqrt{2}\uparrow$, perch\'e nessuno $z$ ha $z^2 = 2$.
+    \end{esempio}
+
     %TEORICA%
     \chapter{Esercizi}
     \section{Automi a stati finiti deterministici}
