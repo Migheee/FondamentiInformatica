@@ -5755,7 +5755,7 @@ shapes.geometric}
     \begin{definition}[Descrizione istantanea]
         Una \emph{descrizione istantanea} di un automa a pila \`e una tripla
         \begin{equation*}
-            \langle q, x, \gamma \rangle,
+            (q, x, \gamma),
             \qquad q \in \mathcal{Q},\; x \in \Sigma^*,\; \gamma \in \mathcal{R}^*,
         \end{equation*}
         dove $q$ \`e lo stato corrente, $x$ sono i simboli ancora da leggere sul nastro e
@@ -5767,16 +5767,16 @@ shapes.geometric}
     La pila si scrive come una stringa con la cima a sinistra: in $Z\psi$ il simbolo
     $Z$ \`e in cima e $\psi \in \mathcal{R}^*$ \`e il resto della pila, sotto di
     lui. Se $(p, \gamma) \in \delta(q, a, Z)$, l'automa passa
-    dalla descrizione istantanea $\langle q, aw, Z\psi \rangle$ a
-    $\langle p, w, \gamma\psi \rangle$:
+    dalla descrizione istantanea $(q, aw, Z\psi)$ a
+    $(p, w, \gamma\psi)$:
     \begin{equation*}
-        \langle q, aw, Z\psi \rangle \longrightarrow \langle p, w, \gamma\psi \rangle.
+        (q, aw, Z\psi) \longrightarrow (p, w, \gamma\psi).
     \end{equation*}
     Sul nastro viene letto $a$ e resta $w$; nella pila $Z$ viene tolto e sostituito da
     $\gamma$, mentre il resto $\psi$ non cambia, come mostra la
     Figura~\ref{fig:mossa-pila}. Il primo simbolo di $\gamma$ diventa quindi la nuova
     cima della pila. Se $a = \varepsilon$ il nastro non cambia:
-    $\langle q, w, Z\psi \rangle \longrightarrow \langle p, w, \gamma\psi \rangle$.
+    $(q, w, Z\psi) \longrightarrow (p, w, \gamma\psi)$.
 
     \begin{figure}[H]
         \centering
@@ -5787,7 +5787,7 @@ shapes.geometric}
             etichetta/.style={font=\small}
         ]
             % Prima della mossa
-            \node[etichetta] at (1.7, 1.4) {$\langle q, aw, Z\psi \rangle$};
+            \node[etichetta] at (1.7, 1.4) {$(q, aw, Z\psi)$};
             \node[cella, minimum width=0.6cm, anchor=west] at (0, 0) {$a$};
             \node[cella, minimum width=1.4cm, anchor=west] at (0.6, 0) {$w$};
             \node[etichetta] at (1.0, -0.65) {nastro};
@@ -5802,7 +5802,7 @@ shapes.geometric}
                 node[midway, below=2pt, etichetta] {$(p, \gamma) \in \delta(q, a, Z)$};
 
             % Dopo la mossa
-            \node[etichetta] at (9.6, 1.4) {$\langle p, w, \gamma\psi \rangle$};
+            \node[etichetta] at (9.6, 1.4) {$(p, w, \gamma\psi)$};
             \node[letto, minimum width=0.6cm, anchor=west] at (7.9, 0) {$a$};
             \node[cella, minimum width=1.4cm, anchor=west] at (8.5, 0) {$w$};
             \node[etichetta] at (8.9, -0.65) {nastro};
@@ -5829,8 +5829,8 @@ shapes.geometric}
         $\mathcal{M}$ \`e
         \begin{equation*}
             \mathcal{L}_F(\mathcal{M}) = \{x \in \Sigma^* \mid
-            \langle q_0, x, z_0 \rangle \longrightarrow^* \langle q, \varepsilon, \gamma
-            \rangle,\; q \in \mathcal{F},\; \gamma \in \mathcal{R}^*\}.
+            (q_0, x, z_0) \longrightarrow^* (q, \varepsilon, \gamma
+           ),\; q \in \mathcal{F},\; \gamma \in \mathcal{R}^*\}.
         \end{equation*}
     \end{definition}
     Una stringa $x$ \`e quindi accettata se, partendo dallo stato iniziale con $x$ sul
@@ -5844,8 +5844,8 @@ shapes.geometric}
         $\mathcal{M}$ \`e
         \begin{equation*}
             \mathcal{L}_P(\mathcal{M}) = \{x \in \Sigma^* \mid
-            \langle q_0, x, z_0 \rangle \longrightarrow^* \langle q, \varepsilon,
-            \varepsilon \rangle,\; q \in \mathcal{Q}\}.
+            (q_0, x, z_0) \longrightarrow^* (q, \varepsilon,
+            \varepsilon),\; q \in \mathcal{Q}\}.
         \end{equation*}
     \end{definition}
     Qui una stringa $x$ \`e accettata se esiste una sequenza di mosse che legge tutta $x$
@@ -7103,6 +7103,197 @@ RICERCA-INCERTA(x1, ..., xn)
     \begin{esempio}
         Con la definizione di esponenziale appena data, $2^n = \mathrm{exp}(2, n)$.
     \end{esempio}
+
+    \section{Macchine di Turing}
+    \label{sec:mdt}
+    La \emph{macchina di Turing} (MdT) formalizza l'idea di algoritmo, che si basa su
+    tre elementi:
+    \begin{itemize}
+        \item un algoritmo \`e una sequenza \emph{finita} di passi;
+        \item esiste un \emph{agente di calcolo}, che esegue i passi di calcolo;
+        \item l'agente di calcolo ha a disposizione una \emph{memoria illimitata}, in cui
+            si legge l'input e si scrivono i calcoli intermedi.
+    \end{itemize}
+
+    La memoria \`e un \emph{nastro} infinito in entrambe le direzioni, diviso in celle,
+    ognuna delle quali contiene un simbolo (Figura~\ref{fig:mdt}). Una \emph{testina}
+    \`e posizionata su una cella, di cui legge il simbolo $s$, e la macchina si trova in
+    uno \emph{stato} $q$. A ogni passo, in base alla coppia (stato, simbolo letto), la
+    \emph{tabella di transizione}, che \`e finita, indica:
+    \begin{itemize}
+        \item il \emph{nuovo stato};
+        \item il \emph{nuovo simbolo} da scrivere nella cella, al posto di $s$;
+        \item la \emph{direzione di spostamento} della testina, a sinistra ($L$) o a
+            destra ($R$).
+    \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[
+            cella/.style={draw, minimum width=0.9cm, minimum height=0.6cm},
+            freccia/.style={->, >={Stealth}, thick, evidenza}
+        ]
+            % Nastro, infinito in entrambe le direzioni
+            \draw (0, 0.3) -- (6.3, 0.3);
+            \draw (0, -0.3) -- (6.3, -0.3);
+            \node at (0.25, 0) {$\cdots$};
+            \node at (6.05, 0) {$\cdots$};
+            \foreach \i/\t in {1/l_2, 2/l_1, 3/s, 4/r_1, 5/r_2}
+                \node[cella] (c\i) at (\i * 0.9 + 0.45, 0) {$\t$};
+
+            % Stato corrente, sulla cella letta
+            \node[draw, circle, double, thick, minimum size=0.8cm] (q) at (3.15, -1.6)
+                {$q$};
+            \node[below=2pt of q] {stato};
+            \draw[freccia] (q) -- (c3.south);
+
+            % Tabella di transizione: righe gli stati, colonne i simboli
+            \fill[tenue] (8.95, -1.0) rectangle (9.8, -0.35);
+            \draw (7.6, -1.65) rectangle (10.65, 0.8);
+            \draw (7.6, 0.3) -- (10.65, 0.3);
+            \draw (8.1, -1.65) -- (8.1, 0.8);
+            \foreach \x in {8.95, 9.8}
+                \draw (\x, -1.65) -- (\x, 0.3);
+            \foreach \y in {-0.35, -1.0}
+                \draw (8.1, \y) -- (10.65, \y);
+            \node[font=\small] at (9.375, 0.55) {simboli};
+            \node[font=\small, rotate=90] at (7.85, -0.675) {stati};
+            \node[font=\small, align=center, anchor=north] at (9.125, -1.8)
+                {tabella di transizione\\ finita};
+
+            \draw[freccia] (c3.north) to[bend left=20] (9.375, 0.8);
+            \draw[freccia] (q.east) to[bend right=15] (7.6, -0.675);
+
+            % Contenuto di una cella della tabella
+            \node[font=\small, align=left, anchor=west] (azione) at (11.1, -0.675)
+                {nuovo stato,\\ nuovo simbolo,\\ direzione $L$ o $R$};
+            \draw[freccia] (azione.west) -- (9.375, -0.675);
+        \end{tikzpicture}
+        \caption{Schema di una macchina di Turing: il nastro, la testina sul simbolo $s$
+            con lo stato corrente $q$, e la tabella di transizione finita, che per ogni
+            coppia (stato, simbolo) indica nuovo stato, nuovo simbolo e direzione.}
+        \label{fig:mdt}
+    \end{figure}
+
+    Il nuovo simbolo \`e quello da \emph{scrivere} al posto di $s$, nella cella su cui si
+    trova la testina. \`E la differenza principale rispetto agli automi visti finora:
+    leggendo, un DFA cambia solo stato, mentre una MdT pu\`o anche modificare il nastro,
+    ed \`e cos\`i che lo usa come memoria per i calcoli intermedi. Per lasciare la cella
+    invariata basta riscrivere lo stesso simbolo $s$.
+
+    Con la transizione $(q, s) \mapsto (q', s', R)$, un passo avviene in quest'ordine:
+    \begin{enumerate}
+        \item la macchina legge il simbolo $s$ sotto la testina, nello stato $q$;
+        \item scrive $s'$ nella stessa cella, al posto di $s$;
+        \item sposta la testina di una cella, in questo caso a destra;
+        \item passa nello stato $q'$.
+    \end{enumerate}
+
+    \begin{definition}[Macchina di Turing]
+        Una macchina di Turing \`e una quadrupla
+        $\mathcal{M} = \langle Q, \Sigma, \delta, q_0 \rangle$, che consiste in:
+        \begin{itemize}
+            \item un alfabeto finito e non vuoto $\Sigma = \{s_0, \dots, s_n\}$ con almeno
+                due simboli: un simbolo significativo, come $s_0$, e il simbolo della
+                cella vuota, indicato con $\$$ oppure $0$;
+            \item un insieme finito e non vuoto di stati $Q = \{q_0, \dots, q_m\}$, dove
+                $q_0$ \`e lo stato iniziale;
+            \item un insieme finito e non vuoto di istruzioni, dato dalla funzione
+                \begin{equation*}
+                    \delta \colon Q \times
+                    \underbrace{\Sigma}_{\substack{\text{lettura}\\ \text{del nastro}}}
+                    \to
+                    \bigl(Q \times
+                    \underbrace{\Sigma}_{\substack{\text{scrittura}\\ \text{sul nastro}}}
+                    \times
+                    \underbrace{\{R, L\}}_{\substack{\text{direzione di}\\
+                    \text{spostamento}}}\bigr) \cup \{\emptyset\}.
+                \end{equation*}
+        \end{itemize}
+        Gli stati finali sono quelli per cui non vi \`e alcuna istruzione,
+        $\{q \mid \forall s \in \Sigma.\; \delta(q, s) = \emptyset\}$.
+    \end{definition}
+
+    \begin{definition}[Descrizione istantanea]
+        La \emph{descrizione istantanea} di una MdT \`e una quadrupla $(q, v, w, s)$,
+        dove $q$ \`e lo stato corrente, $v$ \`e la stringa a sinistra della testina, $w$
+        la stringa a destra e $s$ il simbolo sotto la testina.
+    \end{definition}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[freccia/.style={->, >={Stealth}, thick, evidenza}]
+            \draw (0, 0.3) -- (7, 0.3);
+            \draw (0, -0.3) -- (7, -0.3);
+            \node at (0.35, 0) {$\cdots$};
+            \node at (6.65, 0) {$\cdots$};
+            \draw (0.8, -0.3) rectangle (3.2, 0.3);
+            \draw (3.2, -0.3) rectangle (3.8, 0.3);
+            \draw (3.8, -0.3) rectangle (6.2, 0.3);
+            \node at (2, 0) {$v$};
+            \node at (3.5, 0) {$s$};
+            \node at (5, 0) {$w$};
+            \node (q) at (3.5, -1.2) {$q$};
+            \draw[freccia] (q) -- (3.5, -0.3);
+        \end{tikzpicture}
+        \caption{La descrizione istantanea $(q, v, w, s)$: la stringa $v$ a sinistra
+            della testina, il simbolo $s$ sotto la testina, la stringa $w$ a destra e lo
+            stato $q$.}
+        \label{fig:mdt-descrizione}
+    \end{figure}
+
+    $v$ e $w$ sono stringhe e non singoli simboli: $v$ contiene tutti i simboli a
+    sinistra di $s$, dalla prima cella non vuota fino alla cella prima della testina, e
+    $w$ tutti quelli a destra, fino all'ultima cella non vuota. Sono finite perch\'e a
+    ogni istante sul nastro ci sono solo un numero finito di celle non vuote. Servono
+    tutti i simboli, e non solo quelli accanto a $s$, perch\'e la descrizione deve
+    permettere di riprendere il calcolo da quel punto: nei passi successivi la testina
+    pu\`o spostarsi e leggere celle lontane.
+
+    \begin{esempio}
+        Con il nastro $\cdots \$\, 1\, 0\, 1\, \underline{1}\, 0\, 0\, \$ \cdots$, in cui la
+        testina \`e sulla cella sottolineata e la macchina \`e nello stato $q$, la
+        descrizione istantanea \`e $(q, 101, 00, 1)$. Se la macchina scrive $0$ al posto
+        di $s$, si sposta a sinistra e passa nello stato $q'$, il nuovo simbolo puntato
+        \`e l'ultimo di $v$, $v$ lo perde e il simbolo appena scritto finisce in testa a
+        $w$:
+        \begin{equation*}
+            (q, 101, 00, 1) \longrightarrow (q', 10, 000, 1).
+        \end{equation*}
+    \end{esempio}
+
+    Il \emph{calcolo} di una MdT \`e una sequenza, finita o infinita, di descrizioni
+    istantanee.
+
+    \begin{definition}[Computazione terminante]
+        Una computazione \`e \emph{terminante} se \`e una sequenza finita di descrizioni
+        istantanee $\alpha_0, \dots, \alpha_n$ tale che $\alpha_n = (q, v, w, s)$ e non
+        esiste nessuna istruzione da $(q, s)$, ovvero $\delta(q, s) = \emptyset$.
+    \end{definition}
+
+    Una computazione infinita corrisponde invece a una divergenza, il ${\uparrow}$ visto
+    per le funzioni.
+
+    \begin{definition}[Funzione Turing calcolabile]
+        Una funzione $f \colon \mathbb{N}^n \to \mathbb{N}$ \`e \emph{Turing calcolabile}
+        se esiste una MdT $\mathcal{M}$ tale che, partendo dalla configurazione
+        \begin{equation*}
+            \cdots \$ \; \$ \; x_1 \; \$ \; \cdots \; \$ \; x_{n-1} \; \$ \; x_n \;
+            \underset{\substack{\uparrow \\ q_0}}{\$} \; \$ \; \$ \cdots
+        \end{equation*}
+        termina nella configurazione
+        \begin{equation*}
+            \cdots \$ \; f(x_1, \dots, x_n) \;
+            \underset{\substack{\uparrow \\ q_f}}{\$} \cdots
+        \end{equation*}
+        se $f(x_1, \dots, x_n)$ \`e definita, e non termina altrimenti.
+    \end{definition}
+
+    Il simbolo $\$$ separa gli input, non i singoli simboli: ogni $x_i$ \`e un numero e
+    pu\`o occupare pi\`u celle. All'inizio la testina punta il $\$$ subito dopo $x_n$,
+    nello stato $q_0$; alla fine il risultato \`e compreso tra due $\$$ e la testina
+    punta quello di destra, nello stato $q_f$. Se $f$ non \`e definita, la macchina non
+    termina.
 
     %TEORICA%
     \chapter{Esercizi}
