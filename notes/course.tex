@@ -6947,7 +6947,7 @@ shapes.geometric}
         \centering
         \begin{tikzpicture}
             \draw[thick] (0, 0) ellipse (2.4 and 1.4);
-            \node at (1.55, 0.75) {PR};
+            \node at (1.25, 0.75) {PR};
 
             % Context sensitive, dentro PR
             \draw[thick] (-0.4, -0.1) ellipse (1.5 and 0.95);
@@ -7002,12 +7002,106 @@ shapes.geometric}
     deve invece essere totale, perch\'e ogni singolo controllo deve terminare.
 
     \begin{esempio}
-        Sia $f(x, z) = 0$ se e solo se $z^2 = x$. Allora
+        Sia $f$ la funzione
         \begin{equation*}
-            \sqrt{x} = \mu z.\, (f(x, z) = 0):
+            f(x, z) =
+            \begin{cases}
+                0 & \text{se } z^2 = x, \\
+                1 & \text{altrimenti}.
+            \end{cases}
         \end{equation*}
-        $\sqrt{9} = 3$, perch\'e $z = 3$ \`e il primo con $z^2 = 9$, mentre
-        $\sqrt{2}\uparrow$, perch\'e nessuno $z$ ha $z^2 = 2$.
+        Allora la radice quadrata si ottiene con la ricerca incerta:
+        \begin{equation*}
+            \sqrt{x} = \mu z.\, (f(x, z) = 0) = \min \{z \mid f(x, z) = 0\}.
+        \end{equation*}
+    \end{esempio}
+
+    \begin{esempio}
+        Allo stesso modo si pu\`o generalizzare alle radici di qualsiasi indice. Sia
+        $\mathrm{leq}$ la funzione
+        \begin{equation*}
+            \mathrm{leq}(x, y) =
+            \begin{cases}
+                0 & \text{se } x \leq y, \\
+                1 & \text{altrimenti}.
+            \end{cases}
+        \end{equation*}
+        Allora
+        \begin{equation*}
+            \lfloor \sqrt[n]{x} \rfloor
+            = \min \{z \mid \mathrm{leq}(x + 1, (z + 1)^n) = 0\},
+        \end{equation*}
+        cio\`e il pi\`u piccolo $z$ tale che $x < (z + 1)^n$.
+    \end{esempio}
+
+    \begin{esempio}
+        Anche per funzioni trascendenti come il logaritmo \`e possibile applicare la
+        ricerca incerta: per $a \geq 2$ e $x \geq 1$,
+        \begin{equation*}
+            \lfloor \log_a x \rfloor = \min \{z \mid \mathrm{leq}(x + 1, a^{z+1}) = 0\},
+        \end{equation*}
+        cio\`e il pi\`u piccolo $z$ tale che $x < a^{z+1}$.
+    \end{esempio}
+
+    La minimizzazione permette quindi di cercare valori, e la ricerca stessa pu\`o
+    divergere. Anche se la ricerca pu\`o divergere, $\varphi$ \`e una funzione
+    calcolabile: esiste un algoritmo che, dati i suoi argomenti, ne calcola il valore
+    quando \`e definito.
+\begin{codice}[Ricerca Incerta]
+RICERCA-INCERTA(x1, ..., xn)
+    z = 0
+    while f(x1, ..., xn, z) != 0 { z++; }
+    return z;
+\end{codice}
+
+    Descritte come algoritmo, le funzioni primitive ricorsive usano solo cicli
+    \texttt{for}, con un numero di iterazioni noto a priori. Le funzioni ricorsive
+    possono usare anche il ciclo \texttt{while}, che esegue un numero di iterazioni non
+    noto a priori e potenzialmente infinito: \`e il costrutto che realizza la
+    minimizzazione. Quindi (Figura~\ref{fig:ricorsive})
+    \begin{equation*}
+        \mathrm{PR} \subsetneq \text{Ricorsive},
+        \qquad
+        \text{Ricorsive} \equiv \text{Calcolabili}.
+    \end{equation*}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \draw[thick] (0, 0) ellipse (2.4 and 1.4);
+            \node at (1.25, 0.75) {PR};
+            \node at (1.45, 0.05) {$2^n$};
+            \node at (1.55, -0.45) {$n^2$};
+
+            % Context sensitive, dentro PR
+            \draw[thick] (-0.4, -0.1) ellipse (1.5 and 0.95);
+            \node[font=\small, align=center] at (-0.4, -0.1)
+                {Context\\ sensitive};
+            \fill (3.4, 0.5) circle (1.5pt) node[right] {$\mathrm{ack}$, totale};
+            \fill (3.4, -0.5) circle (1.5pt) node[right] {$\sqrt[n]{x}$, parziale};
+
+            % Tutte le funzioni calcolabili
+            \draw[thick] (1.9, 0) ellipse (4.9 and 2.5);
+            \node at (1.9, -1.7) {Calcolabili $\equiv$ Ricorsive};
+        \end{tikzpicture}
+        \caption{Le funzioni ricorsive coincidono con le funzioni calcolabili e
+            contengono strettamente le primitive ricorsive.}
+        \label{fig:ricorsive}
+    \end{figure}
+
+    All'interno delle primitive ricorsive ci sono anche funzioni con una crescita
+    maggiore di quella lineare:
+    \begin{align*}
+        x^2 &= {*}(x, x), \\
+        x^y &= \mathrm{exp}(x, y), \quad \text{dove }
+        \begin{cases}
+            \mathrm{exp}(x, 0) = 1, \\
+            \mathrm{exp}(x, y + 1) = {*}(x, \mathrm{exp}(x, y)).
+        \end{cases}
+    \end{align*}
+
+    \begin{esempio}
+        Con la definizione di esponenziale appena data, $2^n = \mathrm{exp}(2, n)$.
     \end{esempio}
 
     %TEORICA%
