@@ -6596,8 +6596,8 @@ shapes.geometric}
     La nozione di algoritmo usata in questa definizione \`e intuitiva. La tesi di Church
     la collega a un modello di calcolo formale, la macchina di Turing.
 
-    \textsc{Tesi di Church}. Una funzione \`e intuitivamente calcolabile se esiste una
-    macchina di Turing che la calcola.
+    \textsc{Tesi di Church}. \textit{Una funzione \`e intuitivamente calcolabile se
+    esiste una macchina di Turing che la calcola.}
 
     Si tratta di una tesi e non di un teorema: la nozione intuitiva di calcolabilit\`a
     non \`e definita formalmente, quindi non si pu\`o dimostrare che coincida con quella
@@ -6623,7 +6623,7 @@ shapes.geometric}
                 \end{equation*}
                 Dice quale valore assume la funzione, ma non \`e scritta come una
                 sequenza di passi: contiene il numero irrazionale $\sqrt{5}$, anche se
-                il risultato \`e sempre un numero naturale.
+                il risultato \`e sempre un numero naturale.\qedhere
         \end{itemize}
     \end{esempio}
 
@@ -6763,7 +6763,7 @@ shapes.geometric}
                 \begin{equation*}
                     {+}(x, y + 1) = h(x, y, {+}(x, y))
                     = S(\Pi_3(x, y, {+}(x, y)))
-                    = S({+}(x, y)).
+                    = S({+}(x, y)).\qedhere
                 \end{equation*}
         \end{itemize}
     \end{esempio}
@@ -6790,7 +6790,7 @@ shapes.geometric}
                 \begin{align*}
                     {*}(x, y + 1) &= h(x, y, {*}(x, y)) \\
                     &= {+}(\Pi_1(x, y, {*}(x, y)), \Pi_3(x, y, {*}(x, y)))
-                    = {+}(x, {*}(x, y)).
+                    = {+}(x, {*}(x, y)).\qedhere
                 \end{align*}
         \end{itemize}
     \end{esempio}
@@ -6824,11 +6824,11 @@ shapes.geometric}
         \end{itemize}
         Rispetto alla definizione e alla somma ${+}(x, y)$ vista sopra, la ricorsione
         \`e sul primo argomento $m$ e non sul secondo: $x$ resta fisso e il contatore
-        \`e $m$. Inoltre $h$ riceve il valore precedente al secondo posto. Nel passo ricorsivo $f_2$ sceglie
-        proprio il valore precedente e $f_1$ gli aggiunge $1$:
+        \`e $m$. Inoltre $h$ riceve il valore precedente al secondo posto. Nel passo
+        ricorsivo $f_2$ sceglie proprio il valore precedente e $f_1$ gli aggiunge $1$:
         \begin{equation*}
             f_4(m + 1, x) = f_3(m, f_4(m, x), x) = f_1(f_2(m, f_4(m, x), x))
-            = f_4(m, x) + 1.
+            = f_4(m, x) + 1.\qedhere
         \end{equation*}
     \end{esempio}
 
@@ -6874,6 +6874,7 @@ shapes.geometric}
         il valore precedente.
     \end{esempio}
 
+    \subsection{Funzioni totali e parziali}
     \begin{definition}[Funzione totale e parziale]
         Una funzione $f \colon \mathbb{N}^n \to \mathbb{N}$ \`e \emph{totale} se \`e
         definita su tutti gli input, \emph{parziale} se su qualche input non \`e
@@ -7012,7 +7013,7 @@ shapes.geometric}
         \end{equation*}
         Allora la radice quadrata si ottiene con la ricerca incerta:
         \begin{equation*}
-            \sqrt{x} = \mu z.\, (f(x, z) = 0) = \min \{z \mid f(x, z) = 0\}.
+            \sqrt{x} = \mu z.\, (f(x, z) = 0) = \min \{z \mid f(x, z) = 0\}.\qedhere
         \end{equation*}
     \end{esempio}
 
@@ -7043,6 +7044,7 @@ shapes.geometric}
         cio\`e il pi\`u piccolo $z$ tale che $x < a^{z+1}$.
     \end{esempio}
 
+    \needspace{15\baselineskip}% Frase e riquadro del codice sulla stessa pagina
     La minimizzazione permette quindi di cercare valori, e la ricerca stessa pu\`o
     divergere. Anche se la ricerca pu\`o divergere, $\varphi$ \`e una funzione
     calcolabile: esiste un algoritmo che, dati i suoi argomenti, ne calcola il valore
@@ -7054,6 +7056,7 @@ RICERCA-INCERTA(x1, ..., xn)
     return z;
 \end{codice}
 
+    \subsection{Funzioni ricorsive e calcolabili}
     Descritte come algoritmo, le funzioni primitive ricorsive usano solo cicli
     \texttt{for}, con un numero di iterazioni noto a priori. Le funzioni ricorsive
     possono usare anche il ciclo \texttt{while}, che esegue un numero di iterazioni non
@@ -7258,7 +7261,7 @@ RICERCA-INCERTA(x1, ..., xn)
         \`e l'ultimo di $v$, $v$ lo perde e il simbolo appena scritto finisce in testa a
         $w$:
         \begin{equation*}
-            (q, 101, 00, 1) \longrightarrow (q', 10, 000, 1).
+            (q, 101, 00, 1) \longrightarrow (q', 10, 000, 1).\qedhere
         \end{equation*}
     \end{esempio}
 
