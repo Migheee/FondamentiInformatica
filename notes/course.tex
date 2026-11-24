@@ -6660,6 +6660,7 @@ shapes.geometric}
     variabile: ad esempio $(\lambda x.\, x + 1)(3) = 3 + 1 = 4$.
 
     \subsection{Funzioni primitive ricorsive}
+    \label{sec:primitive-ricorsive}
     Le \emph{funzioni primitive ricorsive} si costruiscono a partire da alcune
     \emph{funzioni primitive ricorsive di base}:
     \begin{itemize}
@@ -7058,14 +7059,12 @@ RICERCA-INCERTA(x1, ..., xn)
 
     \subsection{Funzioni ricorsive e calcolabili}
     Descritte come algoritmo, le funzioni primitive ricorsive usano solo cicli
-    \texttt{for}, con un numero di iterazioni noto a priori. Le funzioni ricorsive
-    possono usare anche il ciclo \texttt{while}, che esegue un numero di iterazioni non
-    noto a priori e potenzialmente infinito: \`e il costrutto che realizza la
-    minimizzazione. Quindi (Figura~\ref{fig:ricorsive})
+    \texttt{for}, con un numero di iterazioni noto a priori. Le funzioni parziali
+    ricorsive possono usare anche il ciclo \texttt{while}, che esegue un numero di
+    iterazioni non noto a priori e potenzialmente infinito: \`e il costrutto che realizza
+    la minimizzazione. Quindi (Figura~\ref{fig:ricorsive})
     \begin{equation*}
-        \mathrm{PR} \subsetneq \text{Ricorsive},
-        \qquad
-        \text{Ricorsive} \equiv \text{Calcolabili}.
+        \mathrm{PR} \subsetneq \text{parziali ricorsive} \equiv \text{calcolabili}.
     \end{equation*}
 
     \begin{figure}[H]
@@ -7085,10 +7084,11 @@ RICERCA-INCERTA(x1, ..., xn)
 
             % Tutte le funzioni calcolabili
             \draw[thick] (1.9, 0) ellipse (4.9 and 2.5);
-            \node at (1.9, -1.7) {Calcolabili $\equiv$ Ricorsive};
+            \node at (1.9, -1.75) {Calcolabili $\equiv$ Parziali ricorsive};
+
         \end{tikzpicture}
-        \caption{Le funzioni ricorsive coincidono con le funzioni calcolabili e
-            contengono strettamente le primitive ricorsive.}
+        \caption{Le funzioni parziali ricorsive coincidono con le funzioni calcolabili
+            e contengono strettamente le primitive ricorsive.}
         \label{fig:ricorsive}
     \end{figure}
 
@@ -7297,6 +7297,229 @@ RICERCA-INCERTA(x1, ..., xn)
     nello stato $q_0$; alla fine il risultato \`e compreso tra due $\$$ e la testina
     punta quello di destra, nello stato $q_f$. Se $f$ non \`e definita, la macchina non
     termina.
+
+    \section{Funzioni parziali ricorsive}
+    \label{sec:parziali-ricorsive}
+    Le funzioni primitive ricorsive forniscono una descrizione algoritmica con cui
+    calcolarne il valore, ma non catturano tutte le funzioni calcolabili: ne restano
+    fuori sia funzioni totali come la funzione di Ackermann, che cresce pi\`u in fretta
+    di qualunque primitiva ricorsiva, sia le funzioni parziali, come quella calcolata da
+    un ciclo \texttt{while true}, che non termina mai
+    (Figura~\ref{fig:pr-totali-calcolabili}). Alle primitive ricorsive sfugge infatti il
+    calcolo offerto dal costrutto \texttt{while} dei linguaggi di programmazione. Esiste
+    per\`o una classe di funzioni che estende le primitive ricorsive fino a comprendere
+    tutte le funzioni calcolabili.
+
+    \begin{figure}[H]
+        \centering
+        \colorlet{col-pr}{red!80!black}
+        \colorlet{col-totali}{green!50!black}
+        \colorlet{col-calc}{blue!80!black}
+        \begin{tikzpicture}[scale=0.92]
+            % Tutte le funzioni da N in N
+            \draw[thick] (0.3, 0) ellipse (6.6 and 2.8);
+            \node at (5.6, 0) {$f \colon \mathbb{N} \to \mathbb{N}$};
+
+            % Calcolabili
+            \draw[thick, col-calc] (-0.5, -0.1) ellipse (4.9 and 2.45);
+            \node[col-calc] at (1.0, -1.95) {calcolabili};
+            \fill[col-calc] (3.5, 0.75) circle (1.5pt);
+            \node[col-calc, font=\small\ttfamily, align=center] at (3.5, 0.2)
+                {while\\ true};
+
+            % Totali
+            \draw[thick, col-totali] (-1.2, 0.05) ellipse (3.8 and 1.85);
+            \node[col-totali] at (1.3, -0.75) {totali};
+            \fill[col-totali] (1.5, 0.5) circle (1.5pt)
+                node[right] {$\mathrm{ack}$};
+
+            % Primitive ricorsive
+            \draw[thick, col-pr] (-1.9, 0.1) ellipse (2.7 and 1.4);
+            \begin{scope}[col-pr]
+                \node at (-3.3, 0.85) {PR};
+                \node at (-1.6, 0.95) {$0$};
+                \node at (-3.9, 0) {$+$};
+                \node at (-2.9, 0.15) {${*}$};
+                \node at (-1.9, 0.2) {$\mathrm{div}$};
+                \node at (-0.6, 0.6) {$\Pi_i$};
+                \node at (-2.4, -0.7) {$\mathrm{mod}$};
+                \node at (-0.9, -0.4) {$S$};
+            \end{scope}
+        \end{tikzpicture}
+        \caption{Le funzioni primitive ricorsive sono totali, ma non tutte le funzioni
+            totali calcolabili sono primitive ricorsive, come $\mathrm{ack}$. Le
+            funzioni calcolabili comprendono anche funzioni parziali, come quella di un
+            ciclo \texttt{while true}, e sono solo una parte di tutte le funzioni da
+            $\mathbb{N}$ in $\mathbb{N}$.}
+        \label{fig:pr-totali-calcolabili}
+    \end{figure}
+
+    Le funzioni parziali ricorsive sono un modello matematico per caratterizzare le
+    funzioni calcolabili.
+
+    \begin{definition}[Funzioni parziali ricorsive]
+        Le \emph{funzioni parziali ricorsive} sono la pi\`u piccola classe di funzioni
+        che contiene le funzioni ricorsive di base, cio\`e zero $\lambda x.\, 0$,
+        successore $S = \lambda x.\, x + 1$ e proiezione
+        $\Pi_i = \lambda x_1 \dots x_n.\, x_i$, ed \`e chiusa per composizione,
+        primitiva ricorsione e minimizzazione ($\mu$-ricorsione, o ricerca incerta).
+    \end{definition}
+
+    Le tre regole sono quelle delle Sezioni~\ref{sec:primitive-ricorsive}
+    e~\ref{sec:minimizzazione}. \emph{Chiusa} per una regola significa che applicando
+    la regola a funzioni della classe si ottengono ancora funzioni della classe.
+    Rispetto alle primitive ricorsive l'unica regola in pi\`u \`e la minimizzazione. Le
+    funzioni parziali ricorsive coincidono con le funzioni calcolabili da una macchina
+    di Turing:
+    \begin{equation*}
+        \text{funzioni parziali ricorsive} \equiv \text{MdT}.
+    \end{equation*}
+
+    \begin{theorem}[Funzioni parziali ricorsive e macchine di Turing]
+        \label{thm:parziali-mdt}
+        Una funzione $f \colon \mathbb{N} \to \mathbb{N}$ \`e parziale ricorsiva se e
+        solo se esiste una MdT $\mathcal{M}$ che calcola $f$, cio\`e se e solo se $f$
+        \`e Turing calcolabile.
+    \end{theorem}
+
+    \begin{proof}[Dimostrazione del Teorema~\ref{thm:parziali-mdt}]
+        % TODO: passo induttivo (composizione, primitiva ricorsione, minimizzazione) e verso
+        % (<=) della dimostrazione.
+        % TODO: chiedere alla docente quale convenzione vale per la posizione finale della
+        % testina (sul $ a destra del risultato, come nella definizione, o a sinistra, come
+        % nel libro) e se l'input pu\`o restare sul nastro; poi sistemare le tre macchine
+        % della Tabella tab:mdt-base e la nota a pi\`e di pagina.
+        \textsc{Verso ($\Rightarrow$)}. Si procede sulla costruzione delle funzioni
+        parziali ricorsive, partendo dalle funzioni ricorsive di base.
+
+        \textsc{Base}. Le funzioni ricorsive di base sono Turing calcolabili: le calcolano le
+        macchine della Tabella~\ref{tab:mdt-base}, con alfabeto $\Sigma = \{\$, 0, 1\}$ e i
+        numeri scritti in binario.\footnote{Le tre macchine partono sul $\$$ a destra
+        dell'input ma si fermano sul $\$$ \emph{a sinistra} del risultato. Per questo, nella
+        composizione, prima di avviare la macchina successiva si riporta la testina a
+        destra. La definizione di funzione Turing calcolabile vuole invece la testina sul
+        $\$$ a destra anche alla fine: per rispettarla basterebbe tornare a destra fino al
+        $\$$ dopo il risultato, e per l'identit\`a basterebbe una macchina senza istruzioni,
+        che si ferma subito.} Lo \emph{stop} indica che non c'\`e
+        alcuna istruzione, $\delta(q, s) = \emptyset$.
+        \begin{itemize}
+            \item \emph{Zero}, $\lambda x.\, 0$: $q_1$ trasforma l'ultima cifra in $0$, $q_2$
+                cancella la cifra alla sua sinistra e $q_3$ quella ancora prima, tornando
+                indietro di una cella.
+            \item \emph{Successore}, $S = \lambda x.\, x + 1$: $q_1$ propaga il riporto,
+                trasformando gli $1$ in $0$, finch\'e trova uno $0$ o un $\$$, che diventa
+                $1$; poi $q_2$ va a sinistra senza modificare le cifre fino al $\$$.
+            \item \emph{Proiezione}, $\lambda x.\, x$: $q_1$ attraversa l'input verso sinistra
+                senza modificarlo.
+        \end{itemize}
+
+        \begin{table}[H]
+            \centering
+            \begin{minipage}[t]{0.48\textwidth}
+                \centering
+                \textit{Zero}, $\lambda x.\, 0$\par\smallskip
+                \begin{tabular}{cccc}
+                    \toprule
+                    $\delta$ & $\$$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_1\, \$\, L$ & & \\
+                    $q_1$ & stop & $q_2\, 0\, L$ & $q_2\, 0\, L$ \\
+                    $q_2$ & stop & $q_3\, \$\, L$ & $q_3\, \$\, L$ \\
+                    $q_3$ & $q_1\, \$\, R$ & $q_1\, \$\, R$ & $q_1\, \$\, R$ \\
+                    \bottomrule
+                \end{tabular}
+            \end{minipage}%
+            \hfill
+            \begin{minipage}[t]{0.48\textwidth}
+                \centering
+                \textit{Successore}, $\lambda x.\, x + 1$\par\smallskip
+                \begin{tabular}{cccc}
+                    \toprule
+                    $\delta$ & $\$$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_1\, \$\, L$ & & \\
+                    $q_1$ & $q_2\, 1\, L$ & $q_2\, 1\, L$ & $q_1\, 0\, L$ \\
+                    $q_2$ & stop & $q_2\, 0\, L$ & $q_2\, 1\, L$ \\
+                    \bottomrule
+                \end{tabular}
+            \end{minipage}
+
+            \bigskip
+            \textit{Proiezione}, $\lambda x.\, x$\par\smallskip
+            \begin{tabular}{cccc}
+                \toprule
+                $\delta$ & $\$$ & $0$ & $1$ \\
+                \midrule
+                $q_0$ & $q_1\, \$\, L$ & & \\
+                $q_1$ & stop & $q_1\, 0\, L$ & $q_1\, 1\, L$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{Le macchine di Turing per le funzioni ricorsive di base, con i numeri
+                in binario.}
+            \label{tab:mdt-base}
+        \end{table}
+
+        \textsc{Passo: composizione}. Sia $f = h \circ g$, con
+        $g, h, f \colon \mathbb{N} \to \mathbb{N}$; il caso generale \`e analogo. Per
+        ipotesi induttiva $h$ e $g$ sono parziali ricorsive e Turing calcolabili: esistono
+        una MdT $\mathcal{M}_g$ che calcola $g$ e una MdT $\mathcal{M}_h$ che calcola $h$.
+        Si costruisce il programma, e quindi la MdT $\mathcal{M}_f$, che calcola $f$:
+\begin{codice}[Composizione]
+M_f(x)
+    input(x)
+    temp = M_g(x)
+    output(M_h(temp))
+\end{codice}
+        Sul nastro (Figura~\ref{fig:mdt-composizione}) $\mathcal{M}_f$ avvia
+        $\mathcal{M}_g$ con la testina sul $\$$ a destra di $x$. $\mathcal{M}_g$ termina
+        con $g(x)$ sul nastro e la testina sul $\$$ a sinistra di $g(x)$, mentre
+        $\mathcal{M}_h$ deve partire con la testina sul $\$$ a destra del suo input: prima
+        di avviarla bisogna quindi tornare indietro, attraversando $g(x)$ verso destra.
+        Infine $\mathcal{M}_h$ calcola $h(g(x))$ e termina sul $\$$ alla sua sinistra.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                cella/.style={draw, minimum height=0.6cm, inner sep=2pt},
+                freccia/.style={->, >={Stealth}, thick, evidenza},
+                nota/.style={font=\small}
+            ]
+                % Input di M_g
+                \node[cella, minimum width=0.6cm] (a1) at (0, 0) {\$};
+                \node[cella, minimum width=1.8cm, right=0pt of a1] (a2) {$x$};
+                \node[cella, minimum width=0.6cm, right=0pt of a2] (a3) {\$};
+                \draw[freccia] ([yshift=-0.55cm]a3.south) -- (a3.south);
+                \node[nota, anchor=west] at ([xshift=0.25cm, yshift=-0.45cm]a3.south)
+                    {$q_0$ di $\mathcal{M}_g$};
+
+                % Fine di M_g e ritorno verso destra
+                \node[cella, minimum width=0.6cm] (b1) at (0, -2) {\$};
+                \node[cella, minimum width=1.8cm, right=0pt of b1] (b2) {$g(x)$};
+                \node[cella, minimum width=0.6cm, right=0pt of b2] (b3) {\$};
+                \draw[freccia] ([yshift=-0.55cm]b1.south) -- (b1.south);
+                \draw[freccia] ([yshift=-0.6cm]b1.south) to[bend right=25]
+                    ([yshift=-0.6cm]b3.south);
+                \draw[freccia] ([yshift=-0.6cm]b3.south) -- (b3.south);
+                \node[nota, anchor=west] at ([xshift=0.25cm, yshift=-0.45cm]b3.south)
+                    {$q_0$ di $\mathcal{M}_h$};
+
+                % Fine di M_h
+                \node[cella, minimum width=0.6cm] (c1) at (0, -4) {\$};
+                \node[cella, minimum width=1.8cm, right=0pt of c1] (c2) {$h(g(x))$};
+                \node[cella, minimum width=0.6cm, right=0pt of c2] (c3) {\$};
+                \draw[freccia] ([yshift=-0.55cm]c1.south) -- (c1.south);
+
+                % Tutto il calcolo e' la macchina M_f
+                \draw[decorate, decoration={brace, amplitude=6pt}, thick]
+                    (5.4, 0.4) -- (5.4, -4.9)
+                    node[midway, right=9pt] {$\mathcal{M}_f$};
+            \end{tikzpicture}
+            \caption{La composizione $f = h \circ g$ sul nastro: $\mathcal{M}_g$ calcola
+                $g(x)$, la testina torna sul $\$$ a destra di $g(x)$ e $\mathcal{M}_h$
+                calcola $h(g(x))$.}
+            \label{fig:mdt-composizione}
+        \end{figure}
+    \end{proof}
 
     %TEORICA%
     \chapter{Esercizi}
