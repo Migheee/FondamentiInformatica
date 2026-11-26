@@ -6587,21 +6587,11 @@ shapes.geometric}
         |\{f \text{ calcolabili}\}| = \omega.
     \end{equation*}
 
-    \section{Funzioni calcolabili e tesi di Church}
+    \section{Funzioni calcolabili}
     \label{sec:tesi-church}
     \begin{definition}[Funzione calcolabile]
         Una funzione \`e \emph{calcolabile} se esiste un algoritmo che la calcola.
     \end{definition}
-
-    La nozione di algoritmo usata in questa definizione \`e intuitiva. La tesi di Church
-    la collega a un modello di calcolo formale, la macchina di Turing.
-
-    \textsc{Tesi di Church}. \textit{Una funzione \`e intuitivamente calcolabile se
-    esiste una macchina di Turing che la calcola.}
-
-    Si tratta di una tesi e non di un teorema: la nozione intuitiva di calcolabilit\`a
-    non \`e definita formalmente, quindi non si pu\`o dimostrare che coincida con quella
-    data dalle macchine di Turing.
 
     \begin{esempio}
         La stessa funzione si pu\`o descrivere in due modi diversi.
@@ -7852,6 +7842,332 @@ M_phi(x)
 
         I due versi insieme dimostrano il teorema.
     \end{proof}
+
+    \section{Tesi di Church e aritmetizzazione}
+    \label{sec:church-aritmetizzazione}
+    La nozione di algoritmo usata nella definizione di funzione calcolabile
+    (Sezione~\ref{sec:tesi-church}) \`e intuitiva, e per questo si parla di funzioni
+    \emph{intuitivamente calcolabili}.
+
+    \begin{definition}[Funzione intuitivamente calcolabile]
+        Una funzione \`e \emph{intuitivamente calcolabile} se esiste un algoritmo che la
+        calcola, cio\`e una procedura che:
+        \begin{itemize}
+            \item \`e descritta da un testo finito;
+            \item \`e fatta di passi elementari e meccanici, senza intuizione n\'e
+                creativit\`a;
+            \item pu\`o essere eseguita da una persona con carta e matita, avendo a
+                disposizione tutto il tempo e la carta necessari;
+            \item quando la funzione \`e definita sull'input, termina con il risultato in
+                un numero finito di passi.
+        \end{itemize}
+    \end{definition}
+
+    Non \`e una definizione formale: \emph{passo elementare} e \emph{procedura
+    meccanica} non sono definiti con precisione. La tesi di Church collega questa
+    nozione a un modello di calcolo formale, la macchina di Turing.
+    \medskip
+
+    \textsc{Tesi di Church}. \textit{La classe delle funzioni intuitivamente calcolabili
+    coincide con la classe delle funzioni Turing calcolabili.}
+
+    \medskip
+    Si tratta di una tesi e non di un teorema: la nozione intuitiva di calcolabilit\`a
+    non \`e definita formalmente, quindi non si pu\`o dimostrare che coincida con quella
+    data dalle macchine di Turing. Che ogni funzione Turing calcolabile sia
+    intuitivamente calcolabile \`e evidente, perch\'e una macchina di Turing \`e un
+    algoritmo; il verso importante \`e l'altro. Ci si crede perch\'e tutti i modelli
+    formali proposti, come le macchine di Turing e le funzioni parziali ricorsive
+    (Teorema~\ref{thm:parziali-mdt}), si sono rivelati equivalenti, e nessuno ha mai
+    trovato una funzione intuitivamente calcolabile che una macchina di Turing non sappia
+    calcolare.
+
+    Riassumendo, le classi di funzioni viste in questo capitolo sono annidate
+    (Figura~\ref{fig:classi-funzioni}). Le funzioni definite per casi su un insieme
+    finito, come $\mathbb{Q}$, $\mathbb{S}$ e $\mathbb{X}$, sono primitive ricorsive; le
+    primitive ricorsive sono totali, ma non sono tutte le ricorsive totali, come mostra
+    $\mathrm{ack}$; le ricorsive totali sono le parziali ricorsive definite su ogni input.
+    Le parziali ricorsive coincidono con le funzioni Turing calcolabili per il
+    Teorema~\ref{thm:parziali-mdt}, e con quelle intuitivamente calcolabili per la tesi
+    di Church. Sono un insieme numerabile, mentre le funzioni da $\mathbb{N}$ in
+    $\mathbb{N}$ sono $2^\omega$ (Sezione~\ref{sec:quante-calcolabili}): quasi tutte sono
+    non calcolabili.
+
+    \begin{figure}[H]
+        \centering
+        \colorlet{col-fin}{orange!90!black}
+        \colorlet{col-pr}{red!80!black}
+        \colorlet{col-tot}{green!50!black}
+        \colorlet{col-calc}{blue!80!black}
+        \begin{tikzpicture}[
+            scale=0.95,
+            classe/.style={thick, rounded corners=8pt},
+            nome/.style={anchor=north west, font=\small},
+            esempio/.style={font=\small}
+        ]
+            % Tutte le funzioni da N in N
+            \draw[classe] (0, 0) rectangle (14, 8.6);
+            \node[nome] at (0.15, 8.5)
+                {tutte le funzioni $f \colon \mathbb{N} \to \mathbb{N}$, cardinalit\`a
+                $2^\omega$};
+            \node[esempio] at (7, 0.65) {non calcolabili};
+
+            % Parziali ricorsive = Turing calcolabili = intuitivamente calcolabili
+            \draw[classe, col-calc] (0.4, 1.3) rectangle (13.6, 7.6);
+            \node[nome, col-calc, font=\footnotesize] at (0.55, 7.55)
+                {parziali ricorsive $\overset{\text{Teorema~\ref{thm:parziali-mdt}}}{=}$
+                Turing calcolabili $\overset{\text{tesi di Church}}{=}$ intuitivamente
+                calcolabili};
+            \node[esempio, col-calc, align=center] at (12.1, 4.3)
+                {$\sqrt{x}$ esatta \\[4pt] \texttt{while true}};
+            \node[esempio, col-calc] at (12.1, 1.75) {cardinalit\`a $\omega$};
+
+            % Ricorsive totali
+            \draw[classe, col-tot] (0.8, 1.7) rectangle (10.6, 6.6);
+            \node[nome, col-tot] at (0.95, 6.55) {ricorsive totali};
+            \node[esempio, col-tot] at (9.6, 4.3) {$\mathrm{ack}$};
+
+            % Primitive ricorsive
+            \draw[classe, col-pr] (1.2, 2.1) rectangle (8.6, 5.9);
+            \node[nome, col-pr] at (1.35, 5.85) {primitive ricorsive};
+            \node[esempio, col-pr, align=center] at (7.2, 4.0)
+                {${+}$, ${*}$ \\[2pt] $2^n$, $n!$};
+
+            % Definite per casi su un insieme finito
+            \draw[classe, col-fin] (1.6, 2.5) rectangle (5.6, 5.0);
+            \node[nome, col-fin, align=left] at (1.75, 4.95)
+                {definite per casi \\ su un insieme finito};
+            \node[esempio, col-fin] at (3.6, 3.2)
+                {$\mathbb{Q}$, $\mathbb{S}$, $\mathbb{X}$};
+        \end{tikzpicture}
+        \caption{Le classi di funzioni da $\mathbb{N}$ in $\mathbb{N}$, dalle funzioni
+            definite per casi su un insieme finito fino alle non calcolabili.}
+        \label{fig:classi-funzioni}
+    \end{figure}
+
+    \subsection{Aritmetizzazione delle macchine di Turing}
+    \label{sec:aritmetizzazione}
+    Le funzioni calcolabili sono numerabili (Sezione~\ref{sec:quante-calcolabili}), e lo
+    stesso vale per le macchine di Turing: ognuna \`e descritta da una tabella finita,
+    cio\`e da una stringa finita. Le macchine di Turing si possono quindi mettere in fila
+    e numerare:
+    \begin{equation*}
+        \forall\, \text{MdT } \mathcal{M}.\; \exists\, m \in \mathbb{N} \text{ tale che }
+        \mathcal{M} \text{ \`e l'$m$-esima MdT}.
+    \end{equation*}
+    L'obiettivo dell'\emph{aritmetizzazione} \`e tradurre univocamente i programmi nel
+    dominio degli input, cio\`e rappresentare ogni MdT, e quindi il programma di una
+    funzione calcolabile, con un numero naturale che identifica il suo programma, cio\`e
+    il suo algoritmo. I programmi diventano cos\`i numeri naturali, dello stesso tipo dei
+    dati su cui lavorano le funzioni calcolabili. Una funzione calcolabile \`e
+    calcolata da infinite MdT diverse, quindi ha infiniti numeri: il numero identifica il
+    programma, non la funzione.
+
+    La rappresentazione funziona nei due versi:
+    \begin{alignat*}{2}
+        &\mathcal{M} \text{ MdT} &&\;\longmapsto\; m, \text{ il numero che la rappresenta}, \\
+        &m \in \mathbb{N} &&\;\longmapsto\; \mathcal{M}_m, \text{ la MdT corrispondente,
+            che si pu\`o costruire a partire da } m.
+    \end{alignat*}
+    Entrambi i passaggi sono effettivi, cio\`e si eseguono con un algoritmo.
+
+    \medskip
+    \textsc{Prima aritmetizzazione: contare le MdT}. Si considerino le MdT con alfabeto
+    $\Sigma = \{\$, 0\}$ e un solo stato, $\mathcal{Q} = \{q_0\}$. La tabella di $\delta$
+    ha due caselle, $(q_0, \$)$ e $(q_0, 0)$, e ognuna pu\`o essere vuota oppure contenere
+    una delle quattro istruzioni
+    \begin{equation*}
+        q_0\,\$\,R, \qquad q_0\,\$\,L, \qquad q_0\,0\,R, \qquad q_0\,0\,L,
+    \end{equation*}
+    cio\`e ha $5$ contenuti possibili. Ogni tabella \`e una MdT diversa, quindi le MdT
+    con un solo stato sono $5 \cdot 5 = 25$.
+
+    Con $n$ stati le caselle sono $2n$, e ognuna pu\`o essere vuota oppure contenere una
+    terna (stato, simbolo, direzione), scelta tra $n \cdot 2 \cdot 2 = 4n$: i contenuti
+    possibili sono $4n + 1$. Le MdT con $n$ stati sono quindi
+    \begin{equation*}
+        (4n + 1)^{2n},
+    \end{equation*}
+    per esempio $9^4 = 6561$ con due stati. Per ogni $n$ sono in numero finito, quindi si
+    possono mettere in ordine. Si fissa un ordine sugli elementi: la casella vuota viene
+    prima di qualunque istruzione, $\$ < 0$, $L < R$ e $q_i \le q_j$ se $i \le j$. Le
+    istruzioni si confrontano in ordine lessicografico, cio\`e prima lo stato, poi il
+    simbolo e infine la direzione, e le tabelle si confrontano casella per casella. Si
+    danno poi i primi $25$ numeri alle MdT con un solo stato, nel loro ordine, i
+    successivi $6561$ a quelle con due stati, e cos\`i via. Dato $x \in \mathbb{N}$, si
+    trova il gruppo in cui cade, cio\`e il numero di stati, poi la posizione nel gruppo e
+    da questa la tabella: anche qui entrambi i passaggi sono algoritmici.
+
+    \medskip
+    \textsc{Seconda aritmetizzazione: numeri di G\"odel}. Un modo diverso di
+    aritmetizzare le MdT usa la scomposizione in fattori primi: ogni numero naturale
+    $x \ge 2$ si scrive in modo unico come
+    \begin{equation*}
+        x = p_1^{e_1} \cdot p_2^{e_2} \cdots p_r^{e_r},
+    \end{equation*}
+    con $p_1, \dots, p_r$ numeri primi ed $e_1, \dots, e_r$ i loro esponenti.
+
+    Per rappresentare una MdT basta descriverne gli ingredienti: l'insieme finito degli
+    stati $\mathcal{Q}$, l'alfabeto $\Sigma = \{\$, 0\}$, le direzioni $\{L, R\}$ e le
+    istruzioni, una per ogni casella della tabella di $\delta$. Con le funzioni
+    $\mathbb{Q}$, $\mathbb{S}$ e $\mathbb{X}$ del verso ($\Leftarrow$) della dimostrazione
+    del Teorema~\ref{thm:parziali-mdt}, ogni istruzione si scrive
+    \begin{equation*}
+        \langle q, s \rangle \;\longmapsto\;
+        \langle \mathbb{Q}(q, s), \mathbb{S}(q, s), \mathbb{X}(q, s) \rangle.
+    \end{equation*}
+    Ogni istruzione si fonde quindi in un'unica quintupla di elementi
+    \begin{equation*}
+        \langle q, s, q', s', m' \rangle,
+    \end{equation*}
+    con $q' = \mathbb{Q}(q, s)$, $s' = \mathbb{S}(q, s)$ e $m' = \mathbb{X}(q, s)$.
+
+    Per rappresentare la macchina con un numero, si associa a ogni elemento $x$ che
+    compare nelle quintuple, cio\`e stati, simboli del nastro e direzioni, un valore
+    $a(x)$ dispari maggiore di $1$, diverso per elementi diversi. Con $m$ stati
+    $q_0, \dots, q_{m-1}$ e $k$ simboli $s_0, \dots, s_{k-1}$, si numerano prima gli
+    stati, poi i simboli e infine le due direzioni, usando ogni volta il primo dispari
+    libero:
+    \begin{equation*}
+        \begin{array}{lll}
+            \toprule
+            \textsc{Stati} & \textsc{Simboli} & \textsc{Direzioni} \\
+            \midrule
+            a(q_0) = 3 & a(s_0) = 2m + 3 & a(L) = 2m + 2k + 3 \\
+            a(q_1) = 5 & a(s_1) = 2m + 5 & a(R) = 2m + 2k + 5 \\
+            a(q_2) = 7 & \quad\vdots & \\
+            \quad\vdots & a(s_{k-1}) = 2m + 2k + 1 & \\
+            a(q_{m-1}) = 2m + 1 & & \\
+            \bottomrule
+        \end{array}
+    \end{equation*}
+    In generale $a(q_i) = 2i + 3$ e $a(s_j) = 2m + 3 + 2j$: ogni elemento riceve un valore
+    dispari diverso da tutti gli altri.
+
+    Il \emph{numero di G\"odel} di una quintupla, o in generale di una sequenza
+    $E = \langle x_1, \dots, x_n \rangle$ di elementi, \`e
+    \begin{equation*}
+        \mathrm{gn}(E) = \prod_{i=1}^{n} p_i^{a(x_i)},
+    \end{equation*}
+    dove $p_i$ \`e l'$i$-esimo numero primo ($p_1 = 2$, $p_2 = 3$, $p_3 = 5$, \dots) e
+    $a(x_i)$ \`e il valore associato all'$i$-esimo elemento di $E$. Per l'unicit\`a della
+    scomposizione in fattori primi, da $\mathrm{gn}(E)$ si risale agli esponenti, quindi
+    ai valori $a(x_i)$ e infine agli elementi: sequenze diverse hanno numeri di G\"odel
+    diversi. Per una quintupla $E = \langle q, s, q', s', m' \rangle$:
+    \begin{equation*}
+        \mathrm{gn}(E) = 2^{a(q)} \cdot 3^{a(s)} \cdot 5^{a(q')} \cdot 7^{a(s')}
+        \cdot 11^{a(m')}.
+    \end{equation*}
+
+    \begin{esempio}
+        Siano $\mathcal{Q} = \{q_0, q_1, q_2\}$ e $\Sigma = \{s_0, s_1, s_2, s_3\}$, quindi
+        $m = 3$ e $k = 4$. I valori associati agli elementi sono
+        \begin{equation*}
+            \begin{array}{lll}
+                q_0 \mapsto 3 & s_0 \mapsto 9  & L \mapsto 17 \\
+                q_1 \mapsto 5 & s_1 \mapsto 11 & R \mapsto 19 \\
+                q_2 \mapsto 7 & s_2 \mapsto 13 & \\
+                              & s_3 \mapsto 15 &
+            \end{array}
+        \end{equation*}
+        Alla quintupla $E = \langle q_1, s_0, q_2, s_3, R \rangle$ corrisponde la sequenza
+        di valori
+        \begin{equation*}
+            \begin{array}{r@{\;}c@{\quad}c@{\quad}c@{\quad}c@{\quad}c@{\;}l}
+                E = \langle & q_1\mathrlap{,} & s_0\mathrlap{,} & q_2\mathrlap{,}
+                    & s_3\mathrlap{,} & R & \rangle \\
+                & \downarrow & \downarrow & \downarrow & \downarrow & \downarrow & \\
+                & 5 & 9 & 7 & 15 & 19 &
+            \end{array}
+        \end{equation*}
+        che diventano gli esponenti dei primi cinque numeri primi:
+        \begin{equation*}
+            \mathrm{gn}(E) = 2^{5} \cdot 3^{9} \cdot 5^{7} \cdot 7^{15} \cdot 11^{19}.
+        \end{equation*}
+    \end{esempio}
+
+    Una MdT \`e descritta dalla sequenza delle sue istruzioni, cio\`e delle sue quintuple,
+    $P = \langle E_1, E_2, \dots, E_{|P|} \rangle$, dove $|P|$ \`e il numero di quintuple
+    di $P$. Si applica la stessa idea un livello pi\`u
+    su: prima gli elementi diventavano esponenti e davano il numero di una quintupla, ora
+    sono i numeri delle quintuple a diventare esponenti, e si ottiene il numero
+    dell'intera macchina:
+    \begin{equation*}
+        \mathrm{gn}(P) = \prod_{i=1}^{|P|} p_i^{\mathrm{gn}(E_i)}.
+    \end{equation*}
+    Ogni $\mathrm{gn}(E_i)$ \`e pari, perch\'e contiene il fattore $2^{a(x_1)}$, quindi in
+    $\mathrm{gn}(P)$ il $2$ ha esponente pari, mentre nel numero di una quintupla ha
+    esponente $a(x_1)$, dispari. Guardando l'esponente del $2$ si capisce se un numero
+    codifica una quintupla o un'intera macchina: per questo i valori $a(x)$ sono dispari.
+
+    Il passaggio inverso, da un numero $x \in \mathbb{N}$ alla macchina, si fa con la
+    fattorizzazione in numeri primi:
+    \begin{enumerate}
+        \item si scompone $x$ in fattori primi,
+            \begin{equation*}
+                x = 2^{\mathrm{gn}(E_1)} \cdot 3^{\mathrm{gn}(E_2)} \cdots
+                p_{|P|}^{\mathrm{gn}(E_{|P|})},
+            \end{equation*}
+            e si leggono gli esponenti: sono i numeri delle istruzioni della macchina;
+        \item si scompone ogni $\mathrm{gn}(E_i)$ in fattori primi: gli esponenti sono i
+            valori associati agli elementi dell'istruzione $E_i$;
+        \item dai valori, con la tabella, si risale agli elementi, cio\`e a stati, simboli
+            e direzioni.
+    \end{enumerate}
+
+    \begin{esempio}
+        Sia $x = 2^{e}$, dove $e$ \`e il numero della quintupla dell'esempio precedente:
+        \begin{equation*}
+            e = 2^{5} \cdot 3^{9} \cdot 5^{7} \cdot 7^{15} \cdot 11^{19}.
+        \end{equation*}
+        \begin{enumerate}
+            \item Nella fattorizzazione di $x$ compare solo il primo $2$, quindi la
+                macchina ha una sola istruzione $E$, con $\mathrm{gn}(E) = e$.
+            \item Si fattorizza $e$ e, con la tabella dei valori, ogni esponente si
+                riporta al suo elemento:
+                \begin{equation*}
+                    \begin{array}{r@{\;}c@{\quad}c@{\quad}c@{\quad}c@{\quad}c@{\;}l}
+                        e = & 2^{5}\mathrlap{\;\cdot} & 3^{9}\mathrlap{\;\cdot}
+                            & 5^{7}\mathrlap{\;\cdot} & 7^{15}\mathrlap{\;\cdot}
+                            & 11^{19} & \\
+                        & \downarrow & \downarrow & \downarrow & \downarrow
+                            & \downarrow & \\
+                        E = \langle & q_1\mathrlap{,} & s_0\mathrlap{,}
+                            & q_2\mathrlap{,} & s_3\mathrlap{,} & R & \rangle
+                    \end{array}
+                \end{equation*}
+                \noindent Le basi sono numeri primi consecutivi, mentre gli esponenti sono i valori
+                associati agli elementi: dispari, ma non per forza primi, come $9$ e
+                $15$.
+        \end{enumerate}
+    \end{esempio}
+
+    Non tutti i numeri naturali sono il numero di un programma: per esempio, un
+    esponente potrebbe non essere il valore di nessun elemento. In questo caso, per
+    convenzione, a $x$ si associa il programma
+\begin{codice}[Programma per i numeri che non sono codici]
+while true do x = x
+\end{codice}
+    \noindent che non termina mai. Cos\`i a ogni $x \in \mathbb{N}$ corrisponde un programma,
+    indicato con $P_x$, che si pu\`o sempre ricostruire ed eseguire.
+
+    Riassumendo, ogni MdT, cio\`e ogni programma, corrisponde a un numero naturale, ed \`e
+    questa l'aritmetizzazione. Inoltre ogni MdT calcola una funzione, e ogni funzione
+    calcolabile \`e calcolata da una MdT, per la tesi di Church. Ogni funzione
+    calcolabile si pu\`o quindi indicare con il numero di un programma che la calcola.
+
+    \begin{definition}[Funzione $\varphi_x$]
+        Per ogni $x \in \mathbb{N}$, $\varphi_x$ \`e la funzione parziale ricorsiva
+        calcolata dalla MdT, cio\`e dal programma $P_x$, il cui codice \`e aritmetizzato
+        in $x$.
+    \end{definition}
+
+    La lettera $\varphi$ indica che si tratta di una funzione parziale ricorsiva, mentre
+    l'indice $x$ \`e l'aritmetizzazione della MdT che la calcola. L'indice $x$ \`e la
+    \emph{sintassi}, cio\`e il codice del programma; $\varphi_x$ \`e la \emph{semantica},
+    cio\`e la funzione che il programma calcola. Poich\'e una funzione calcolabile \`e
+    calcolata da infiniti programmi diversi, esistono infiniti indici $x$ con la stessa
+    $\varphi_x$.
 
     %TEORICA%
     \chapter{Esercizi}
