@@ -7194,19 +7194,19 @@ RICERCA-INCERTA(x1, ..., xn)
 
     \begin{definition}[Macchina di Turing]
         Una macchina di Turing \`e una quadrupla
-        $\mathcal{M} = \langle Q, \Sigma, \delta, q_0 \rangle$, che consiste in:
+        $\mathcal{M} = \langle \mathcal{Q}, \Sigma, \delta, q_0 \rangle$, che consiste in:
         \begin{itemize}
             \item un alfabeto finito e non vuoto $\Sigma = \{s_0, \dots, s_n\}$ con almeno
                 due simboli: un simbolo significativo, come $s_0$, e il simbolo della
                 cella vuota, indicato con $\$$ oppure $0$;
-            \item un insieme finito e non vuoto di stati $Q = \{q_0, \dots, q_m\}$, dove
+            \item un insieme finito e non vuoto di stati $\mathcal{Q} = \{q_0, \dots, q_m\}$, dove
                 $q_0$ \`e lo stato iniziale;
             \item un insieme finito e non vuoto di istruzioni, dato dalla funzione
                 \begin{equation*}
-                    \delta \colon Q \times
+                    \delta \colon \mathcal{Q} \times
                     \underbrace{\Sigma}_{\substack{\text{lettura}\\ \text{del nastro}}}
                     \to
-                    \bigl(Q \times
+                    \bigl(\mathcal{Q} \times
                     \underbrace{\Sigma}_{\substack{\text{scrittura}\\ \text{sul nastro}}}
                     \times
                     \underbrace{\{R, L\}}_{\substack{\text{direzione di}\\
@@ -7383,15 +7383,17 @@ RICERCA-INCERTA(x1, ..., xn)
     \end{theorem}
 
     \begin{proof}[Dimostrazione del Teorema~\ref{thm:parziali-mdt}]
-        % TODO: passo induttivo (composizione, primitiva ricorsione, minimizzazione) e verso
-        % (<=) della dimostrazione.
         % TODO: chiedere alla docente quale convenzione vale per la posizione finale della
         % testina (sul $ a destra del risultato, come nella definizione, o a sinistra, come
-        % nel libro) e se l'input pu\`o restare sul nastro; poi sistemare le tre macchine
-        % della Tabella tab:mdt-base e la nota a pi\`e di pagina.
+        % nel libro) e se l'input pu\`o restare sul nastro; chiedere anche da dove parte la
+        % testina nella formula dell'esecuzione del verso (<=), sul $ a destra di x come
+        % nella definizione o sull'ultima cifra di x come negli appunti della lezione; poi
+        % sistemare le tre macchine della Tabella tab:mdt-base, la descrizione iniziale d_0
+        % e le note a pi\`e di pagina.
         \textsc{Verso ($\Rightarrow$)}. Si procede sulla costruzione delle funzioni
         parziali ricorsive, partendo dalle funzioni ricorsive di base.
 
+        \medskip
         \textsc{Base}. Le funzioni ricorsive di base sono Turing calcolabili: le calcolano le
         macchine della Tabella~\ref{tab:mdt-base}, con alfabeto $\Sigma = \{\$, 0, 1\}$ e i
         numeri scritti in binario.\footnote{Le tre macchine partono sul $\$$ a destra
@@ -7459,6 +7461,7 @@ RICERCA-INCERTA(x1, ..., xn)
             \label{tab:mdt-base}
         \end{table}
 
+        \medskip
         \textsc{Passo: composizione}. Sia $f = h \circ g$, con
         $g, h, f \colon \mathbb{N} \to \mathbb{N}$; il caso generale \`e analogo. Per
         ipotesi induttiva $h$ e $g$ sono parziali ricorsive e Turing calcolabili: esistono
@@ -7519,6 +7522,335 @@ M_f(x)
                 calcola $h(g(x))$.}
             \label{fig:mdt-composizione}
         \end{figure}
+
+        \medskip
+        \textsc{Passo: primitiva ricorsione}. Sia $f \colon \mathbb{N}^2 \to \mathbb{N}$
+        definita per primitiva ricorsione da $g \colon \mathbb{N} \to \mathbb{N}$ e
+        $h \colon \mathbb{N}^3 \to \mathbb{N}$:
+        \begin{equation*}
+            f(x, 0) = g(x), \qquad f(x, y + 1) = h(x, y, f(x, y)).
+        \end{equation*}
+        Per ipotesi induttiva esistono $\mathcal{M}_g$ e $\mathcal{M}_h$. La macchina
+        $\mathcal{M}_f$ traduce la ricorsione in un ciclo:
+\begin{codice}[Primitiva ricorsione]
+M_f(x, n)
+    temp = M_g(x)                  // caso base: f(x, 0)
+    for i = 0 to n - 1 {
+        temp = M_h(x, i, temp)     // f(x, i + 1)
+    }
+    output(temp)
+\end{codice}
+        Il numero $n$ \`e il secondo input di $f$ e indica quante volte ripetere il passo
+        ricorsivo. Prima del ciclo $\mathit{temp} = f(x, 0)$, e dopo il giro con contatore
+        $i$ vale $\mathit{temp} = f(x, i + 1)$: il ciclo parte dal caso base e sale un
+        passo alla volta fino a $f(x, n)$, percorrendo la ricorsione al contrario.
+
+        Sul nastro si parte con gli input $x$ e $n$ e la testina sul $\$$ dopo $n$, e si
+        tengono a sinistra le variabili $x$, $n$, $\mathit{temp}$ e $i$, usando la parte a
+        destra per preparare gli input delle macchine:
+        \begin{enumerate}
+            \item si ricopia $x$ in fondo al nastro e si porta la testina sul $\$$ subito
+                a destra della copia, la posizione di partenza di $\mathcal{M}_g$;
+            \item si esegue $\mathcal{M}_g$: il risultato $g(x)$ \`e il primo valore di
+                $\mathit{temp}$, e si scrive il contatore $i = 0$;
+            \item a ogni giro si ricopiano $x$, $i$ e $\mathit{temp}$ in fondo al nastro,
+                dove $\mathcal{M}_h$ si aspetta l'input, si esegue $\mathcal{M}_h$, si
+                torna indietro e il risultato diventa il nuovo $\mathit{temp}$; poi si
+                incrementa $i$, con la macchina del successore, e lo si confronta con
+                $n$;
+            \item quando $i = n$ ci si ferma, e $\mathit{temp}$ \`e $f(x, n)$.
+        \end{enumerate}
+        La copia di $x$, $i$ e $\mathit{temp}$ \`e la preparazione dell'input per la
+        prossima esecuzione di $\mathcal{M}_h$, e si fa solo se una prossima esecuzione
+        c'\`e. Ogni giro segue lo schema confronto, copia, $\mathcal{M}_h$, aggiornamento
+        di $\mathit{temp}$ e di $i$: finch\'e $i < n$ si ricopia e si esegue
+        $\mathcal{M}_h$, mentre quando $i = n$ il ciclo finisce senza copia e
+        $\mathit{temp}$ \`e il risultato.
+        Copiare, tornare indietro, incrementare e confrontare sono a loro volta MdT, quindi
+        anche $\mathcal{M}_f$ lo \`e. La Tabella~\ref{tab:mdt-ricorsione} mostra il
+        calcolo di $f(3, 2) = 3 + 2$.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{l>{$}l<{$}l}
+                \toprule
+                \textsc{Fase} & \text{\textsc{Nastro}} & \textsc{Cosa succede} \\
+                \midrule
+                inizio & \$\,3\,\$\,2\,[\$] & input $x = 3$, $n = 2$ \\
+                copia per $\mathcal{M}_g$ & \$\,3\,\$\,2\,\$\,3\,[\$]
+                    & si ricopia $x$ \\
+                dopo $\mathcal{M}_g$ & \$\,3\,\$\,2\,\$\,3\,\$\,0\,[\$]
+                    & $\mathit{temp} = g(3) = 3$, $i = 0$ \\
+                copia per $\mathcal{M}_h$
+                    & \$\,3\,\$\,2\,\$\,3\,\$\,0\,\$\,3\,\$\,0\,\$\,3\,[\$]
+                    & si ricopiano $x$, $i$, $\mathit{temp}$ \\
+                primo giro & \$\,3\,\$\,2\,\$\,4\,\$\,1\,[\$]
+                    & $\mathit{temp} = h(3, 0, 3) = 4$, $i = 1$ \\
+                copia per $\mathcal{M}_h$
+                    & \$\,3\,\$\,2\,\$\,4\,\$\,1\,\$\,3\,\$\,1\,\$\,4\,[\$]
+                    & si ricopiano $x$, $i$, $\mathit{temp}$ \\
+                secondo giro & \$\,3\,\$\,2\,\$\,5\,\$\,2\,[\$]
+                    & $\mathit{temp} = h(3, 1, 4) = 5$, $i = 2 = n$ \\
+                fine & \cdots\,[\$]\,5\,\$ & $f(3, 2) = 5$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{Il calcolo di $f(3, 2)$ per la somma, con i numeri in decimale per
+                leggibilit\`a. Le parentesi quadre indicano la cella su cui si trova la
+                testina.}
+            \label{tab:mdt-ricorsione}
+        \end{table}
+
+        La copia iniziale di $x$ serve perch\'e $\mathcal{M}_g$ pu\`o scrivere $g(x)$ al
+        posto di $x$, mentre $h$ pu\`o aver bisogno di $x$ a ogni giro. $h$ riceve sempre
+        $x$, $i$ e $\mathit{temp}$, ma pu\`o usarne solo alcuni: la somma usa solo
+        $\mathit{temp}$, e la copia non servirebbe; la moltiplicazione, con $g(x) = 0$ e
+        $h(x, i, \mathit{temp}) = \mathit{temp} + x$, usa anche $x$, che senza copia
+        andrebbe perso. Nella dimostrazione $h$ \`e qualsiasi, quindi la copia si fa
+        sempre e a $\mathcal{M}_h$ si passano sempre tutti e tre gli argomenti.
+
+        \medskip
+        \textsc{Passo: minimizzazione}. Sia $\varphi \colon \mathbb{N} \to \mathbb{N}$
+        definita per minimizzazione da $f \colon \mathbb{N}^2 \to \mathbb{N}$:
+        \begin{equation*}
+            \varphi(x) = \mu i.\, (f(x, i) = 0).
+        \end{equation*}
+        Per ipotesi induttiva $f$ \`e parziale ricorsiva ed esiste una MdT
+        $\mathcal{M}_f$ che la calcola; per la definizione di minimizzazione $f$ \`e
+        totale, mentre $\varphi$ pu\`o essere parziale.\footnote{Negli appunti della
+        lezione $f$ \`e detta \emph{primitiva ricorsiva (potenzialmente parziale)}. Le
+        primitive ricorsive per\`o sono totali: qui $f$ \`e parziale ricorsiva e, per la
+        definizione di minimizzazione, totale, ed \`e $\varphi$ a poter essere parziale.}
+        La macchina $\mathcal{M}_\varphi$ \`e un ciclo \texttt{while}:
+\begin{codice}[Minimizzazione]
+M_phi(x)
+    i = 0
+    temp = M_f(x, i)
+    while temp != 0 {
+        i++
+        temp = M_f(x, i)
+    }
+    output(i)
+\end{codice}
+        Si provano $i = 0, 1, 2, \dots$ uno alla volta, calcolando $f(x, i)$ con
+        $\mathcal{M}_f$. Se $f(x, i) = 0$ per qualche $i$, la ricerca si ferma al pi\`u
+        piccolo e lo restituisce; se non esiste, il ciclo non termina e
+        $\mathcal{M}_\varphi$ diverge su $x$, che \`e proprio il comportamento richiesto,
+        perch\'e in quel caso $\varphi(x)\uparrow$. Rispetto alla primitiva ricorsione il
+        ciclo \`e un \texttt{while} invece di un \texttt{for}: il numero di giri non \`e
+        noto in partenza e pu\`o essere infinito.
+
+        Sul nastro si tengono $x$ e $i$ e, a ogni giro, si ricopiano pi\`u a destra, in
+        una zona ancora vuota, come input di $\mathcal{M}_f$. Si esegue $\mathcal{M}_f$, si
+        torna indietro e si controlla se il risultato \`e $0$, con una piccola MdT che
+        riconosce il blocco $0$. Se non lo \`e si incrementa $i$ e si ripete, ricopiando
+        ancora pi\`u a destra: i resti dei giri precedenti restano sul nastro, che essendo
+        infinito ha sempre spazio libero. Quando il risultato \`e $0$, l'output \`e $i$.
+
+        Le funzioni di base sono Turing calcolabili, e composizione, primitiva ricorsione e
+        minimizzazione di funzioni Turing calcolabili danno funzioni Turing calcolabili:
+        per induzione sulla costruzione, ogni funzione parziale ricorsiva \`e Turing
+        calcolabile.
+
+        \medskip
+        \textsc{Verso ($\Leftarrow$)}. Sia $f \colon \mathbb{N} \to \mathbb{N}$ calcolata
+        da una MdT $\mathcal{M}$: si dimostra che $f$ \`e parziale ricorsiva. L'idea \`e
+        simulare $\mathcal{M}$ con i numeri, rappresentando tutte le transizioni di
+        $\delta$ con funzioni primitive ricorsive. Si assume che $\mathcal{M}$ si fermi in
+        un unico stato finale $q_k$.
+
+        \medskip
+        \textsc{Codifica}. Le funzioni ricorsive lavorano su $\mathbb{N}$, quindi a ogni
+        elemento della macchina si assegna un numero, come nella
+        Tabella~\ref{tab:mdt-codifica}. Per semplicit\`a si considera un alfabeto con due
+        soli simboli, la cella vuota $\$$ e il simbolo $1$, cos\`i i numeri sono in base
+        $2$.
+
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{lll}
+                \toprule
+                \textsc{Elemento} & \textsc{Valori} & \textsc{Mappati in} \\
+                \midrule
+                stati & $q_0, q_1, \dots, q_k$ & $0, 1, \dots, k$ \\
+                direzioni & $L$, $R$ & $0$, $1$ \\
+                simboli & $\$$ (cella vuota), $1$ & $0$, $1$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{La codifica degli elementi della macchina di Turing con numeri
+                naturali.}
+            \label{tab:mdt-codifica}
+        \end{table}
+
+        Per quanto riguarda i simboli, sul nastro non cambia nulla: la codifica serve solo
+        a trasformarne il contenuto in numeri. La cella vuota \`e mappata in $0$ perch\'e
+        oltre i dati il nastro \`e vuoto all'infinito: ad esempio $\cdots \$\, \$\, \$\, 1\,
+        0\, 1$ diventa $\cdots 0\, 0\, 0\, 1\, 0\, 1$, e gli zeri iniziali non sono
+        significativi, come in $000101_2 = 101_2 = 5$. Cos\`i le infinite celle vuote non
+        cambiano il valore, e il contenuto del nastro resta un numero finito.
+
+        \medskip
+        \textsc{Transizioni}. La funzione $\delta$ si spezza nei tre elementi della sua
+        tripla: se $\delta(q, s) = (q', s', d)$,
+        \begin{alignat*}{2}
+            \mathbb{Q} &\colon \mathcal{Q} \times \Sigma \to \mathcal{Q}, & \qquad \mathbb{Q}(q, s) &= q'
+                \quad \text{(transizione di stato)}, \\
+            \mathbb{S} &\colon \mathcal{Q} \times \Sigma \to \Sigma, & \mathbb{S}(q, s) &= s'
+                \quad \text{(transizione di simbolo)}, \\
+            \mathbb{X} &\colon \mathcal{Q} \times \Sigma \to \{L, R\}, & \mathbb{X}(q, s) &= d
+                \quad \text{(transizione di spostamento)}.
+        \end{alignat*}
+        Poich\'e $\mathcal{Q}$ e $\Sigma$ sono finiti, ognuna \`e una tabella finita, cio\`e
+        una funzione definita per casi: una serie di \texttt{if} sulla coppia $(q, s)$.
+        Nelle caselle senza istruzione si mette un valore convenzionale, che non viene mai
+        usato, quindi le tre funzioni sono totali. Essendo definite per casi su un insieme
+        finito sono primitive ricorsive, e in particolare parziali ricorsive.
+
+        \medskip
+        \textsc{Descrizione istantanea}. La descrizione istantanea diventa una quadrupla
+        di numeri $(q, m, n, s)$: $q$ \`e lo stato, $s$ il simbolo letto, $m$ la sequenza
+        a sinistra della testina e $n$ quella a destra. $m$ e $n$ si leggono come numeri
+        binari con la cifra meno significativa \emph{accanto alla testina}: $m$ nel verso
+        consueto, $n$ al contrario. Ad esempio, con il nastro
+        $\cdots \$\, 1\, 0\, 1\, \underline{1}\, 0\, 1\, \$ \cdots$ e la testina sulla
+        cella sottolineata, si ha $m = 101_2 = 5$, $s = 1$ e
+        $n = 0 \cdot 1 + 1 \cdot 2 = 2$.
+
+        \medskip
+        \textsc{Un passo}. Un passo della macchina trasforma la descrizione
+        $(q, m, n, s)$ nella descrizione $(q', m', n', s')$, con
+        $q' = \mathbb{Q}(q, s)$. La macchina scrive
+        $\mathbb{S}(q, s)$ nella cella sotto la testina e si sposta nella direzione
+        $\mathbb{X}(q, s)$: il lato in cui la testina entra perde la cifra accanto a lei,
+        che diventa il nuovo simbolo letto, e il lato da cui esce guadagna la cella appena
+        scritta:
+        \begin{equation*}
+            \begin{array}{ll}
+                \toprule
+                \text{la testina va a sinistra}, \ \mathbb{X}(q, s) = 0
+                    & \text{la testina va a destra}, \ \mathbb{X}(q, s) = 1 \\
+                \midrule
+                s' = m \bmod 2 & s' = n \bmod 2 \\
+                m' = m \operatorname{div} 2
+                    & m' = {+}({*}(2, m), \mathbb{S}(q, s)) \\
+                n' = {+}({*}(2, n), \mathbb{S}(q, s)) & n' = n \operatorname{div} 2 \\
+                \bottomrule
+            \end{array}
+        \end{equation*}
+        Dividere per $2$ toglie la cifra accanto alla testina, e il resto della divisione
+        \`e proprio quella cifra. Moltiplicare per $2$ allontana di un posto le cifre
+        dalla testina, e aggiungere $\mathbb{S}(q, s)$ mette la cella appena scritta
+        accanto a lei. Tutto si calcola dalla descrizione \emph{prima} del passo, in
+        particolare $\mathbb{S}(q, s)$, che dipende da $q$ e $s$. Ad esempio, se nel
+        nastro di prima la macchina scrive $0$ e va a sinistra, si ottengono $s' = 1$,
+        $m' = 2 = 10_2$ e $n' = {+}({*}(2, 2), 0) = 4$, cio\`e il nastro
+        $\cdots \$\, 1\, 0\, \underline{1}\, 0\, 0\, 1\, \$ \cdots$.
+
+        Il termine moltiplicato per $1 - \mathbb{X}(q, s)$, con la sottrazione troncata,
+        resta quando la testina va a sinistra, quello moltiplicato per $\mathbb{X}(q, s)$
+        quando va a destra.
+        \begin{align*}
+            q' &= \mathbb{Q}(q, s), \\
+            s' &= {+}\bigl({*}(m \bmod 2,\, 1 - \mathbb{X}(q, s)),\;
+                {*}(n \bmod 2,\, \mathbb{X}(q, s))\bigr), \\
+            m' &= {+}\bigl({*}(m \operatorname{div} 2,\, 1 - \mathbb{X}(q, s)),\;
+                {*}({+}({*}(2, m), \mathbb{S}(q, s)),\, \mathbb{X}(q, s))\bigr), \\
+            n' &= {+}\bigl({*}({+}({*}(2, n), \mathbb{S}(q, s)),\, 1 - \mathbb{X}(q, s)),\;
+                {*}(n \operatorname{div} 2,\, \mathbb{X}(q, s))\bigr).
+        \end{align*}
+        In notazione usuale:
+        \begin{align*}
+            q' &= \mathbb{Q}(q, s), \\
+            s' &= (m \bmod 2) \cdot (1 - \mathbb{X}(q, s))
+                + (n \bmod 2) \cdot \mathbb{X}(q, s), \\
+            m' &= (m \operatorname{div} 2) \cdot (1 - \mathbb{X}(q, s))
+                + (2m + \mathbb{S}(q, s)) \cdot \mathbb{X}(q, s), \\
+            n' &= (2n + \mathbb{S}(q, s)) \cdot (1 - \mathbb{X}(q, s))
+                + (n \operatorname{div} 2) \cdot \mathbb{X}(q, s).
+        \end{align*}
+        Ognuna \`e in funzione di $(q, m, n, s)$, ottenuta per composizione da somma,
+        prodotto, sottrazione troncata, $\operatorname{div} 2$, $\bmod 2$, $\mathbb{Q}$,
+        $\mathbb{S}$ e $\mathbb{X}$, che sono tutte primitive ricorsive: un passo della
+        macchina \`e una funzione primitiva ricorsiva.
+
+        \medskip
+        \textsc{Tanti passi}. Lo stato e la parte sinistra del nastro dopo $t$ passi
+        sono date da
+        \begin{equation*}
+            \begin{cases}
+                P_q(0, q, m, n, s) = q, \\
+                P_q(t + 1, q, m, n, s) = P_q(t, q', m', n', s'),
+            \end{cases}
+            \quad
+            \begin{cases}
+                P_o(0, q, m, n, s) = m, \\
+                P_o(t + 1, q, m, n, s) = P_o(t, q', m', n', s'),
+            \end{cases}
+        \end{equation*}
+        dove $q', m', n', s'$ sono le funzioni del passo calcolate su $(q, m, n, s)$.
+        Ogni chiamata con $t > 0$ fa un passo e diminuisce $t$ di $1$, mentre quella con
+        $t = 0$ \`e il caso base e non ne fa: le chiamate sono $t + 1$, ma i passi sono
+        esattamente $t$. In questa forma i passi si applicano \emph{in discesa}: quando
+        $t$ arriva a $0$ la descrizione \`e gi\`a quella finale, e il valore del caso base
+        viene restituito invariato. Detta $d_0$ la descrizione iniziale e
+        $d_{i+1}$ quella ottenuta da $d_i$ con un passo,
+        \begin{equation*}
+            P_q(t, d_0) = P_q(t - 1, d_1) = \cdots = P_q(0, d_t) = \text{stato di } d_t.
+        \end{equation*}
+        Per $t = T$, il numero di passi dopo cui la macchina si ferma, lo stato di $d_T$
+        \`e $q_k$.
+
+        \medskip
+        \textsc{Esecuzione}. La macchina parte con la testina sul $\$$ subito a destra
+        dell'input, quindi la descrizione iniziale \`e $d_0(x) = (q_0, x, 0, 0)$: tutto
+        l'input a sinistra, il nastro vuoto a destra e il codice di $\$$ sotto la
+        testina. Il numero di passi dopo cui $\mathcal{M}$ si ferma \`e il primo $z$ in
+        cui lo stato \`e $q_k$, e il risultato si legge a sinistra della testina:
+        \begin{align*}
+            T(x) &= \min \{z \mid q_k - P_q(z, d_0(x)) = 0\}, \\
+            f(x) &= P_o(T(x), d_0(x)).
+        \end{align*}
+        Poich\'e $q_k$ \`e lo stato con il numero pi\`u grande, $q_k - P_q(z, d_0(x))$
+        vale $0$ solo quando $P_q(z, d_0(x)) = q_k$.
+        La formula descrive l'esecuzione di $\mathcal{M}$ su $x$: parte dalla
+        configurazione iniziale, trova dopo quanti passi la macchina si ferma e guarda il
+        nastro in quel momento.\footnote{Negli appunti della lezione l'esecuzione \`e
+        $P_o(\mu t.\, (q_k - P_q(t, q_0, x \operatorname{div} 2, \$,
+        x \bmod 2)), q_0, x \operatorname{div} 2, \$, x \bmod 2)$. La descrizione
+        iniziale mette la testina sull'ultima cifra di $x$, mentre con la definizione di
+        funzione Turing calcolabile la testina parte sul $\$$ a destra di $x$; inoltre il
+        $\$$ va sostituito con il suo codice, $0$.}
+        \begin{itemize}
+            \item Se $\mathcal{M}$ si ferma su $x$, $T(x)$ \`e il numero di passi dopo cui
+                si ferma, e $P_o(T(x), d_0(x))$ \`e la parte di nastro a sinistra della
+                testina in quel momento. La testina \`e sul $\$$ subito a destra del
+                risultato, quindi questa parte contiene l'output di $\mathcal{M}$, cio\`e
+                $f(x)$.
+            \item Se $\mathcal{M}$ non si ferma, nessun $z$ porta in $q_k$: la ricerca non
+                termina, $T(x)\uparrow$ e quindi anche $f(x)\uparrow$.
+        \end{itemize}
+        La funzione cos\`i scritta coincide quindi con quella calcolata da
+        $\mathcal{M}$, sia dove \`e definita sia dove non lo \`e. Ed \`e parziale
+        ricorsiva: $d_0$ e $q_k - P_q(z, d_0(x))$ sono primitive ricorsive, e quindi
+        totali; $T$ si ottiene per minimizzazione da una funzione totale, ed \`e l'unico
+        punto in cui pu\`o nascere la parzialit\`a; $f$ si ottiene per composizione da
+        $P_o$, $T$ e $d_0$. Per la chiusura della classe rispetto a minimizzazione e
+        composizione, $f$ \`e parziale ricorsiva.
+
+        Restano le caselle senza istruzione, come quelle dello stato finale $q_k$, in cui
+        $\delta$ non dice nulla. Per rendere $\mathbb{Q}$, $\mathbb{S}$ e $\mathbb{X}$
+        totali vi si mette un valore convenzionale, ad esempio $\mathbb{Q}(q_k, s) = q_k$,
+        $\mathbb{S}(q_k, s) = s$ e $\mathbb{X}(q_k, s) = 0$: la macchina resta nello stato
+        finale e riscrive lo stesso simbolo, e una direzione va comunque data. Il valore
+        scelto non conta, perch\'e non viene mai usato. La minimizzazione prova
+        $z = 0, 1, \dots, T(x)$ e si ferma al primo in cui lo stato \`e $q_k$: per
+        $z \leq T(x)$ la simulazione fa solo passi che partono da stati diversi da $q_k$,
+        perch\'e la macchina arriva in $q_k$ per la prima volta proprio al passo $T(x)$, e
+        usa quindi solo caselle vere della tabella. Un passo da $q_k$ servirebbe solo per
+        $z > T(x)$, che non viene mai calcolato, e anche $P_o$ si valuta esattamente in
+        $T(x)$. Un passo in pi\`u non sarebbe innocuo, perch\'e cambierebbe $m$, cio\`e
+        l'output: \`e la minimizzazione a garantire che non venga mai fatto.
+
+        I due versi insieme dimostrano il teorema.
     \end{proof}
 
     %TEORICA%
