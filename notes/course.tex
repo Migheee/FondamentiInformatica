@@ -8157,24 +8157,47 @@ while true do x = x
     calcolabile si pu\`o quindi indicare con il numero di un programma che la calcola.
 
     \begin{definition}[Funzione $\varphi_x$]
-        Per ogni $x \in \mathbb{N}$, $\varphi_x$ \`e la funzione parziale ricorsiva
-        calcolata dalla MdT, cio\`e dal programma $P_x$, il cui codice \`e aritmetizzato
-        in $x$.
+        Per ogni $x \in \mathbb{N}$, $\varphi_x: \mathbb{N} \to \mathbb{N}$ \`e la funzione 
+        parziale ricorsiva calcolata dalla $x$-esima MdT, ossia dal programma $P_x$, il cui
+        algoritmo \`e aritmetizzato in $x$.
     \end{definition}
+
+    In particolare: 
+    \[
+        \varphi_x(n) =
+        \begin{cases}
+            \text{risultato di } P_x \text{ sull'input } n \text{ se } P_x \text{ termina}\\
+            \uparrow  \text{altrimenti}
+        \end{cases}
+    \]
 
     La lettera $\varphi$ indica che si tratta di una funzione parziale ricorsiva, mentre
     l'indice $x$ \`e l'aritmetizzazione della MdT che la calcola. L'indice $x$ \`e la
     \emph{sintassi}, cio\`e il codice del programma; $\varphi_x$ \`e la \emph{semantica},
-    cio\`e la funzione che il programma calcola. Poich\'e una funzione calcolabile \`e
-    calcolata da infiniti programmi diversi, esistono infiniti indici $x$ con la stessa
-    $\varphi_x$.
+    cio\`e la funzione che il programma calcola. 
 
     %TEORICA%
     \chapter{Esercizi}
-    \section{Automi a stati finiti deterministici}
-    \label{sec:es-dfa}
-    Gli esercizi seguenti dimostrano che un linguaggio \`e regolare costruendo un DFA che
-    lo riconosce, con il metodo della Sezione~\ref{sec:dimostrare-regolare}.
+    \section{Linguaggi regolari}
+    \label{sec:es-reg}
+    Gli esercizi seguenti dimostrano che un linguaggio \`e regolare. Si pu\`o procedere in
+    tre modi:
+    \begin{itemize}
+        \item costruire un DFA che lo riconosce e dimostrarne la correttezza, con il
+            metodo della Sezione~\ref{sec:dimostrare-regolare};
+        \item usare le propriet\`a di chiusura (Teorema~\ref{thm:chiusura}), costruendo
+            se serve l'automa a partire da quelli dei linguaggi di partenza;
+        \item ragionare solo sul linguaggio, scrivendolo come combinazione di linguaggi
+            finiti tramite unione, concatenazione e stella: la regolarit\`a segue allora
+            dal punto~(a) del Teorema~\ref{thm:chiusura}, senza costruire automi.
+    \end{itemize}
+    Ragionare sul linguaggio conviene quando la condizione riguarda \emph{dove} stanno i
+    simboli: posizioni fisse rispetto all'inizio o alla fine, prefissi, suffissi o blocchi
+    ripetuti, con $\{0, 1\}^*$ a riempire le parti libere. Il DFA conviene invece quando
+    bisogna \emph{contare} o ricordare qualcosa durante la lettura in modo complicato, come
+    il resto di $x^\#$ modulo $k$, dove ogni simbolo cambia il valore in base a quello che
+    \`e stato letto prima. Se sembra di dover contare senza limite, come in
+    $\{0^n 1^n \mid n \in \mathbb{N}\}$, probabilmente il linguaggio non \`e regolare.
 
     \esercizio
     \textit{Si dimostri che il linguaggio $\mathcal{L} = \{0^{3n} \mid n \geq 0\}$
@@ -9291,10 +9314,322 @@ while true do x = x
     $x \notin \mathcal{L}$ \`e $q_0$, che non \`e finale:
     $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
 
-    \section{Propriet\`a di chiusura dei linguaggi regolari}
-    Gli esercizi seguenti dimostrano che un linguaggio \`e regolare usando le propriet\`a
-    di chiusura (Teorema~\ref{thm:chiusura}); quando serve anche un automa, lo si
-    costruisce a partire da quelli dei linguaggi di partenza.
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid x^\# \bmod 3 = 2\}
+    \end{equation*}
+    \`e regolare, dove $x^\#$ \`e il numero rappresentato da $x$ in base $2$, con
+    $\varepsilon^\# = 0$.}
+
+    \textsc{Svolgimento}. Come nell'esercizio sui multipli di $5$, basta ricordare il
+    resto della divisione per $3$ del numero letto finora. Poich\'e
+    $(xa)^\# = 2 \cdot x^\# + a$, da un resto $r$ si passa al resto $(2r + a) \bmod 3$.
+    La stringa vuota vale $0$, quindi $\varepsilon \notin \mathcal{L}$, e lo stesso vale
+    per $0$, $00$, \dots: gli zeri iniziali non cambiano il valore. Il DFA
+    \begin{equation*}
+        \mathcal{M} = \langle \{q_0, q_1, q_2\}, \{0, 1\}, \delta, q_0, \{q_2\} \rangle
+    \end{equation*}
+    della Figura~\ref{fig:es-mod3} ha uno stato per ogni resto: $q_r$ indica che il
+    numero letto finora ha resto $r$, e $\delta(q_r, a) = q_{(2r + a) \bmod 3}$. Lo stato
+    iniziale corrisponde al resto $0$ e non \`e finale; l'unico stato finale \`e $q_2$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial] (q0) at (0, 0) {$q_0$};
+            \node[state] (q1) at (3, 0) {$q_1$};
+            \node[state, accepting] (q2) at (3, -2.8) {$q_2$};
+            \path (q0) edge[loop below] node {$0$} ()
+                (q0) edge[bend left=20] node {$1$} (q1)
+                (q1) edge[bend left=20] node {$1$} (q0)
+                (q1) edge[bend left=20] node {$0$} (q2)
+                (q2) edge[bend left=20] node {$0$} (q1)
+                (q2) edge[loop left] node {$1$} ();
+
+            % Matrice di transizione, a destra del diagramma
+            \node[anchor=west] at (5, -1.4) {%
+                \begin{tabular}{ccc}
+                    \toprule
+                    $\delta$ & $0$ & $1$ \\
+                    \midrule
+                    $q_0$ & $q_0$ & $q_1$ \\
+                    $q_1$ & $q_2$ & $q_0$ \\
+                    $q_2$ & $q_1$ & $q_2$ \\
+                    \bottomrule
+                \end{tabular}};
+        \end{tikzpicture}
+        \caption{DFA che riconosce i numeri binari con resto $2$ nella divisione per $3$ e
+            la sua matrice di transizione: lo stato $q_r$ ricorda il resto $r$.}
+        \label{fig:es-mod3}
+    \end{figure}
+
+    Bisogna dimostrare che $\mathcal{L}(\mathcal{M}) = \mathcal{L}$. Si scorpora la
+    condizione $x \notin \mathcal{L}$ secondo il resto, ottenendo una propriet\`a con un
+    caso per ogni stato:
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L}\ (x^\# \bmod 3 = 2) \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(1)} \\
+            x \notin \mathcal{L} \land x^\# \bmod 3 = 0 \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(2)} \\
+            x \notin \mathcal{L} \land x^\# \bmod 3 = 1 \implies \hat{\delta}(q_0, x) = q_1.
+                & \text{(3)}
+        \end{cases}
+    \end{equation*}
+    Le tre condizioni coprono tutte le stringhe e si escludono a vicenda, perch\'e il
+    resto della divisione per $3$ \`e uno e uno solo tra $0$, $1$ e $2$.
+
+    Lo stato $q_2$ si raggiunge per la prima volta con $10$, quindi per $|x| \leq 2$ ogni
+    stato \`e raggiunto da almeno una stringa, e si sceglie questa come base. Le $7$
+    stringhe si raggruppano secondo il resto:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{3}
+            & x = 10 & \quad & x^\# \bmod 3 = 2,\; x \in \mathcal{L}
+                & \quad & \hat{\delta}(q_0, x) = q_2 \quad \text{(caso 1 di $\Psi$)} \\
+            & x \in \{\varepsilon, 0, 00, 11\} & & x^\# \bmod 3 = 0,\;
+                x \notin \mathcal{L} & & \hat{\delta}(q_0, x) = q_0
+                \quad \text{(caso 2 di $\Psi$)} \\
+            & x \in \{1, 01\} & & x^\# \bmod 3 = 1,\; x \notin \mathcal{L}
+                & & \hat{\delta}(q_0, x) = q_1 \quad \text{(caso 3 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 2$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'0$ oppure $x = x'1$, con $|x'| = n$: per ipotesi induttiva vale $\Psi(x')$, e
+    $x'$ soddisfa esattamente una delle tre condizioni. Il resto di $x$ si ricava da
+    quello di $x'$ con $(x'a)^\# = 2 \cdot x'^\# + a$.
+    \begin{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x'^\# \bmod 3 = 0$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $2 \cdot 0 = 0$, quindi $x \notin \mathcal{L}$ (caso 2
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1$: resto $2 \cdot 0 + 1 = 1$, quindi $x \notin \mathcal{L}$ (caso 3
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_1.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$ e $x'^\# \bmod 3 = 1$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $2 \cdot 1 = 2$, quindi $x \in \mathcal{L}$ (caso 1
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_2.
+                    \end{equation*}
+                \item $x = x'1$: resto $(2 \cdot 1 + 1) \bmod 3 = 0$, quindi $x \notin \mathcal{L}$ (caso 2
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_0.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \in \mathcal{L}$, cio\`e $x'^\# \bmod 3 = 2$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_2$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: resto $(2 \cdot 2) \bmod 3 = 1$, quindi $x \notin \mathcal{L}$ (caso 3
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_2, 0) = q_1.
+                    \end{equation*}
+                \item $x = x'1$: resto $(2 \cdot 2 + 1) \bmod 3 = 2$, quindi $x \in \mathcal{L}$ (caso 1
+                    di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_2, 1) = q_2.
+                    \end{equation*}
+            \end{enumerate}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$. Quindi se
+    $x \in \mathcal{L}$ lo stato raggiunto \`e $q_2$, l'unico finale, mentre se
+    $x \notin \mathcal{L}$ \`e $q_0$ o $q_1$, che non sono finali:
+    $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid \text{ogni sequenza di $1$ \`e di lunghezza
+            minore o uguale a due}\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Una sequenza di $1$ \`e un blocco massimale di $1$ consecutivi,
+    delimitato da $0$ o dagli estremi della stringa. La condizione equivale a
+    dire che $x$ non contiene $111$. Basta ricordare quanti $1$ consecutivi ci sono alla
+    fine della stringa letta finora, e se si \`e gi\`a visto $111$. Lo fa il DFA
+    \begin{equation*}
+        \mathcal{M} = \langle \{q_0, q_1, q_2, q_3\}, \{0, 1\}, \delta, q_0,
+            \{q_0, q_1, q_2\} \rangle
+    \end{equation*}
+    della Figura~\ref{fig:es-max-due-uni}: in $q_0$ la stringa termina con $0$ o \`e
+    vuota, in $q_1$ termina con un solo $1$, in $q_2$ termina con $11$, mentre $q_3$ \`e
+    il pozzo in cui si finisce dopo aver letto $111$.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[automa]
+            \node[state, initial, accepting] (q0) at (0, 0) {$q_0$};
+            \node[state, accepting] (q1) at (2.8, 0) {$q_1$};
+            \node[state, accepting] (q2) at (5.6, 0) {$q_2$};
+            \node[state] (q3) at (8.4, 0) {$q_3$};
+            \path (q0) edge[loop above] node {$0$} ()
+                (q0) edge[bend left=20] node {$1$} (q1)
+                (q1) edge[bend left=20] node {$0$} (q0)
+                (q1) edge node {$1$} (q2)
+                (q2) edge[bend left=40] node {$0$} (q0)
+                (q2) edge node {$1$} (q3)
+                (q3) edge[loop above] node {$0, 1$} ();
+        \end{tikzpicture}
+
+        \bigskip
+        \begin{tabular}{ccc}
+            \toprule
+            $\delta$ & $0$ & $1$ \\
+            \midrule
+            $q_0$ & $q_0$ & $q_1$ \\
+            $q_1$ & $q_0$ & $q_2$ \\
+            $q_2$ & $q_0$ & $q_3$ \\
+            $q_3$ & $q_3$ & $q_3$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{DFA che riconosce le stringhe in cui ogni sequenza di $1$ ha lunghezza
+            al pi\`u $2$, e la sua matrice di transizione.}
+        \label{fig:es-max-due-uni}
+    \end{figure}
+
+    Bisogna dimostrare che $\mathcal{L}(\mathcal{M}) = \mathcal{L}$, con la propriet\`a
+    \begin{equation*}
+        \Psi(x) =
+        \begin{cases}
+            x \in \mathcal{L} \land x \text{ termina con } 0
+                \implies \hat{\delta}(q_0, x) = q_0,
+                & \text{(1)} \\
+            x \in \mathcal{L} \land x \text{ termina con un solo } 1
+                \implies \hat{\delta}(q_0, x) = q_1,
+                & \text{(2)} \\
+            x \in \mathcal{L} \land x \text{ termina con } 11
+                \implies \hat{\delta}(q_0, x) = q_2,
+                & \text{(3)} \\
+            x \notin \mathcal{L}\ (x \text{ contiene } 111)
+                \implies \hat{\delta}(q_0, x) = q_3,
+                & \text{(4)} \\
+            x \in \mathcal{L} \land x = \varepsilon
+                \implies \hat{\delta}(q_0, x) = q_0.
+                & \text{(5)}
+        \end{cases}
+    \end{equation*}
+    Le cinque condizioni coprono tutte le stringhe e si escludono a vicenda: una stringa
+    di $\mathcal{L}$ o \`e vuota o termina con $0$, con un solo $1$ oppure con $11$, e non
+    pu\`o terminare con $111$.
+
+    Lo stato $q_3$ si raggiunge per la prima volta con $111$, quindi per $|x| \leq 3$ ogni
+    stato \`e raggiunto da almeno una stringa, e si sceglie questa come base. Le $15$
+    stringhe si raggruppano secondo i casi di $\Psi$:
+    \begin{equation*}
+        \left.
+        \begin{alignedat}{2}
+            & x = \varepsilon & \quad & \hat{\delta}(q_0, x) = q_0
+                \quad \text{(caso 5 di $\Psi$)} \\
+            & x \in \{0, 00, 10, 000, 010, 100, 110\} & & \hat{\delta}(q_0, x) = q_0
+                \quad \text{(caso 1 di $\Psi$)} \\
+            & x \in \{1, 01, 001, 101\} & & \hat{\delta}(q_0, x) = q_1
+                \quad \text{(caso 2 di $\Psi$)} \\
+            & x \in \{11, 011\} & & \hat{\delta}(q_0, x) = q_2
+                \quad \text{(caso 3 di $\Psi$)} \\
+            & x = 111 & & \hat{\delta}(q_0, x) = q_3
+                \quad \text{(caso 4 di $\Psi$)}
+        \end{alignedat}
+        \right\}
+        \quad \text{\textsc{Base}}
+    \end{equation*}
+
+    \textsc{Passo induttivo}. Si suppone che $\Psi(x)$ valga per ogni $x \in \Sigma^*$ con
+    $|x| \leq n$, per un certo $n \geq 3$, e sia $x$ una stringa con $|x| = n + 1$. Allora
+    $x = x'0$ oppure $x = x'1$, con $|x'| = n \geq 3$: per ipotesi induttiva vale
+    $\Psi(x')$, e poich\'e $x' \neq \varepsilon$, $x'$ soddisfa esattamente uno dei casi
+    da 1 a 4. Il caso 5 serve solo nella base.
+    \begin{enumerate}
+        \item $x' \in \mathcal{L}$ e termina con $0$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_0$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: le sequenze di $1$ restano quelle di $x'$ e $x$ termina con $0$, quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_0, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1$: si aggiunge una sequenza formata da un solo $1$, quindi $x \in \mathcal{L}$ e termina con un solo $1$ (caso 2 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_0, 1) = q_1.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \in \mathcal{L}$ e termina con un solo $1$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_1$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: le sequenze di $1$ restano quelle di $x'$ e $x$ termina con $0$, quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_1, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1$: l'ultima sequenza diventa lunga $2$, quindi $x \in \mathcal{L}$ e termina con $11$ (caso 3 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_1, 1) = q_2.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \in \mathcal{L}$ e termina con $11$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_2$.
+            \begin{enumerate}[label=\arabic{enumi}\alph*.]
+                \item $x = x'0$: le sequenze di $1$ restano quelle di $x'$ e $x$ termina con $0$, quindi $x \in \mathcal{L}$ (caso 1 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'0)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 0)
+                        \overset{\text{Hp}}{=} \delta(q_2, 0) = q_0.
+                    \end{equation*}
+                \item $x = x'1$: l'ultima sequenza diventa lunga $3$, cio\`e $x$ contiene $111$, quindi $x \notin \mathcal{L}$ (caso 4 di $\Psi$):
+                    \begin{equation*}
+                        \hat{\delta}(q_0, x'1)
+                        \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), 1)
+                        \overset{\text{Hp}}{=} \delta(q_2, 1) = q_3.
+                    \end{equation*}
+            \end{enumerate}
+        \item $x' \notin \mathcal{L}$, cio\`e $x'$ contiene $111$: per ipotesi induttiva
+            $\hat{\delta}(q_0, x') = q_3$. Per $a \in \{0, 1\}$ anche $x = x'a$ contiene
+            $111$, quindi $x \notin \mathcal{L}$ (caso 4 di $\Psi$):
+            \begin{equation*}
+                \hat{\delta}(q_0, x'a)
+                \overset{\text{def}}{=} \delta(\hat{\delta}(q_0, x'), a)
+                \overset{\text{Hp}}{=} \delta(q_3, a) = q_3.
+            \end{equation*}
+    \end{enumerate}
+    In tutti i casi lo stato raggiunto da $x$ \`e quello previsto da $\Psi(x)$. Quindi se
+    $x \in \mathcal{L}$ lo stato raggiunto \`e $q_0$, $q_1$ o $q_2$, tutti finali, mentre
+    se $x \notin \mathcal{L}$ \`e $q_3$, che non \`e finale:
+    $\mathcal{L}(\mathcal{M}) = \mathcal{L}$.
 
     \esercizio
     \textit{Sia $m \in \mathbb{N}$ fissato. Si dimostri che il linguaggio
@@ -9564,9 +9899,8 @@ while true do x = x
         \mathcal{L}_1 = \{x \in \{0, 1\}^* \mid |x|_0 \bmod 2 = 1\}, \qquad
         \mathcal{L}_2 = \{x \in \{0, 1\}^* \mid |x|_1 \bmod 2 = 0\}.
     \end{gather*}
-    $\mathcal{L}_1$ \`e regolare: \`e il linguaggio dell'Esercizio~\ref{es:zeri-dispari}
-    della Sezione~\ref{sec:es-dfa}, riconosciuto dal DFA della
-    Figura~\ref{fig:es-zeri-dispari}.
+    $\mathcal{L}_1$ \`e regolare: \`e il linguaggio dell'Esercizio~\ref{es:zeri-dispari},
+    riconosciuto dal DFA della Figura~\ref{fig:es-zeri-dispari}.
 
     Anche $\mathcal{L}_2$ \`e regolare: lo riconosce il DFA della
     Figura~\ref{fig:es-uni-pari}, uguale a quello per $\mathcal{L}_1$ con i ruoli di $0$
@@ -9604,6 +9938,376 @@ while true do x = x
 
     Poich\'e $\mathcal{L}_1$ e $\mathcal{L}_2$ sono regolari, per il punto~(a) del
     Teorema~\ref{thm:chiusura} lo \`e anche la loro unione $\mathcal{L}$.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid \forall i.\; 2 \leq 2i \leq |x|.\;
+            x[2i] \neq x[2i - 1]\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. La condizione confronta i simboli nelle posizioni $2i - 1$ e
+    $2i$, e i limiti garantiscono che entrambe le posizioni esistano: $2 \leq 2i$ equivale
+    a $2i - 1 \geq 1$, mentre $2i \leq |x|$ dice che la posizione pi\`u grande sta dentro
+    la stringa. La catena \`e equivalente a $1 \leq i \leq \lfloor |x| / 2 \rfloor$, ma
+    scritta con $2i$ non richiede la parte intera.
+
+    La stringa va quindi divisa in coppie consecutive e disgiunte, $(x[1], x[2])$,
+    $(x[3], x[4])$, \dots, e ogni coppia completa deve avere i due simboli diversi, cio\`e
+    essere $01$ oppure $10$. Si guardano solo queste coppie: $0110 \in \mathcal{L}$, anche
+    se $x[2] = x[3]$. Se $|x|$ \`e dispari, l'ultimo simbolo resta da solo e non viene
+    controllato, perch\'e nessuna posizione pari $2i \leq |x|$ lo raggiunge; per esempio
+    $011 \in \mathcal{L}$. Infine $\varepsilon \in \mathcal{L}$, perch\'e con $|x| = 0$
+    nessun $i$ soddisfa $2 \leq 2i \leq 0$ e la condizione \`e vera a vuoto. Allora
+    \begin{equation*}
+        \mathcal{L} = \{01, 10\}^* \cdot \{\varepsilon, 0, 1\},
+    \end{equation*}
+    denotato dall'espressione regolare $(01 + 10)^* (\varepsilon + 0 + 1)$. Le due
+    inclusioni:
+    \begin{itemize}
+        \item[($\subseteq$)] dividendo $x \in \mathcal{L}$ in coppie, ogni coppia completa
+            \`e $01$ o $10$, e se $|x|$ \`e dispari avanza un solo simbolo, che sta in
+            $\{0, 1\}$;
+        \item[($\supseteq$)] in una stringa fatta di blocchi $01$ o $10$, seguiti al pi\`u
+            da un simbolo, ogni coppia di posizioni $(2i - 1, 2i)$ \`e uno dei blocchi, e
+            quindi ha due simboli diversi.
+    \end{itemize}
+    I linguaggi $\{01\}$, $\{10\}$ e $\{\varepsilon, 0, 1\}$ sono finiti, quindi
+    regolari. Per il punto~(a) del Teorema~\ref{thm:chiusura} sono regolari anche
+    l'unione $\{01, 10\}$, la sua stella e la concatenazione con $\{\varepsilon, 0, 1\}$:
+    $\mathcal{L}$ \`e regolare.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid |x| \geq 3,\; x[1] \neq x[|x| - 1]\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. La condizione guarda solo due posizioni, la prima e la
+    penultima: i simboli in mezzo e l'ultimo sono liberi. Distinguendo i due casi per il
+    primo simbolo,
+    \begin{equation*}
+        \mathcal{L} = \{1\} \cdot \{0, 1\}^* \cdot \{0\} \cdot \{0, 1\}
+            \;\cup\; \{0\} \cdot \{0, 1\}^* \cdot \{1\} \cdot \{0, 1\},
+    \end{equation*}
+    denotato dall'espressione regolare $1(0 + 1)^*0(0 + 1) + 0(0 + 1)^*1(0 + 1)$. Le
+    stringhe di destra hanno sempre il primo simbolo, il penultimo e l'ultimo, quindi
+    lunghezza almeno $3$; la parte centrale pu\`o essere vuota, come in $101$. Viceversa,
+    se $x \in \mathcal{L}$ il primo simbolo e il penultimo sono posizioni diverse, perch\'e
+    $|x| \geq 3$, e sono $1$ e $0$ oppure $0$ e $1$: sono proprio i due casi
+    dell'unione, che sono disgiunti. I linguaggi $\{0\}$, $\{1\}$ e $\{0, 1\}$ sono
+    finiti, quindi regolari, e per il punto~(a) del Teorema~\ref{thm:chiusura} lo sono
+    anche stella, concatenazioni e unione: $\mathcal{L}$ \`e regolare.
+
+    Non serve imporre una struttura a blocchi su tutta la stringa. Un'espressione come
+    $(01(0 + 1) + 10(0 + 1))^+$ sbaglia in due direzioni: genera $011101$, che ha primo e
+    penultimo simbolo uguali, e non genera $0010 \in \mathcal{L}$, perch\'e produce solo
+    stringhe di lunghezza multipla di $3$.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid |x| \geq 3,\; x[2] \neq x[|x|]\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Come nell'esercizio precedente, contano solo due posizioni, la
+    seconda e l'ultima, mentre il primo simbolo e quelli in mezzo sono liberi:
+    \begin{equation*}
+        \mathcal{L} = \{0, 1\} \cdot \{1\} \cdot \{0, 1\}^* \cdot \{0\}
+            \;\cup\; \{0, 1\} \cdot \{0\} \cdot \{0, 1\}^* \cdot \{1\},
+    \end{equation*}
+    denotato dall'espressione regolare $(0 + 1)1(0 + 1)^*0 + (0 + 1)0(0 + 1)^*1$. Ogni
+    stringa generata ha almeno il primo simbolo, il secondo e l'ultimo, quindi lunghezza
+    almeno $3$, e il secondo simbolo \`e diverso dall'ultimo. La condizione $|x| \geq 3$
+    garantisce che la seconda posizione e l'ultima siano diverse: con $|x| = 2$
+    coinciderebbero, e la condizione sarebbe comunque falsa. La regolarit\`a segue come
+    nell'esercizio precedente.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid |x|_1 \bmod 3 = 0\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Ogni $1$ aumenta di uno il conteggio, indipendentemente dalla
+    posizione. Il numero di $1$ \`e allora multiplo di $3$ se e solo se la stringa si
+    divide in blocchi che contengono esattamente tre $1$ ciascuno, con gli $0$ liberi:
+    \begin{equation*}
+        \mathcal{L} = \{0\}^* \;\cup\;
+            \bigl(\{0\}^* \{1\} \{0\}^* \{1\} \{0\}^* \{1\} \{0\}^*\bigr)^*,
+    \end{equation*}
+    denotato dall'espressione regolare $0^* + (0^*10^*10^*10^*)^*$. Il primo pezzo
+    contiene le stringhe senza $1$, compresa $\varepsilon$, che stanno in $\mathcal{L}$
+    perch\'e $0 \bmod 3 = 0$; serve davvero, perch\'e la stella ripetuta zero volte d\`a
+    solo $\varepsilon$ e non, per esempio, $00$. Le due inclusioni:
+    \begin{itemize}
+        \item[($\subseteq$)] una stringa con $3k$ uni, $k \geq 1$, si spezza dopo ogni
+            terzo $1$, mettendo gli $0$ iniziali nel primo blocco e quelli finali
+            nell'ultimo; con $k = 0$ la stringa sta in $\{0\}^*$;
+        \item[($\supseteq$)] ogni blocco contiene tre $1$, quindi una sequenza di blocchi
+            ne contiene un multiplo di $3$, e le stringhe di $\{0\}^*$ non ne contengono.
+    \end{itemize}
+    La regolarit\`a segue dal punto~(a) del Teorema~\ref{thm:chiusura}, partendo dai
+    linguaggi finiti $\{0\}$ e $\{1\}$. In forma pi\`u compatta,
+    $\mathcal{L} = \mathcal{L}(0^*(10^*10^*10^*)^*)$: gli $0$ iniziali stanno davanti e
+    ogni blocco comincia con un $1$.
+
+    Anche se si parla di un modulo, l'espressione regolare qui \`e semplice. Nel DFA che
+    riconosce $\mathcal{L}$ gli $0$ lasciano ogni stato dov'\`e, mentre gli $1$ fanno un
+    unico giro $q_0 \to q_1 \to q_2 \to q_0$: c'\`e un solo ciclo, e un giro completo
+    corrisponde al blocco $10^*10^*10^*$, ripetuto dalla stella. Con $x^\# \bmod 3$,
+    invece, le transizioni formano tanti cicli intrecciati, e l'espressione regolare
+    equivalente, che esiste sempre, diventa enorme: l\`i conviene il DFA.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid |x|_1 = 3\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Le stringhe di $\mathcal{L}$ hanno esattamente tre $1$, con
+    gli $0$ liberi prima, tra e dopo gli $1$:
+    \begin{equation*}
+        \mathcal{L} = \{0\}^* \{1\} \{0\}^* \{1\} \{0\}^* \{1\} \{0\}^*,
+    \end{equation*}
+    denotato dall'espressione regolare $0^*10^*10^*10^*$. \`E un solo blocco
+    dell'esercizio precedente, senza la stella. Partendo dai linguaggi finiti $\{0\}$ e
+    $\{1\}$, per il punto~(a) del Teorema~\ref{thm:chiusura} $\mathcal{L}$ \`e regolare.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{0^n 1^2 \mid n \in 2 + 3\mathbb{N}\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Nel corso $\mathbb{N} = \{0, 1, 2, \dots\}$ comprende lo zero,
+    quindi
+    \begin{equation*}
+        2 + 3\mathbb{N} = \{2 + 3k \mid k \in \mathbb{N}\} = \{2, 5, 8, 11, \dots\}.
+    \end{equation*}
+    Il blocco $00$ d\`a il $2$ iniziale e ogni ripetizione di $000$ aggiunge $3$:
+    \begin{equation*}
+        \mathcal{L} = \{00\} \cdot \{000\}^* \cdot \{11\},
+    \end{equation*}
+    denotato dall'espressione regolare $00(000)^*11$. Infatti
+    $0^{2 + 3k} 1^2 = 00 \cdot (000)^k \cdot 11$ per ogni $k \in \mathbb{N}$, e con zero
+    ripetizioni si ottiene $0011$, cio\`e $n = 2$. I linguaggi $\{00\}$, $\{000\}$ e
+    $\{11\}$ sono finiti, quindi regolari, e per il punto~(a) del
+    Teorema~\ref{thm:chiusura} lo sono anche la stella e le concatenazioni: $\mathcal{L}$
+    \`e regolare.
+
+    Serve la stella e non il $^+$: $\{00\} \cdot \{000\}^+ \cdot \{11\}$ obbliga ad almeno
+    un blocco $000$, quindi d\`a solo $n = 5, 8, 11, \dots$ e perde $0011$. Sarebbe la
+    risposta giusta se $\mathbb{N}$ partisse da $1$, e in quel caso coinciderebbe con
+    $\{00000\} \cdot \{000\}^* \cdot \{11\}$.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L} = \{x \in \{0, 1\}^* \mid \text{esiste almeno un $1$ in $x$ e ogni
+            sequenza di $1$ \`e di lunghezza pari}\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Una \emph{sequenza di $1$} \`e un blocco massimale di $1$
+    consecutivi, delimitato da $0$ o dagli estremi della stringa, e ogni blocco deve
+    avere lunghezza pari. Non basta che il numero totale di $1$ sia pari: $101$ ne ha due,
+    ma in due blocchi di lunghezza $1$, quindi $101 \notin \mathcal{L}$. Invece $0110$,
+    $1111$ e $11011$ stanno in $\mathcal{L}$, mentre $111$, $\varepsilon$ e $000$ no.
+
+    Un blocco di lunghezza pari \`e formato da una o pi\`u copie di $11$, quindi
+    \begin{equation*}
+        \mathcal{L} = \bigl(\{0\}^* \cdot \{11\}^+ \cdot \{0\}^*\bigr)^+,
+    \end{equation*}
+    denotato dall'espressione regolare $(0^*(11)^+0^*)^+$. Il $^+$ esterno garantisce
+    almeno un blocco, e quindi almeno un $1$: con la stella si otterrebbe anche
+    $\varepsilon \notin \mathcal{L}$. Le due inclusioni:
+    \begin{itemize}
+        \item[($\subseteq$)] ogni blocco di $1$ di $x \in \mathcal{L}$ ha lunghezza pari,
+            quindi sta in $\{11\}^+$; prendendo ogni blocco insieme agli $0$ che lo
+            circondano si scrive $x$ come concatenazione di almeno un fattore
+            $0^* (11)^+ 0^*$;
+        \item[($\supseteq$)] ogni fattore contiene almeno un $11$, quindi la stringa ha
+            almeno un $1$. Se due fattori si attaccano senza $0$ in mezzo, i loro $1$
+            formano un unico blocco, ma la somma di due lunghezze pari \`e pari: per
+            esempio $11 \cdot 11 = 1111$. Per questo non serve imporre uno $0$ tra un
+            fattore e l'altro.
+    \end{itemize}
+    I linguaggi $\{0\}$ e $\{11\}$ sono finiti, quindi regolari. Poich\'e
+    $A^+ = A \cdot A^*$ per ogni linguaggio $A$, anche il $^+$ si ottiene con
+    concatenazione e stella, e per il punto~(a) del Teorema~\ref{thm:chiusura}
+    $\mathcal{L}$ \`e regolare.
+
+    \esercizio
+    \textit{Sia $m \in \mathbb{N}$ fissato. Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L}_m = \{xyx \mid |y| < |x| = m\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Nella definizione non compare nessun simbolo di $\Sigma$: $x$ e
+    $y$ non sono simboli ma stringhe, con $x, y \in \Sigma^*$ sottinteso, e il linguaggio
+    \`e descritto solo dalla sua struttura. Una stringa di $\mathcal{L}_m$ \`e formata da
+    una stringa $x$ lunga esattamente $m$, poi da una stringa $y$ pi\`u corta, anche
+    vuota, e infine di nuovo dalla stessa $x$: i primi $m$ simboli coincidono con gli
+    ultimi $m$, e in mezzo ce ne sono meno di $m$. L'alfabeto $\Sigma$ \`e generico, quindi
+    il ragionamento deve valere per ogni $\Sigma$, senza usare simboli concreti.
+
+    Poich\'e la lunghezza di $x$ \`e fissata dal parametro $m$ e $|y| < m$, il linguaggio
+    \`e finito:
+    \begin{itemize}
+        \item $\Sigma$ \`e finito, come ogni alfabeto per definizione. \`E quello che rende
+            finito il numero di stringhe di ogni lunghezza: con lunghezza $k$ sono
+            $|\Sigma|^k$;
+        \item i conti:
+            \begin{equation*}
+                |xyx| = 2m + |y| \leq 2m + (m - 1) = 3m - 1,
+            \end{equation*}
+            quindi $\mathcal{L}_m$ \`e contenuto nell'insieme delle stringhe di lunghezza
+            al massimo $3m - 1$, che \`e finito. Un sottoinsieme di un insieme finito \`e
+            finito, e ogni linguaggio finito \`e regolare.
+    \end{itemize}
+
+    \esercizio
+    \textit{Sia $m \in \mathbb{N}$ fissato. Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L}_m = \{0^m 1^n 0^m \mid m \leq n\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Il parametro $m$ \`e fissato, mentre $n$ varia, quindi
+    \begin{equation*}
+        \mathcal{L}_m = \bigcup_{n \geq m} \{0^m 1^n 0^m\}.
+    \end{equation*}
+    Qui bisogna fare attenzione: l'unione \`e su infiniti valori di $n$, e la chiusura
+    rispetto all'unione vale per due linguaggi, quindi per induzione per un numero finito
+    di linguaggi, non per infiniti. Non basta dire che ogni $\{0^m 1^n 0^m\}$ \`e finito:
+    con lo stesso ragionamento si ``dimostrerebbe'' che
+    $\bigcup_{n} \{0^n 1^n\} = \{0^n 1^n \mid n \in \mathbb{N}\}$ \`e regolare, ed \`e
+    falso. L'unione infinita va riscritta con un numero finito di operazioni, in cui la
+    stella fa il lavoro dell'unione:
+    \begin{equation*}
+        \mathcal{L}_m = \{0^m\} \cdot \{1\}^m \cdot \{1\}^* \cdot \{0^m\},
+    \end{equation*}
+    dove $\{1\}^m = \{1^m\}$ \`e la potenza $m$-esima di $\{1\}$. Infatti ogni
+    $0^m 1^n 0^m$ con $n \geq m$ si scrive $0^m \cdot 1^m \cdot 1^{n - m} \cdot 0^m$, con
+    $n - m \geq 0$, e viceversa ogni stringa della concatenazione ha questa forma, con
+    $n = m + j \geq m$. I linguaggi $\{0^m\}$ e $\{1^m\}$ contengono una sola stringa,
+    perch\'e $m$ \`e fissato, quindi sono finiti e regolari, e $\{1\}^*$ \`e regolare: per
+    il punto~(a) del Teorema~\ref{thm:chiusura} lo \`e anche la concatenazione.
+
+    Il ragionamento usa che $m$ \`e fissato. L'unione su tutti gli $m$,
+    $\{0^m 1^n 0^m \mid m \leq n\}$ con $m$ e $n$ qualsiasi, non \`e regolare: i due
+    blocchi di $0$ devono avere la stessa lunghezza qualunque sia $m$, e un automa
+    dovrebbe ricordare $m$ senza limite.
+
+    \esercizio
+    \textit{Sia $m \in \mathbb{N}$ fissato. Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L}_m = \{x \in \{0, 1\}^* \mid |x|_1 = m\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Una stringa con $m$ uni \`e fatta dagli $0$ iniziali, seguiti da
+    ogni $1$ con gli $0$ che vengono prima del successivo:
+    \begin{equation*}
+        \mathcal{L}_m = \{0\}^* \cdot \bigl(\{1\} \cdot \{0\}^*\bigr)^m,
+    \end{equation*}
+    dove $A^m$ \`e la concatenazione di $A$ con s\'e stesso $m$ volte, e
+    $A^0 = \{\varepsilon\}$. Poich\'e $m$ \`e fissato, la concatenazione si fa un numero
+    finito di volte, e per il punto~(a) del Teorema~\ref{thm:chiusura}, partendo dai
+    linguaggi finiti $\{0\}$ e $\{1\}$, $\mathcal{L}_m$ \`e regolare.
+
+    Gli $0$ iniziali vanno fuori dalla potenza per il caso $m = 0$, possibile perch\'e
+    $0 \in \mathbb{N}$. L'espressione $(\{0\}^* \{1\} \{0\}^*)^m$ funziona per
+    $m \geq 1$, ma con $m = 0$ d\`a $\{\varepsilon\}$, mentre
+    $\mathcal{L}_0 = \{0\}^*$ contiene anche $0$, $00$, \dots\ In generale, una formula
+    con un parametro va provata con il valore pi\`u piccolo.
+
+    \esercizio
+    \textit{Sia $m \in \mathbb{N}$ fissato. Si dimostri che il linguaggio
+    \begin{equation*}
+        \mathcal{L}_m = \{0^n 1^{hm} \mid 0 \leq n < m,\; h > 1\}
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Le due parti della stringa si trattano separatamente.
+    \begin{itemize}
+        \item Gli $0$ iniziali formano il linguaggio
+            \begin{equation*}
+                \{0^n \mid 0 \leq n < m\} = \{\varepsilon, 0, 00, \dots, 0^{m - 1}\},
+            \end{equation*}
+            che \`e finito, perch\'e i naturali in $[0, m)$ sono $m$. Comprende anche
+            $\varepsilon$, cio\`e le stringhe senza $0$ iniziali, come $1^{2m}$.
+        \item Gli $1$ sono $hm$ con $h > 1$, cio\`e $h \geq 2$: almeno due blocchi $1^m$,
+            quindi $1^{2m}, 1^{3m}, \dots$ Il linguaggio corrispondente \`e
+            $\{1^m\} \cdot \{1^m\}^+$. Non basta $\{1^m\}^+$, che comprenderebbe anche
+            $h = 1$, cio\`e $1^m \notin \mathcal{L}_m$.
+    \end{itemize}
+    Allora
+    \begin{equation*}
+        \mathcal{L}_m = \{0^n \mid 0 \leq n < m\} \cdot \{1^m\} \cdot \{1^m\}^+.
+    \end{equation*}
+    Il primo linguaggio \`e finito; $\{1^m\}$ contiene una sola stringa, perch\'e $m$ \`e
+    fissato, e $\{1^m\}^+ = \{1^m\} \cdot \{1^m\}^*$ si ottiene con concatenazione e
+    stella. Per il punto~(a) del Teorema~\ref{thm:chiusura} $\mathcal{L}_m$ \`e regolare.
+
+    Con il valore pi\`u piccolo, $m = 0$, l'insieme $\{0^n \mid 0 \leq n < 0\}$ \`e vuoto,
+    quindi $\mathcal{L}_0 = \emptyset$, che \`e regolare. Anche la formula d\`a
+    $\emptyset$, perch\'e la concatenazione con $\emptyset$ \`e sempre vuota.
+
+    \esercizio
+    \textit{Si dimostri che il linguaggio
+    \begin{equation*}
+        \bigcup_{m \in \mathbb{N}} \mathcal{L}_m, \qquad \text{con }
+        \mathcal{L}_m = \{0^n 1^2 \mid n \in m + 3\mathbb{N}\},
+    \end{equation*}
+    \`e regolare.}
+
+    \textsc{Svolgimento}. Le stringhe di $\mathcal{L}_m$ sono $0^{m + 3k} 11$ con
+    $k \in \mathbb{N}$, cio\`e quelle di $\mathcal{L}_0$ con $m$ zeri in pi\`u davanti.
+    Si possono quindi definire per ricorsione:
+    \begin{equation*}
+        \mathcal{L}_0 = \{000\}^* \cdot \{11\}, \qquad
+        \mathcal{L}_i = \{0\} \cdot \mathcal{L}_{i - 1} \quad (i \geq 1),
+    \end{equation*}
+    da cui $\mathcal{L}_i = \{0^i\} \cdot \mathcal{L}_0$. \`E la stessa forma della
+    ricorsione primitiva (Sezione~\ref{sec:primitive-ricorsive}): un caso base e un passo
+    che costruisce $\mathcal{L}_i$ da $\mathcal{L}_{i - 1}$. Per induzione su $i$ ogni
+    $\mathcal{L}_i$ \`e regolare:
+    \begin{itemize}
+        \item[] \textsc{Base}. $\mathcal{L}_0 = \{000\}^* \cdot \{11\}$ \`e regolare per
+            il punto~(a) del Teorema~\ref{thm:chiusura}, partendo dai linguaggi finiti
+            $\{000\}$ e $\{11\}$;
+        \item[] \textsc{Passo}. Se $\mathcal{L}_{i - 1}$ \`e regolare, anche
+            $\mathcal{L}_i = \{0\} \cdot \mathcal{L}_{i - 1}$ lo \`e, come concatenazione
+            di un linguaggio finito e di uno regolare.
+    \end{itemize}
+    Da qui per\`o non segue che l'unione sia regolare: l'induzione dimostra la propriet\`a
+    per ogni singolo $\mathcal{L}_i$, mentre l'unione \`e su infiniti $i$, e un'unione
+    infinita di linguaggi regolari pu\`o non essere regolare, come visto
+    nell'esercizio su $\{0^m 1^n 0^m \mid m \leq n\}$. Serve un argomento a parte: si
+    nota che
+    \begin{equation*}
+        \bigcup_{i \in \mathbb{N}} \mathcal{L}_i = \{0\}^* \cdot \mathcal{L}_0.
+    \end{equation*}
+    Infatti $x$ sta in qualche $\mathcal{L}_i$ se e solo se $x = 0^i y$ con
+    $y \in \mathcal{L}_0$ per qualche $i$, cio\`e se e solo se
+    $x \in \{0\}^* \cdot \mathcal{L}_0$: l'unione infinita $\bigcup_i \{0^i\}$ \`e
+    proprio $\{0\}^*$. Poich\'e $\{0\}^*$ e $\mathcal{L}_0$ sono regolari, per la
+    chiusura rispetto alla concatenazione lo \`e anche l'unione. Volendo si pu\`o
+    semplificare: $\{0\}^* \cdot \{000\}^* \cdot \{11\} = \{0\}^* \cdot \{11\}$, perch\'e
+    $\{0\}^*$ contiene gi\`a qualunque numero di $0$.
+
+    In alternativa, poich\'e $\mathcal{L}_{i + 3} \subseteq \mathcal{L}_i$, l'unione si
+    riduce a $\mathcal{L}_0 \cup \mathcal{L}_1 \cup \mathcal{L}_2$, un'unione finita di
+    linguaggi regolari.
 
     \section{Linguaggi CF e automi a pila}
     Gli esercizi seguenti riguardano i linguaggi CF: si costruiscono automi a pila che li
